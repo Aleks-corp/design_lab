@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "cd frontend && vite",
+    "server": "cd backend && nest start --watch"
+  }
+}
