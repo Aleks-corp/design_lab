@@ -35,8 +35,8 @@ const addPost = async (req: Request, res: Response) => {
   const post = await Post.create({
     ...req.body,
   });
-  const { _id, name, description, image, downloadlink } = post;
-  res.status(201).json({ _id, name, description, image, downloadlink });
+
+  res.status(201).json({ post });
 };
 
 const updateStatusPost = async (req: Request, res: Response) => {

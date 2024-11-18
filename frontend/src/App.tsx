@@ -1,35 +1,122 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import "./styles/app.sass";
+import Page from "./components/Page";
+import Home from "./screens/Home";
+import UploadVariants from "./screens/UploadVariants";
+import UploadDetails from "./screens/UploadDetails";
+import ConnectWallet from "./screens/ConnectWallet";
+import Faq from "./screens/Faq/index";
+import Activity from "./screens/Activity";
+import Search01 from "./screens/Search01";
+import Search02 from "./screens/Search02";
+import Profile from "./screens/Profile";
+import ProfileEdit from "./screens/ProfileEdit";
+import Item from "./screens/Item";
+import PageList from "./screens/PageList";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Routes>
+      <Route path="/">
+        <Route
+          index
+          element={
+            <Page>
+              <Home />
+            </Page>
+          }
+        />
+        <Route
+          path="upload-variants"
+          element={
+            <Page>
+              <UploadVariants />
+            </Page>
+          }
+        />
+        <Route
+          path="upload-details"
+          element={
+            <Page>
+              <UploadDetails />
+            </Page>
+          }
+        />
+        <Route
+          path="connect-wallet"
+          element={
+            <Page>
+              <ConnectWallet />
+            </Page>
+          }
+        />
+        <Route
+          path="faq"
+          element={
+            <Page>
+              <Faq />
+            </Page>
+          }
+        />
+        <Route
+          path="activity"
+          element={
+            <Page>
+              <Activity />
+            </Page>
+          }
+        />
+        <Route
+          path="search01"
+          element={
+            <Page>
+              <Search01 />
+            </Page>
+          }
+        />
+        <Route
+          path="search02"
+          element={
+            <Page>
+              <Search02 />
+            </Page>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <Page>
+              <Profile />
+            </Page>
+          }
+        />
+        <Route
+          path="profile-edit"
+          element={
+            <Page>
+              <ProfileEdit />
+            </Page>
+          }
+        />
+        <Route
+          path="item"
+          element={
+            <Page>
+              <Item />
+            </Page>
+          }
+        />
+        <Route
+          path="pagelist"
+          element={
+            <Page>
+              <PageList />
+            </Page>
+          }
+        />
+      </Route>
+    </Routes>
+  );
 }
 
-export default App
+export default App;
