@@ -6,79 +6,72 @@ import Icon from "../Icon";
 
 interface CardProps {
   className: string;
-  item: {
+  post: {
+    id: string;
     title: string;
-    price: string;
-    highestBid: string;
-    counter: string;
-    bid: string;
+    description: string;
     image: string;
-    image2x: string;
-    category: string;
-    categoryText: string;
     url: string;
-    users: {
-      avatar: string;
-    }[];
+    filter: string[];
+    favorites: string[];
+    kits: string[];
   };
 }
 
-const Card = ({ className, item }: CardProps) => {
+const Card = ({ className, post }: CardProps) => {
   const [visible, setVisible] = useState(false);
+
+  const handleFavoriteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation(); // Зупиняє спливання події кліку
+    event.preventDefault(); // Запобігає переходу за посиланням, якщо це потрібно
+    setVisible(!visible);
+  };
 
   return (
     <div className={cn(styles.card, className)}>
-      <div className={styles.preview}>
-        <img srcSet={`${item.image2x} 2x`} src={item.image} alt="Card" />
-        <div className={styles.control}>
-          <div
-            className={cn(
-              { "status-green": item.category === "green" },
-              styles.category
-            )}
-          >
-            {item.categoryText}
+      <Link to={`/post/${post.id}`}>
+        <div className={styles.preview}>
+          <img src={post.image} alt="Post" />
+          <div className={styles.control}>
+            <button
+              className={cn(styles.favorite, { [styles.active]: visible })}
+              onClick={handleFavoriteClick}
+            >
+              <Icon title="heart" size={20} />
+            </button>
           </div>
-          <button
-            className={cn(styles.favorite, { [styles.active]: visible })}
-            onClick={() => setVisible(!visible)}
-          >
-            <Icon title="heart" size={20} />
-          </button>
-          <button className={cn("button-small", styles.button)}>
-            <span>Place a bid</span>
-            <Icon title="scatter-up" size={16} />
-          </button>
         </div>
-      </div>
-      <Link className={styles.link} to={item.url}>
+      </Link>
+      <div className={styles.desc}>
         <div className={styles.body}>
           <div className={styles.line}>
-            <div className={styles.title}>{item.title}</div>
-            <div className={styles.price}>{item.price}</div>
+            <div className={styles.title}>{post.title}</div>
+            {/* <div className={styles.price}>{item.price}</div> */}
           </div>
           <div className={styles.line}>
-            <div className={styles.users}>
-              {item.users.map((x, index) => (
-                <div className={styles.avatar} key={index}>
-                  <img src={x.avatar} alt="Avatar" />
+            <div className={styles.kits}>
+              {post.kits.map((i, index) => (
+                <div className={styles.logo} key={index}>
+                  <img
+                    src={`./images/kit-logo/${i}-prog.svg`}
+                    width={18}
+                    alt="logo"
+                  />
                 </div>
               ))}
             </div>
-            <div className={styles.counter}>{item.counter}</div>
+            <Link to={`/post/${post.id}`}>
+              <button className={styles.counter}>View Detail</button>
+            </Link>
           </div>
         </div>
         <div className={styles.foot}>
-          <div className={styles.status}>
+          <div className={styles.description}>
             <Icon title="candlesticks-up" size={20} />
-            Highest bid <span>{item.highestBid}</span>
+            <span>{post.description}</span>
           </div>
-          <div
-            className={styles.bid}
-            dangerouslySetInnerHTML={{ __html: item.bid }}
-          />
         </div>
-      </Link>
+      </div>
     </div>
   );
 };

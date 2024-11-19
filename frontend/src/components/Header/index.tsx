@@ -4,14 +4,14 @@ import cn from "classnames";
 import styles from "./Header.module.sass";
 // import Icon from "../Icon";
 import Image from "../Image";
-import Notification from "./Notification";
+// import Notification from "./Notification";
 import User from "./User";
 
 const nav = [
-  {
-    url: "/search01",
-    title: "Discover",
-  },
+  // {
+  // url: "/search01",
+  // title: "Discover",
+  // },
   // {
   //   url: "/faq",
   //   title: "How it work",
@@ -28,6 +28,8 @@ const nav = [
 
 const Headers = () => {
   const [visibleNav, setVisibleNav] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLogIn, setIsLogIn] = useState(false);
   // const [search, setSearch] = useState("");
 
   // const handleSubmit = () => {
@@ -51,62 +53,55 @@ const Headers = () => {
           })}
         >
           <nav className={styles.nav}>
-            {nav.map((x, index) => (
-              <Link
-                className={styles.link}
-                // activeClassName={styles.active}
-                to={x.url}
-                key={index}
-              >
-                {x.title}
+            {nav.map((i, index) => (
+              <Link className={styles.link} to={i.url} key={index}>
+                {i.title}
               </Link>
             ))}
-          </nav>
-          {/* <form
-            className={styles.search}
-            action=""
-            onSubmit={() => handleSubmit()}
-          >
-            <input
-              className={styles.input}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              name="search"
-              placeholder="Search"
-              required
-            />
-            <button className={styles.result}>
-              <Icon title="search" size={20} />
+            <button
+              className={styles.link}
+              type="button"
+              onClick={() => setIsAdmin(!isAdmin)}
+            >
+              {isAdmin ? "Admin" : "User"}
             </button>
-          </form> */}
+          </nav>
+        </div>
+        <button
+          className={styles.notification}
+          type="button"
+          onClick={() => setIsLogIn(!isLogIn)}
+        >
+          {isLogIn ? "LogIn" : "NotLogIn"}
+        </button>
+        {/* <Notification className={styles.notification} /> */}
+
+        {isAdmin && (
           <Link
             className={cn("button-small", styles.button)}
             to="/upload-variants"
           >
             Upload
           </Link>
-        </div>
-        <Notification className={styles.notification} />
-        <Link
-          className={cn("button-small", styles.button)}
-          to="/upload-variants"
-        >
-          Upload
-        </Link>
-        {/* <Link
-          className={cn("button-stroke button-small", styles.button)}
-          to="/connect-wallet"
-        >
-          Connect Wallet
-        </Link> */}
-        <User className={styles.user} />
-        <button
-          className={cn(styles.burger, {
-            [styles.active]: visibleNav,
-          })}
-          onClick={() => setVisibleNav(!visibleNav)}
-        ></button>
+        )}
+        {!isLogIn ? (
+          <Link
+            className={cn("button-stroke button-small", styles.button)}
+            to="/connect-wallet"
+          >
+            Sigh Up
+          </Link>
+        ) : (
+          <>
+            <User className={styles.user} />
+            <button
+              className={cn(styles.burger, {
+                [styles.active]: visibleNav,
+              })}
+              onClick={() => setVisibleNav(!visibleNav)}
+            ></button>
+          </>
+        )}
       </div>
     </header>
   );

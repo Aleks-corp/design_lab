@@ -1,3 +1,6 @@
+@use "../helpers" as * 
+@use "sass:color"
+
 [class^="button"]
     display: inline-flex
     justify-content: center
@@ -11,14 +14,14 @@
     color: $neutrals8
     transition: all .2s
     &:hover
-        background: darken($blue, 10)
+        background: color.adjust($blue, $lightness: -10%) 
     &.disabled
         opacity: .5
         pointer-events: none
     &.done
         background: $neutrals5
     &.loading
-        background: darken($blue, 15)
+        background: color.adjust($blue, $lightness: -15%) 
         font-size: 0
     &.error
         box-shadow: 0 0 0 2px $neutrals6 inset
@@ -59,7 +62,7 @@
 .button-pink
     background: $pink
     &:hover
-        background: darken($pink, 12)
+        background: color.adjust($pink, $lightness: -12%) 
 
 .button-small
     height: 40px

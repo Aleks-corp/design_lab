@@ -72,10 +72,7 @@ const updateStatusPost = async (req: Request, res: Response) => {
     throw ApiError(404, "Post not found");
   }
 
-  const { _id, name, description, image, downloadlink, favorites } =
-    updatedPost;
-
-  res.json({ _id, name, description, image, downloadlink, favorites });
+  res.json({ updatedPost });
 };
 
 const deletePostById = async (req: Request, res: Response) => {

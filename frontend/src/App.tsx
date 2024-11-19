@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 import "./styles/app.sass";
 import Page from "./components/Page";
-import Home from "./screens/Home";
+import Main from "./screens/Main";
 import UploadVariants from "./screens/UploadVariants";
 import UploadDetails from "./screens/UploadDetails";
 import ConnectWallet from "./screens/ConnectWallet";
 import Faq from "./screens/Faq/index";
 import Activity from "./screens/Activity";
-import Search01 from "./screens/Search01";
+import Home from "./screens/Home";
 import Search02 from "./screens/Search02";
 import Profile from "./screens/Profile";
 import ProfileEdit from "./screens/ProfileEdit";
@@ -70,7 +70,7 @@ function App() {
           path="search01"
           element={
             <Page>
-              <Search01 />
+              <Main />
             </Page>
           }
         />
@@ -99,7 +99,7 @@ function App() {
           }
         />
         <Route
-          path="item"
+          path="post/:id"
           element={
             <Page>
               <Item />
