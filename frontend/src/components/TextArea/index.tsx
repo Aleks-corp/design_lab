@@ -1,7 +1,8 @@
 import cn from "classnames";
 import styles from "./TextArea.module.sass";
+import { TextareaHTMLAttributes } from "react";
 
-interface TextAreaProps {
+interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   className: string;
   label: string;
 }

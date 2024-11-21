@@ -85,12 +85,20 @@ const Headers = () => {
           </Link>
         )}
         {!isLogIn ? (
-          <Link
-            className={cn("button-stroke button-small", styles.button)}
-            to="/connect-wallet"
-          >
-            Sigh Up
-          </Link>
+          <>
+            <Link
+              className={cn("button-stroke button-small", styles.button)}
+              to="/register"
+            >
+              Sign Up
+            </Link>
+            <Link
+              className={cn("button-stroke button-small", styles.button)}
+              to="/login"
+            >
+              Sign In
+            </Link>
+          </>
         ) : (
           <>
             <User className={styles.user} />

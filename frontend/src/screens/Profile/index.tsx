@@ -245,16 +245,16 @@ const Profile = () => {
             <div className={styles.group}>
               <div className={styles.item}>
                 {activeIndex === 0 && (
-                  <Items className={styles.items} items={bids.slice(0, 3)} />
+                  <Items className={styles.items} posts={bids.slice(0, 3)} />
                 )}
                 {activeIndex === 1 && (
-                  <Items className={styles.items} items={bids.slice(0, 6)} />
+                  <Items className={styles.items} posts={bids.slice(0, 6)} />
                 )}
                 {activeIndex === 2 && (
-                  <Items className={styles.items} items={bids.slice(0, 2)} />
+                  <Items className={styles.items} posts={bids.slice(0, 2)} />
                 )}
                 {activeIndex === 3 && (
-                  <Items className={styles.items} items={bids.slice(0, 3)} />
+                  <Items className={styles.items} posts={bids.slice(0, 3)} />
                 )}
                 {activeIndex === 4 && (
                   <Followers className={styles.followers} items={following} />

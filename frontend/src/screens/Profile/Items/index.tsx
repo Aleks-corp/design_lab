@@ -5,29 +5,24 @@ import Loader from "../../../components/Loader";
 
 interface ItemsProps {
   className: string;
-  items: {
+  posts: {
+    id: string;
     title: string;
-    price: string;
-    highestBid: string;
-    counter: string;
-    bid: string;
+    description: string;
     image: string;
-    image2x: string;
-    category: string;
-    categoryText: string;
     url: string;
-    users: {
-      avatar: string;
-    }[];
+    filter: string[];
+    favorites: string[];
+    kits: string[];
   }[];
 }
 
-const Items = ({ className, items }: ItemsProps) => {
+const Items = ({ className, posts }: ItemsProps) => {
   return (
     <div className={cn(styles.items, className)}>
       <div className={styles.list}>
-        {items.map((x, index) => (
-          <Card className={styles.card} item={x} key={index} />
+        {posts.map((x, index) => (
+          <Card className={styles.card} post={x} key={index} />
         ))}
       </div>
       <Loader className={styles.loader} />

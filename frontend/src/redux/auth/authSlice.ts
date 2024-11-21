@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { initialState } from "./initialState";
-import { logIn, logOut, refreshUser, signUp } from "./auth.thunk";
+import { logIn, logOut, refreshUser, signUp, verifyUser } from "./auth.thunk";
 import { AuthState } from "../../types/state.types";
 import { GetUser, UserProfile } from "../../types/auth.types";
 
@@ -53,6 +53,7 @@ const authSlice = createSlice({
       .addCase(signUp.fulfilled, handleFulfilled)
       .addCase(logIn.fulfilled, handleFulfilled)
       .addCase(logOut.fulfilled, handleLogOutFulfilled)
+      .addCase(verifyUser.fulfilled, handleFulfilled)
       .addCase(refreshUser.fulfilled, handleRefreshFulfilled)
       .addCase(refreshUser.pending, handleRefreshPending)
       .addCase(refreshUser.rejected, handleRefreshRejected)

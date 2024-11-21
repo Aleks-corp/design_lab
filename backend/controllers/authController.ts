@@ -27,7 +27,6 @@ const register = async (req: Request, res: Response) => {
   res.status(201).json({
     user: {
       email: newUser.email,
-      subscription: newUser.subscription,
     },
   });
 };
@@ -49,6 +48,8 @@ const login = async (req: Request, res: Response) => {
   res.json({
     token,
     user: {
+      id: user._id,
+      name: user.name,
       email: user.email,
       subscription: user.subscription,
     },
@@ -63,8 +64,8 @@ const logout = async (req: Request, res: Response) => {
 
 const getCurrent = async (req: Request, res: Response) => {
   if (req.user.email && req.user.subscription) {
-    const { email, subscription } = req.user;
-    res.json({ email, subscription });
+    const { _id, name, email, subscription } = req.user;
+    res.json({ id: _id, name, email, subscription });
   }
 };
 
@@ -96,7 +97,16 @@ const getVerification = async (req: Request, res: Response) => {
   await User.findByIdAndUpdate(user._id, {
     verify: true,
   });
-  res.json({ message: "Verification successful" });
+  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "23h" });
+  res.json({
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      subscription: user.subscription,
+    },
+  });
 };
 
 const resendVerify = async (req: Request, res: Response) => {

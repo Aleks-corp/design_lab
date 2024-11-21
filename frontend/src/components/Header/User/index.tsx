@@ -25,7 +25,7 @@ const items = [
   {
     title: "Disconnect",
     icon: "exit",
-    url: "https://ui8.net/ui8/products/crypter-nft-marketplace-ui-kit",
+    url: "/logout",
   },
 ];
 

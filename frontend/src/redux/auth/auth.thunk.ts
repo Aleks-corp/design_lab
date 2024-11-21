@@ -2,10 +2,10 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { RootState } from "../store";
-import { UserProfile } from "../../types/auth.types";
+import { UserProfile, UserRegProfile } from "../../types/auth.types";
 
 export const instance = axios.create({
-  baseURL: "https://connections-api.herokuapp.com/",
+  baseURL: "http://localhost:3030",
 });
 
 export const setToken = (token: string) => {
@@ -18,7 +18,7 @@ export const delToken = () => {
 
 export const signUp = createAsyncThunk(
   "auth/signup",
-  async (userData: UserProfile, thunkAPI) => {
+  async (userData: UserRegProfile, thunkAPI) => {
     try {
       const response = await instance.post("/users/signup", userData);
       setToken(response.data.token);
@@ -94,3 +94,20 @@ export const refreshUser = createAsyncThunk<
     }
   }
 });
+
+export const verifyUser = createAsyncThunk(
+  "auth/verify",
+  async (token: string, thunkAPI) => {
+    try {
+      const response = await instance.post(`/users/verify/${token}`, token);
+      setToken(response.data.token);
+      toast.success("You are successfully logged in!");
+      return response.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(`Email or password in not valid. Please try again.`);
+        return thunkAPI.rejectWithValue(error.message);
+      }
+    }
+  }
+);

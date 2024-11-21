@@ -2,6 +2,7 @@ import { ObjectId } from "mongoose";
 
 export interface IUser {
   _id: string | ObjectId;
+  name: string;
   email: string;
   password: string;
   subscription: "free" | "member" | "admin";
@@ -13,6 +14,7 @@ export interface IUser {
 }
 
 export interface IUserReg {
+  name: string;
   email: string;
   password: string;
   verify_token: string;

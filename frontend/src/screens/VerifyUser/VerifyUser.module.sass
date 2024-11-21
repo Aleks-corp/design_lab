@@ -1,0 +1,45 @@
+@use "../../styles/helpers" as * 
+
+.list
+    display: flex
+    flex-wrap: wrap
+    margin: -32px -16px 0
+    +x
+        margin: -32px -10px 0
+    +d
+        margin: -32px -16px 0
+    +m
+        display: block
+        margin: 0
+
+.card
+    flex: 0 0 calc(33.333% - 32px)
+    width: calc(33.333% - 32px)
+    margin: 32px 16px 0
+    +x
+        flex: 0 0 calc(33.333% - 20px)
+        width: calc(33.333% - 20px)
+        margin: 32px 10px 0
+    +d
+        flex: 0 0 calc(50% - 32px)
+        width: calc(50% - 32px)
+        margin: 32px 16px 0
+    +m
+        width: 100%
+        margin: 0
+        &:not(:last-child)
+            margin-bottom: 32px
+
+.title
+    text-align: center
+    width: 360px
+    margin: 52px auto 50px         
+
+.titlelink
+    display: flex
+    justify-content: center
+    width: 360px
+    margin: 12px auto 10px       
+
+.loader
+    margin: 62px auto 60px

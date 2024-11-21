@@ -1,10 +1,16 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 
 import { handleUpdateValidator, handlerSaveError } from "./hooks.js";
 import { emailRegexp, userSubscription } from "../constants/usersConstants.js";
 
 const userSchema = new Schema(
   {
+    name: {
+      type: String,
+      minlength: 3,
+      maxlength: 12,
+      required: true,
+    },
     email: {
       type: String,
       unique: true,
@@ -13,7 +19,8 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      minlength: 6,
+      minlength: 8,
+      maxlength: 16,
       required: true,
     },
     subscription: {

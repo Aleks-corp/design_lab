@@ -13,6 +13,9 @@ import Profile from "./screens/Profile";
 import ProfileEdit from "./screens/ProfileEdit";
 import Item from "./screens/Item";
 import PageList from "./screens/PageList";
+import SignUp from "./screens/SignUp";
+import SignIn from "./screens/SignIn";
+import VerifyPage from "./screens/VerifyUser";
 
 function App() {
   return (
@@ -26,6 +29,31 @@ function App() {
             </Page>
           }
         />
+        <Route
+          path="register"
+          element={
+            <Page>
+              <SignUp />
+            </Page>
+          }
+        />
+        <Route
+          path="login"
+          element={
+            <Page>
+              <SignIn />
+            </Page>
+          }
+        />
+        <Route
+          path="verify/:token"
+          element={
+            <Page>
+              <VerifyPage />
+            </Page>
+          }
+        />
+
         <Route
           path="upload-variants"
           element={

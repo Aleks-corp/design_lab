@@ -1,8 +1,7 @@
 import cn from "classnames";
-import styles from "./ProfileEdit.module.sass";
+import styles from "./SignIn.module.sass";
 import Control from "../../components/Control";
 import TextInput from "../../components/TextInput";
-import TextArea from "../../components/TextArea";
 import Icon from "../../components/Icon";
 
 const breadcrumbs = [
@@ -11,26 +10,25 @@ const breadcrumbs = [
     url: "/",
   },
   {
-    title: "Edit Profile",
+    title: "Sign In",
   },
 ];
 
-const ProfileEdit = () => {
+const SignIn = () => {
   return (
     <div className={styles.page}>
       <Control className={styles.control} item={breadcrumbs} />
       <div className={cn("section-pt80", styles.section)}>
         <div className={cn("container", styles.container)}>
           <div className={styles.top}>
-            <h1 className={cn("h2", styles.title)}>Edit profile</h1>
+            <h1 className={cn("h2", styles.title)}>Login</h1>
             <div className={styles.info}>
-              You can set preferred display name, create{" "}
-              <strong>your profile URL</strong> and manage other personal
-              settings.
+              If you haven't any registeration account on this site, please
+              visit <strong>Sign Up</strong> page first.
             </div>
           </div>
           <div className={styles.row}>
-            <div className={styles.col}>
+            {/* <div className={styles.col}>
               <div className={styles.user}>
                 <div className={styles.avatar}>
                   <img src="/images/content/avatar-1.jpg" alt="Avatar" />
@@ -56,7 +54,7 @@ const ProfileEdit = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className={styles.col}>
               <div className={styles.list}>
                 <div className={styles.item}>
@@ -64,30 +62,23 @@ const ProfileEdit = () => {
                   <div className={styles.fieldset}>
                     <TextInput
                       className={styles.field}
-                      label="display name"
-                      name="Name"
-                      type="text"
-                      placeholder="Enter your display name"
+                      label="email"
+                      name="Email"
+                      type="email"
+                      placeholder="example@email.com"
                       required
                     />
                     <TextInput
                       className={styles.field}
-                      label="Custom url"
-                      name="Url"
+                      label="password"
+                      name="password"
                       type="text"
-                      placeholder="ui8.net/Your custom URL"
-                      required
-                    />
-                    <TextArea
-                      className={styles.field}
-                      label="Bio"
-                      name="Bio"
-                      placeholder="About yourselt in a few words"
+                      placeholder="Qwerty123"
                       required
                     />
                   </div>
                 </div>
-                <div className={styles.item}>
+                {/* <div className={styles.item}>
                   <div className={styles.category}>Social</div>
                   <div className={styles.fieldset}>
                     <TextInput
@@ -123,16 +114,14 @@ const ProfileEdit = () => {
                     <Icon title="plus-circle" size={16} />
                     <span>Add more social account</span>
                   </button>
-                </div>
+                </div> */}
               </div>
-              <div className={styles.note}>
+              {/* <div className={styles.note}>
                 To update your settings you should sign message through your
                 wallet. Click 'Update profile' then sign the message
-              </div>
+              </div> */}
               <div className={styles.btns}>
-                <button className={cn("button", styles.button)}>
-                  Update Profile
-                </button>
+                <button className={cn("button", styles.button)}>Login</button>
                 <button className={styles.clear}>
                   <Icon title="circle-close" size={24} />
                   Clear all
@@ -146,4 +135,4 @@ const ProfileEdit = () => {
   );
 };
 
-export default ProfileEdit;
+export default SignIn;
