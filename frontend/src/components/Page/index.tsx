@@ -4,6 +4,7 @@ import { clearAllBodyScrollLocks } from "body-scroll-lock";
 import styles from "./Page.module.sass";
 import Header from "../Header";
 import Footer from "../Footer";
+import { Toaster } from "react-hot-toast";
 
 interface PageProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ const Page = ({ children }: PageProps) => {
       <Header />
       <div className={styles.inner}>{children}</div>
       <Footer />
+      <Toaster position="top-center" reverseOrder={false} />
     </div>
   );
 };

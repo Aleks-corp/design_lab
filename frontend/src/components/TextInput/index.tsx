@@ -1,18 +1,19 @@
 import cn from "classnames";
 import styles from "./TextInput.module.sass";
 import { InputHTMLAttributes } from "react";
+import { UseFormRegisterReturn } from "react-hook-form";
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  className: string;
   label: string;
+  hookformprop: UseFormRegisterReturn;
 }
 
-const TextInput = ({ className, label, ...props }: TextInputProps) => {
+const TextInput = ({ label, hookformprop, ...props }: TextInputProps) => {
   return (
-    <div className={cn(styles.field, className)}>
+    <div className={cn(styles.field)}>
       {label && <div className={styles.label}>{label}</div>}
       <div className={styles.wrap}>
-        <input className={styles.input} {...props} />
+        <input className={styles.input} {...props} {...hookformprop} />
       </div>
     </div>
   );

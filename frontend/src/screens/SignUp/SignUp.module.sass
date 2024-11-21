@@ -123,8 +123,9 @@
 
 .fieldset 
     & > .field
+        position: relative
         &:not(:last-child)
-            margin-bottom: 32px
+            margin-bottom: 40px
 
 .box
     position: relative
@@ -168,5 +169,31 @@
         transition: fill .2s
     &:hover
         color: $blue
+        svg
+            fill: $blue
+
+.error
+    position: absolute
+    left: 0
+    bottom: -22px
+    font-size: 12px
+    color: $alert3
+
+.errorpass
+    position: absolute
+    left: 0
+    bottom: -28px
+    font-size: 12px
+    line-height: 1.15
+    color: $alert3
+
+.showpass
+    position: absolute
+    right: 20px
+    top: 38px
+    svg
+        fill: $neutrals4
+        transition: fill .2s
+    &:hover
         svg
             fill: $blue
