@@ -1,9 +1,12 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Model } from "mongoose";
+import { handleUpdateValidator, handlerSaveError } from "./hooks";
 
-import { handleUpdateValidator, handlerSaveError } from "./hooks.js";
-import { emailRegexp, userSubscription } from "../constants/usersConstants.js";
+import { emailRegexp, userSubscription } from "../constants/usersConstants";
+import { IUser } from "../types/user.type";
 
-const userSchema = new Schema(
+type IUserModelType = Model<IUser>;
+
+const userSchema = new Schema<IUser, IUserModelType>(
   {
     name: {
       type: String,
@@ -19,14 +22,26 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      minlength: 8,
-      maxlength: 16,
       required: true,
     },
     subscription: {
       type: String,
       enum: userSubscription,
       default: "free",
+    },
+    substart: {
+      type: Number,
+      default: null,
+      required: function () {
+        return this.subscription === "member";
+      },
+    },
+    subend: {
+      type: Number,
+      default: null,
+      required: function () {
+        return this.subscription === "member";
+      },
     },
     token: {
       type: String,
@@ -48,5 +63,5 @@ userSchema.post("save", handlerSaveError);
 userSchema.pre("findOneAndUpdate", handleUpdateValidator);
 userSchema.post("findOneAndUpdate", handlerSaveError);
 
-const User = model("user", userSchema);
+const User = model<IUser, IUserModelType>("user", userSchema);
 export default User;

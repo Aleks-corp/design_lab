@@ -32,6 +32,9 @@ const getPostById = async (req: Request, res: Response) => {
 };
 
 const addPost = async (req: Request, res: Response) => {
+  if (req.user.subscription !== "admin") {
+    throw ApiError(403, "No access to create POST");
+  }
   const post = await Post.create({
     ...req.body,
   });

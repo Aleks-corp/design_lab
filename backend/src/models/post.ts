@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { handleUpdateValidator, handlerSaveError } from "./hooks.js";
+import { handleUpdateValidator, handlerSaveError } from "./hooks";
 
 const postSchema = new Schema(
   {
@@ -15,7 +15,7 @@ const postSchema = new Schema(
       type: String,
       required: [true, "Set image link for post"],
     },
-    url: {
+    downloadlink: {
       type: String,
       required: [true, "Set download link for post"],
     },

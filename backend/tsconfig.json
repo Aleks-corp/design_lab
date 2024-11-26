@@ -1,20 +1,42 @@
 {
-  "typeRoots": ["@types/node", "./types"],
+  "typeRoots": ["@types/node", "./src/types"],
   "compilerOptions": {
     "strict": true,
-    "module": "commonjs",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "target": "es2021",
+    "target": "ESNext",
     "sourceMap": true,
     "esModuleInterop": true,
     "strictPropertyInitialization": false,
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "outDir": "dist",
-    "baseUrl": "."
+    "rootDir": "src",
+    "baseUrl": "./",
+    "incremental": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "*": ["node_modules/*"],
+      "src/*": ["./src/*"]
+    }
+  },
+  "include": ["./src/**/*.ts", "src/tests/setDate.js"],
+  "exclude": ["node_modules"],
+  "tsc-alias": {
+    "verbose": false,
+    "resolveFullPaths": true,
+    "replacers": {},
+    "fileExtensions": {
+      "inputGlob": "{js,jsx,mjs}",
+      "outputCheck": ["js", "json", "jsx", "mjs"]
+    }
   }
 }

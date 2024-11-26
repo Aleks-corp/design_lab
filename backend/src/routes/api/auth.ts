@@ -5,8 +5,12 @@ import { usersSchemas } from "../../schemas/index";
 import { validateBody } from "../../decorators/index";
 import { authenticateToken } from "../../middlewares/index";
 
-const { usersSchema, usersUpdateSubscriptionSchema, usersVerifySchema } =
-  usersSchemas;
+const {
+  usersRegSchema,
+  usersLoginSchema,
+  usersUpdateSubscriptionSchema,
+  usersVerifySchema,
+} = usersSchemas;
 
 const {
   register,
@@ -20,8 +24,8 @@ const {
 
 const authRouter = express.Router();
 
-authRouter.post("/signup", validateBody(usersSchema), register);
-authRouter.post("/login", validateBody(usersSchema), login);
+authRouter.post("/register", validateBody(usersRegSchema), register);
+authRouter.post("/login", validateBody(usersLoginSchema), login);
 authRouter.post("/logout", authenticateToken, logout);
 authRouter.get("/current", authenticateToken, getCurrent);
 authRouter.get("/verify/:verificationToken", getVerification);

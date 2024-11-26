@@ -6,6 +6,6 @@
   ],
   "scripts": {
     "dev": "cd frontend && vite",
-    "server": "cd backend && nest start --watch"
+    "server": "cd backend && yarn server"
   }
 }

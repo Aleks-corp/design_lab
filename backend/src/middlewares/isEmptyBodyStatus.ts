@@ -1,4 +1,4 @@
-import { ApiError } from "../helpers/index.js";
+import { ApiError } from "../helpers/index";
 import { NextFunction, Request, Response } from "express";
 
 const isEmptyBodyStatus = (req: Request, res: Response, next: NextFunction) => {

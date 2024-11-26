@@ -31,6 +31,11 @@ const authenticateToken = async (
     if (!user || !user.token) {
       throw ApiError(401);
     }
+    const newDate = new Date().getTime();
+    if (user.subend && newDate > user.subend) {
+      user.subscription = "free";
+    }
+
     req.user = user;
     next();
   } catch {

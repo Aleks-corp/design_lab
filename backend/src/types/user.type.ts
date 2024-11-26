@@ -6,6 +6,8 @@ export interface IUser {
   email: string;
   password: string;
   subscription: "free" | "member" | "admin";
+  substart: number;
+  subend: number;
   token?: string;
   verificationToken: string;
   verify: boolean;
@@ -18,4 +20,9 @@ export interface IUserReg {
   email: string;
   password: string;
   verify_token: string;
+}
+
+export interface IUserLog {
+  email: string;
+  password: string;
 }
