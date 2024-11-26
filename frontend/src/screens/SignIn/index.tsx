@@ -8,7 +8,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { emailRegexp, passRegexp } from "../../constants/user.constants";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { selectIsLogining } from "../../redux/selectors";
+import Loader from "../../components/Loader";
+import { logIn } from "../../redux/auth/auth.thunk";
 
 const breadcrumbs = [
   {
@@ -40,7 +44,13 @@ const schema = yup.object().shape({
 });
 
 const SignIn = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const isLoading = useAppSelector(selectIsLogining);
+
   const [showPass, setShowPass] = useState(false);
+  const [isntVerify, setIsntVerify] = useState(false);
+  const [email, setEmail] = useState("");
   const {
     register,
     handleSubmit,
@@ -49,9 +59,19 @@ const SignIn = () => {
   } = useForm<FormValues>({
     resolver: yupResolver(schema),
   });
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(data);
-    reset();
+
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const ans = await dispatch(logIn(data));
+    if (ans?.type === "auth/login/rejected") {
+      if (ans.payload.status === 403) {
+        setIsntVerify(true);
+      }
+      return;
+    } else {
+      setIsntVerify(false);
+      reset();
+      navigate("/");
+    }
   };
   return (
     <div className={styles.page}>
@@ -109,6 +129,8 @@ const SignIn = () => {
                           label="email"
                           name="Email"
                           type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           placeholder="example@email.com"
                         />
                         {errors?.email && (
@@ -141,6 +163,18 @@ const SignIn = () => {
                         )}
                       </div>
                     </div>
+                  </div>
+                  <div>
+                    {isntVerify && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/resendverify");
+                        }}
+                      >
+                        Resend Email
+                      </button>
+                    )}
                   </div>
                   {/* <div className={styles.item}>
                   <div className={styles.category}>Social</div>
@@ -186,7 +220,7 @@ const SignIn = () => {
               </div> */}
                 <div className={styles.btns}>
                   <button type="submit" className={cn("button", styles.button)}>
-                    Login
+                    {isLoading ? <Loader className="" /> : "Login"}
                   </button>
                   <button type="reset" className={styles.clear}>
                     <Icon title="circle-close" size={24} />

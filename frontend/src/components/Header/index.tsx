@@ -6,6 +6,8 @@ import styles from "./Header.module.sass";
 import Image from "../Image";
 // import Notification from "./Notification";
 import User from "./User";
+import { useAppSelector } from "../../redux/hooks";
+import { selectIsAdmin, selectIsLoggedIn } from "../../redux/selectors";
 
 const nav = [
   // {
@@ -28,8 +30,9 @@ const nav = [
 
 const Headers = () => {
   const [visibleNav, setVisibleNav] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLogIn, setIsLogIn] = useState(false);
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
+  const isAdmin = useAppSelector(selectIsAdmin);
+
   // const [search, setSearch] = useState("");
 
   // const handleSubmit = () => {
@@ -58,33 +61,17 @@ const Headers = () => {
                 {i.title}
               </Link>
             ))}
-            <button
-              className={styles.link}
-              type="button"
-              onClick={() => setIsAdmin(!isAdmin)}
-            >
-              {isAdmin ? "Admin" : "User"}
-            </button>
           </nav>
         </div>
-        <button
-          className={styles.notification}
-          type="button"
-          onClick={() => setIsLogIn(!isLogIn)}
-        >
-          {isLogIn ? "LogIn" : "NotLogIn"}
-        </button>
+
         {/* <Notification className={styles.notification} /> */}
 
         {isAdmin && (
-          <Link
-            className={cn("button-small", styles.button)}
-            to="/upload-variants"
-          >
+          <Link className={cn("button-small", styles.button)} to="/upload-post">
             Upload
           </Link>
         )}
-        {!isLogIn ? (
+        {!isLoggedIn ? (
           <>
             <Link
               className={cn("button-stroke button-small", styles.button)}

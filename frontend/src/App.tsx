@@ -1,14 +1,15 @@
 import { Routes, Route } from "react-router-dom";
 import "./styles/app.sass";
+import styles from "./styles/App.module.sass";
 import Page from "./components/Page";
 import Main from "./screens/Main";
-import UploadVariants from "./screens/UploadVariants";
-import UploadDetails from "./screens/UploadDetails";
-import ConnectWallet from "./screens/ConnectWallet";
+// import UploadVariants from "./screens/UploadVariants";
+import UploadPost from "./screens/UploadPost";
+// import ConnectWallet from "./screens/ConnectWallet";
 import Faq from "./screens/Faq/index";
-import Activity from "./screens/Activity";
+// import Activity from "./screens/Activity";
 import Home from "./screens/Home";
-import Search02 from "./screens/Search02";
+// import Search02 from "./screens/Search02";
 import Profile from "./screens/Profile";
 import ProfileEdit from "./screens/ProfileEdit";
 import Item from "./screens/Item";
@@ -16,9 +17,23 @@ import PageList from "./screens/PageList";
 import SignUp from "./screens/SignUp";
 import SignIn from "./screens/SignIn";
 import VerifyPage from "./screens/VerifyUser";
+import { useAppDispatch, useAppSelector } from "./redux/hooks";
+import { refreshUser } from "./redux/auth/auth.thunk";
+import { useEffect } from "react";
+import { selectIsRefreshing } from "./redux/selectors";
+import Loader from "./components/LoaderCircle";
+import SendEmail from "./screens/SendEmail";
 
 function App() {
-  return (
+  const dispatch = useAppDispatch();
+  const isRefreshing = useAppSelector(selectIsRefreshing);
+  useEffect(() => {
+    dispatch(refreshUser());
+  }, [dispatch]);
+
+  return isRefreshing ? (
+    <Loader className={styles.mainloader} />
+  ) : (
     <Routes>
       <Route path="/">
         <Route
@@ -52,32 +67,39 @@ function App() {
               <VerifyPage />
             </Page>
           }
-        />
-
+        />{" "}
         <Route
+          path="resendverify"
+          element={
+            <Page>
+              <SendEmail />
+            </Page>
+          }
+        />
+        {/* <Route
           path="upload-variants"
           element={
             <Page>
               <UploadVariants />
             </Page>
           }
-        />
+        /> */}
         <Route
-          path="upload-details"
+          path="upload-post"
           element={
             <Page>
-              <UploadDetails />
+              <UploadPost />
             </Page>
           }
         />
-        <Route
+        {/* <Route
           path="connect-wallet"
           element={
             <Page>
               <ConnectWallet />
             </Page>
           }
-        />
+        /> */}
         <Route
           path="faq"
           element={
@@ -86,30 +108,30 @@ function App() {
             </Page>
           }
         />
-        <Route
+        {/* <Route
           path="activity"
           element={
             <Page>
               <Activity />
             </Page>
           }
-        />
+        /> */}
         <Route
-          path="search01"
+          path="main"
           element={
             <Page>
               <Main />
             </Page>
           }
         />
-        <Route
+        {/* <Route
           path="search02"
           element={
             <Page>
               <Search02 />
             </Page>
           }
-        />
+        /> */}
         <Route
           path="profile"
           element={
@@ -134,8 +156,16 @@ function App() {
             </Page>
           }
         />
-        <Route
+        {/* <Route
           path="pagelist"
+          element={
+            <Page>
+              <PageList />
+            </Page>
+          }
+        /> */}
+        <Route
+          path="*"
           element={
             <Page>
               <PageList />

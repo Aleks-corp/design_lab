@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import styles from "./VerifyUser.module.sass";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { verifyUser } from "../../redux/auth/auth.thunk";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
@@ -12,7 +12,6 @@ import Loader from "../../components/Loader";
 
 const VerifyPage = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const isLoggining = useAppSelector(selectIsLogining);
   const isError = useAppSelector(selectUserError);
@@ -24,15 +23,9 @@ const VerifyPage = () => {
     }
   }, [dispatch, token]);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/");
-    }
-  }, [isLoggedIn, navigate]);
-
   return (
     <>
-      {token === "0" && (
+      {token === "0" && !isError && (
         <h3 className={styles.title}>Check Email to verify user</h3>
       )}
 

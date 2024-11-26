@@ -236,7 +236,7 @@ const Discover = () => {
             {...settings}
           >
             {bids.map((x, index) => (
-              <Card className={styles.card} item={x} key={index} />
+              <Card className={styles.card} post={x} key={index} />
             ))}
           </Slider>
         </div>

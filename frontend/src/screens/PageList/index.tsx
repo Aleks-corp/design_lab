@@ -25,7 +25,7 @@ const PageList = () => {
           <Link to="/activity">Activity</Link>
         </p>
         <p>
-          <Link to="/search01">Search01</Link>
+          <Link to="/main">Main</Link>
         </p>
         <p>
           <Link to="/search02">Search02</Link>

@@ -11,8 +11,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { emailRegexp, passRegexp } from "../../constants/user.constants";
 import { useState } from "react";
-import { selectUserError } from "../../redux/selectors";
-import toast from "react-hot-toast";
+import { selectIsLogining, selectUserError } from "../../redux/selectors";
+import Loader from "../../components/Loader";
 
 const breadcrumbs = [
   {
@@ -58,6 +58,7 @@ const SignUp = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const error = useAppSelector(selectUserError);
+  const isLoading = useAppSelector(selectIsLogining);
 
   const [showPass, setShowPass] = useState(false);
   const [showConfPass, setShowConfPass] = useState(false);
@@ -70,18 +71,14 @@ const SignUp = () => {
     resolver: yupResolver(schema),
   });
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const { name, email, password } = data;
     console.log(data);
-    // await dispatch(signUp(data));
-    await toast.promise(dispatch(signUp(data)), {
-      loading: "Register...",
-      success: "",
-      error: "",
-    });
+    await dispatch(signUp({ name, email, password }));
     if (error) {
-      toast.error(`Error - ${error}`);
+      return;
     } else {
-      navigate("/verify/0");
       reset();
+      navigate("/verify/0");
     }
   };
 
@@ -255,7 +252,7 @@ const SignUp = () => {
               </div> */}
                 <div className={styles.btns}>
                   <button type="submit" className={cn("button", styles.button)}>
-                    Sign Up
+                    {isLoading ? <Loader className="" /> : "Sign Up"}
                   </button>
                   <button type="reset" className={styles.clear}>
                     <Icon title="circle-close" size={24} />

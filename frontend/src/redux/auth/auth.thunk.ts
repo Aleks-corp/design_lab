@@ -1,8 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-hot-toast";
 import { RootState } from "../store";
-import { UserProfile, UserRegProfile } from "../../types/auth.types";
+import {
+  UserLogProfile,
+  UserProfile,
+  UserRegProfile,
+} from "../../types/auth.types";
 
 export const instance = axios.create({
   baseURL: "http://localhost:3030",
@@ -20,22 +24,25 @@ export const signUp = createAsyncThunk(
   "auth/signup",
   async (userData: UserRegProfile, thunkAPI) => {
     try {
-      const response = await instance.post("/users/signup", userData);
+      const response = await instance.post("/users/register", userData);
       setToken(response.data.token);
       toast.success("Congratulations! You are successfully signed up!");
       return response.data;
     } catch (error) {
-      if (error instanceof Error) {
-        // error.response.data.code === 11000
-        //   ? toast.error(
-        //       `Email: ${error.response.data.keyValue.email} is registered. Please try another or Login.`
-        //     )
-        //   : toast.error(
-        //       `${
-        //         error.response.data.message ?? error.message
-        //       }. Please try again.`
-        //     );
-        return thunkAPI.rejectWithValue(error.message);
+      if (error instanceof AxiosError) {
+        console.log("error:", error);
+        if (error.response?.status === 409) {
+          const data = JSON.parse(error.response.config.data);
+          toast.error(
+            `Email: ${data.email} is registered. Please try another or Login.`
+          );
+        } else {
+          toast.error(`${error.response?.data.message ?? error.message}`);
+        }
+
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }
@@ -43,16 +50,18 @@ export const signUp = createAsyncThunk(
 
 export const logIn = createAsyncThunk(
   "auth/login",
-  async (userData: UserProfile, thunkAPI) => {
+  async (userData: UserLogProfile, thunkAPI) => {
     try {
       const response = await instance.post("/users/login", userData);
       setToken(response.data.token);
       toast.success("You are successfully logged in!");
       return response.data;
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(`Email or password in not valid. Please try again.`);
-        return thunkAPI.rejectWithValue(error.message);
+      if (error instanceof AxiosError) {
+        toast.error(
+          `${error.response?.data.message ?? error.message} Please try again.`
+        );
+        return thunkAPI.rejectWithValue(error.response ?? error.message);
       }
     }
   }
@@ -64,9 +73,13 @@ export const logOut = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
     toast.success("You are logged out!");
     delToken();
   } catch (error) {
-    if (error instanceof Error) {
-      toast.error(`${error.message}. Please reload page.`);
-      return thunkAPI.rejectWithValue(error.message);
+    if (error instanceof AxiosError) {
+      toast.error(
+        `${error.response?.data.message ?? error.message}. Please reload page.`
+      );
+      return thunkAPI.rejectWithValue(
+        error.response?.data.message ?? error.message
+      );
     }
   }
 });
@@ -88,25 +101,50 @@ export const refreshUser = createAsyncThunk<
     const response = await instance.get("/users/current");
     return response.data;
   } catch (error) {
-    if (error instanceof Error) {
-      toast.error(`${error.message}. Please try login.`);
-      return thunkAPI.rejectWithValue(error.message);
+    if (error instanceof AxiosError) {
+      // toast.error(
+      //   `${error.response?.data.message ?? error.message}. Please try login.`
+      // );
+      return thunkAPI.rejectWithValue(
+        error.response?.data.message ?? error.message
+      );
     }
   }
 });
 
 export const verifyUser = createAsyncThunk(
   "auth/verify",
-  async (token: string, thunkAPI) => {
+  async (verificationToken: string, thunkAPI) => {
     try {
-      const response = await instance.post(`/users/verify/${token}`, token);
+      const response = await instance.get(`/users/verify/${verificationToken}`);
       setToken(response.data.token);
       toast.success("You are successfully logged in!");
       return response.data;
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(`Email or password in not valid. Please try again.`);
-        return thunkAPI.rejectWithValue(error.message);
+      if (error instanceof AxiosError) {
+        // toast.error(`Email or password in not valid. Please try again.`);
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
+      }
+    }
+  }
+);
+
+export const resendVerifyUser = createAsyncThunk(
+  "auth/verify",
+  async (userData: { email: string }, thunkAPI) => {
+    try {
+      const response = await instance.post(`/users/verify`, userData);
+      setToken(response.data.token);
+      toast.success("Email sent");
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }

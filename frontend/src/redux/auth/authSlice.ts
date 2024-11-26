@@ -11,6 +11,10 @@ const handleFulfilled = (state: AuthState, action: PayloadAction<GetUser>) => {
   state.isLoggedIn = true;
 };
 
+const handleSighUpFulfilled = (state: AuthState) => {
+  state.isLogining = false;
+};
+
 const handleLogOutFulfilled = (state: AuthState) => {
   state.isLogining = false;
   state.profile = null;
@@ -50,7 +54,7 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) =>
     builder
-      .addCase(signUp.fulfilled, handleFulfilled)
+      .addCase(signUp.fulfilled, handleSighUpFulfilled)
       .addCase(logIn.fulfilled, handleFulfilled)
       .addCase(logOut.fulfilled, handleLogOutFulfilled)
       .addCase(verifyUser.fulfilled, handleFulfilled)

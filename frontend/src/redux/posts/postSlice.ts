@@ -81,8 +81,14 @@ const postsSlice = createSlice({
       .addCase(addPost.fulfilled, handleFulfilledAddPost)
       .addCase(addRemoveFavorites.fulfilled, handleFulfilledAddFavorites)
       .addCase(deletePost.fulfilled, handleFulfilledDeletePost)
-      .addMatcher((action) => action.type.endsWith("pending"), handlePending)
-      .addMatcher((action) => action.type.endsWith("rejected"), handleRejected)
+      .addMatcher(
+        ({ type }) => type.endsWith("/pending") && type.startsWith("posts"),
+        handlePending
+      )
+      .addMatcher(
+        ({ type }) => type.endsWith("/rejected") && type.startsWith("posts"),
+        handleRejected
+      )
       .addMatcher(
         (action) => action.type.endsWith("fulfilled"),
         handleFulfilled

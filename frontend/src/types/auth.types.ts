@@ -3,7 +3,8 @@ export interface UserProfile {
   name: string;
   email: string;
   subscription: string;
-  subclose: string;
+  substart: number;
+  subend: number;
 }
 
 export interface GetUser {

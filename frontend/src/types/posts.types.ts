@@ -1,6 +1,6 @@
 export interface GetPost {
   id: string;
-  name: string;
+  title: string;
   description: string;
   favorites: string[];
   image: string;
@@ -10,7 +10,7 @@ export interface GetPost {
 }
 
 export interface AddPost {
-  name: string;
+  title: string;
   description: string;
   image: string;
   downloadlink: string;
