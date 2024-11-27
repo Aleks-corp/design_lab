@@ -1,5 +1,7 @@
 import { Schema, model } from "mongoose";
 import { handleUpdateValidator, handlerSaveError } from "./hooks";
+import { kits } from "src/constants/kitsConstants";
+import { filter } from "src/constants/filterConstants";
 
 const postSchema = new Schema(
   {
@@ -24,7 +26,7 @@ const postSchema = new Schema(
       required: [true, "Set at least one filter"],
       validate: {
         validator: function (value: string[]) {
-          const allowedValues = ["figma", "react", "html"];
+          const allowedValues = kits;
           return (
             value.every((item: string) => allowedValues.includes(item)) &&
             value.length > 0
@@ -43,14 +45,7 @@ const postSchema = new Schema(
       required: [true, "Set at least one kits"],
       validate: {
         validator: function (value: string[]) {
-          const allowedValues = [
-            "All products",
-            "Web",
-            "Mobile",
-            "Dashboard",
-            "Health",
-            "Finance",
-          ];
+          const allowedValues = filter;
           return (
             value.every((item: string) => allowedValues.includes(item)) &&
             value.length > 0
