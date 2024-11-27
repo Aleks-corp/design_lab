@@ -9,6 +9,7 @@ interface PreviewProp {
   reset?: () => void;
   title?: string;
   desc?: string;
+  kits?: { [x: string]: boolean }[];
   fileSize?: number;
 }
 
@@ -19,6 +20,7 @@ const Preview = ({
   reset,
   title,
   desc,
+  kits,
   fileSize,
 }: PreviewProp) => {
   return (
@@ -31,24 +33,14 @@ const Preview = ({
         <div className={styles.card}>
           {previews && previews.length > 0 ? (
             <div className={styles.preview4x}>
-              {previews?.map((i, index) => {
+              {previews.map((i, index) => {
                 return index === 0 ? (
-                  <div className={styles.firstRows}>
-                    <img
-                      key={index}
-                      src={i}
-                      srcSet={i}
-                      alt="Uploaded Thumbnail"
-                    />
+                  <div key={index} className={styles.firstRows}>
+                    <img src={i} srcSet={i} alt="Post Image" />
                   </div>
                 ) : (
-                  <div className={styles.imgwrapper}>
-                    <img
-                      key={index}
-                      src={i}
-                      srcSet={i}
-                      alt="Uploaded Thumbnail"
-                    />
+                  <div key={index} className={styles.imgwrapper}>
+                    <img src={i} srcSet={i} alt="Post Image" />
                   </div>
                 );
               })}
@@ -56,9 +48,8 @@ const Preview = ({
           ) : (
             <div className={styles.preview}>
               <img
-                src={"/images/content/card-pic-6.jpg"}
-                srcSet={"/images/content/card-pic-6@2x.jpg"}
-                alt="Uploaded Thumbnail"
+                src={"/images/content/postsimg/post-template.png"}
+                alt="Post Template Image"
               />
             </div>
           )}
@@ -79,15 +70,19 @@ const Preview = ({
             </div>
             <div className={styles.foot}>
               <div className={styles.users}>
-                <div className={styles.avatar}>
-                  <img src="/images/kit-logo/html-prog.svg" alt="Avatar" />
-                </div>
-                <div className={styles.avatar}>
-                  <img src="/images/kit-logo/react-prog.svg" alt="Avatar" />
-                </div>
-                <div className={styles.avatar}>
-                  <img src="/images/kit-logo/figma-prog.svg" alt="Avatar" />
-                </div>
+                {kits?.map((i, index) => {
+                  const [key, value] = Object.entries(i)[0];
+                  return (
+                    value && (
+                      <div key={index} className={styles.avatar}>
+                        <img
+                          src={`/images/kit-logo/${key}-prog.svg`}
+                          alt="Logo"
+                        />
+                      </div>
+                    )
+                  );
+                })}
               </div>
               <div className={styles.price}>
                 {fileSize

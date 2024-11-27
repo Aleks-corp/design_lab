@@ -10,7 +10,7 @@ interface ItemsProps {
     title: string;
     description: string;
     image: string;
-    url: string;
+    downloadlink: string;
     filter: string[];
     favorites: string[];
     kits: string[];

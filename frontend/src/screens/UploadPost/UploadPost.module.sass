@@ -113,6 +113,7 @@
     align-items: center
     height: 182px
     margin-top: 16px
+    margin-bottom: 12px
     border-radius: 16px
     overflow: hidden
     background: $neutrals7
@@ -172,6 +173,8 @@
             margin-bottom: 20px
 
 .options
+    display: flex
+    flex-wrap: wrap
     margin-bottom: 40px
     +m
         margin-bottom: 32px
@@ -180,7 +183,7 @@
     display: flex
     align-items: flex-start
     &:not(:last-child)
-        margin-bottom: 32px
+        margin-right: 8px
 
 .box
     flex-grow: 1
@@ -190,9 +193,9 @@
     margin-left: 24px
 
 .text
-    margin-top: 4px
-    +caption-2
-    color: $neutrals4
+    margin-bottom: 12px
+    +hairline-2
+    color: $neutrals5
     
 .foot
     display: flex

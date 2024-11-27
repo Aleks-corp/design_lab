@@ -4,7 +4,7 @@ import styles from "./UploadPost.module.sass";
 // import Dropdown from "../../components/Dropdown";
 import Icon from "../../components/Icon";
 import TextInput from "../../components/TextInput";
-// import Switch from "../../components/Switch";
+import Switch from "../../components/Switch";
 import Loader from "../../components/Loader";
 import Modal from "../../components/Modal";
 import Preview from "./Preview";
@@ -19,6 +19,7 @@ import {
   selectIsLogining,
   selectUserError,
 } from "../../redux/selectors";
+import { kitsConstant } from "../../constants/kits.constant";
 // import { addPost } from "../../redux/posts/post.thunk";
 
 // const royaltiesOptions = ["10%", "20%", "30%"];
@@ -47,9 +48,9 @@ const Upload = () => {
   const navigate = useNavigate();
 
   // const [royalties, setRoyalties] = useState(royaltiesOptions[0]);
-  // const [sale, setSale] = useState(true);
-  // const [price, setPrice] = useState(false);
-  // const [locking, setLocking] = useState(false);
+  const [kits, setKits] = useState(
+    kitsConstant.map((key) => ({ [key]: false }))
+  );
 
   const [visibleModal, setVisibleModal] = useState(false);
   const [visiblePreview, setVisiblePreview] = useState(false);
@@ -60,6 +61,7 @@ const Upload = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[] | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
+  const [downloadLink, setDownloadLink] = useState<string>("");
   const [titleValue, seTitleValue] = useState<string>("");
   const [descriptionValue, setDescriptionValue] = useState<string>("");
 
@@ -206,6 +208,7 @@ const Upload = () => {
                         required
                       />
                     </div>
+
                     {/* <div className={styles.row}>
                       <div className={styles.col}>
                         <div className={styles.field}>
@@ -221,44 +224,35 @@ const Upload = () => {
                       <div className={styles.col}>
                         <div className={styles.field}>
                           <TextInput
-                            hookformprop={register("image")}
                             label="Size"
                             name="Size"
                             type="text"
                             placeholder="e. g. Size"
                             required
                           />
-                          {errors?.image && (
-                            <p className={styles.name}>
-                              {errors.image.message}
-                            </p>
-                          )}
                         </div>
                       </div>
                       <div className={styles.col}>
                         <div className={styles.field}>
                           <TextInput
-                            hookformprop={register("downloadlink")}
                             label="Propertie"
                             name="Propertie"
                             type="text"
                             placeholder="e. g. Propertie"
                             required
                           />
-                          {errors?.downloadlink && (
-                            <p className={styles.name}>
-                              {errors.downloadlink.message}
-                            </p>
-                          )}
                         </div>
                       </div>
                     </div> */}
                   </div>
                 </div>
+
                 <div className={styles.item}>
-                  <div className={styles.category}>Upload File</div>
+                  <div className={styles.category}>
+                    Upload File (or insert download link)
+                  </div>
                   <div className={styles.note}>
-                    Drag or choose your File to upload
+                    Drag or choose your File to upload or incert link below
                   </div>
                   <div className={styles.filedw}>
                     <input
@@ -273,43 +267,47 @@ const Upload = () => {
                     </div>
                     <div className={styles.format}>ZIP. Max 100Mb.</div>
                   </div>
+                  <div className={styles.field}>
+                    <TextInput
+                      label="Download link"
+                      name="downloadlink"
+                      type="text"
+                      placeholder="Please incert download link for file"
+                      value={downloadLink}
+                      onChange={(e) => setDownloadLink(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* <div className={styles.options}>
-                <div className={styles.option}>
-                  <div className={styles.box}>
-                    <div className={styles.category}>Put on sale</div>
-                    <div className={styles.text}>
-                      You’ll receive bids on this item
-                    </div>
+              <p className={styles.text}>Kits</p>
+              <div className={styles.options}>
+                {kitsConstant.map((kit, index) => (
+                  <div key={index} className={styles.option}>
+                    <Switch
+                      value={
+                        kits.find((i) => Object.keys(i)[0] === kit)?.[kit] ||
+                        false
+                      }
+                      setValue={(newValue) =>
+                        setKits((prevKits) =>
+                          prevKits.map((i) =>
+                            Object.keys(i)[0] === kit ? { [kit]: newValue } : i
+                          )
+                        )
+                      }
+                      name={kit}
+                    />
                   </div>
-                  <Switch value={sale} setValue={setSale} />
-                </div>
-                <div className={styles.option}>
-                  <div className={styles.box}>
-                    <div className={styles.category}>Instant sale price</div>
-                    <div className={styles.text}>
-                      Enter the price for which the item will be instantly sold
-                    </div>
-                  </div>
-                  <Switch value={price} setValue={setPrice} />
-                </div>
-                <div className={styles.option}>
-                  <div className={styles.box}>
-                    <div className={styles.category}>Unlock once purchased</div>
-                    <div className={styles.text}>
-                      Content will be unlocked after successful transaction
-                    </div>
-                  </div>
-                  <Switch value={locking} setValue={setLocking} />
-                </div>
-                <div className={styles.category}>Choose collection</div>
+                ))}
+
+                {/* <div className={styles.category}>Choose collection</div>
                 <div className={styles.text}>
                   Choose an exiting collection or create a new one
                 </div>
-                <Cards className={styles.cards} items={items} />
-              </div> */}
+                <Cards className={styles.cards} items={items} /> */}
+              </div>
               <div className={styles.foot}>
                 <button
                   className={cn("button-stroke tablet-show", styles.button)}
@@ -321,7 +319,6 @@ const Upload = () => {
                 <button
                   className={cn("button", styles.button)}
                   // onClick={() => setVisibleModal(true)}
-                  // type="button" hide after form customization
                   type="submit"
                 >
                   {isLoading ? (
@@ -346,6 +343,7 @@ const Upload = () => {
             reset={reset}
             title={titleValue}
             desc={descriptionValue}
+            kits={kits}
             fileSize={downloadFile?.size}
           />
         </div>

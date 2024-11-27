@@ -12,7 +12,7 @@ import Home from "./screens/Home";
 // import Search02 from "./screens/Search02";
 import Profile from "./screens/Profile";
 import ProfileEdit from "./screens/ProfileEdit";
-import Item from "./screens/Item";
+import Post from "./screens/Post";
 import PageList from "./screens/PageList";
 import SignUp from "./screens/SignUp";
 import SignIn from "./screens/SignIn";
@@ -152,7 +152,7 @@ function App() {
           path="post/:id"
           element={
             <Page>
-              <Item />
+              <Post />
             </Page>
           }
         />

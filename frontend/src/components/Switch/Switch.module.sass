@@ -18,6 +18,10 @@
         &:before
             transform: translate(24px,-50%)
             background: $neutrals8
+    &:checked + .inner .imgbox
+        background: $blue
+        &:before
+            background: $neutrals8
 
 .inner
     position: relative
@@ -45,3 +49,30 @@
         border-radius: 50%
         background: $blue
         transition: all .2s 
+
+.innerbox
+    display: flex
+    justify-content: center
+    align-items: center
+    width: 40px
+    height: 40px
+    background: $neutrals6
+    border-radius: 20px
+    +dark
+        background: $neutrals3
+
+.imgbox
+    position: relative
+    display: flex
+    justify-content: center
+    align-items: center
+    width: 48px
+    height: 48px
+    background: $neutrals6
+    border-radius: 24px 
+    transition: all .2s
+    +dark
+        background: $neutrals3
+    img
+        width: 32px
+        height: 32px

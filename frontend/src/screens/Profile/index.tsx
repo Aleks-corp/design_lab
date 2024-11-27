@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import styles from "./Profile.module.sass";
 import Icon from "../../components/Icon";
 import User from "./User";
-import Items from "./Items";
-import Followers from "./Followers";
+// import Items from "./Items";
+// import Followers from "./Followers";
 
 // data
-import { bids } from "../../mocks/bids";
+// import { bids } from "../../mocks/bids";
 
 const navLinks = [
   "On Sale",
@@ -34,151 +34,151 @@ const socials = [
   },
 ];
 
-const following = [
-  {
-    name: "Sally Fadel",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-5.jpg",
-    url: "https://ui8.net",
-    buttonClass: "stroke",
-    buttonContent: "Unfollow",
-    gallery: [
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-2.jpg",
-      "/images/content/follower-pic-3.jpg",
-      "/images/content/follower-pic-4.jpg",
-    ],
-  },
-  {
-    name: "Aniya Harber",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-6.jpg",
-    url: "https://ui8.net",
-    buttonClass: "stroke",
-    buttonContent: "Unfollow",
-    gallery: [
-      "/images/content/follower-pic-5.jpg",
-      "/images/content/follower-pic-6.jpg",
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-3.jpg",
-    ],
-  },
-  {
-    name: "Edwardo Bea",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-7.jpg",
-    url: "https://ui8.net",
-    buttonClass: "stroke",
-    buttonContent: "Unfollow",
-    gallery: [
-      "/images/content/follower-pic-4.jpg",
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-3.jpg",
-      "/images/content/follower-pic-6.jpg",
-    ],
-  },
-  {
-    name: "Reymundo",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-8.jpg",
-    url: "https://ui8.net",
-    buttonClass: "stroke",
-    buttonContent: "Unfollow",
-    gallery: [
-      "/images/content/follower-pic-5.jpg",
-      "/images/content/follower-pic-2.jpg",
-      "/images/content/follower-pic-6.jpg",
-      "/images/content/follower-pic-1.jpg",
-    ],
-  },
-  {
-    name: "Jeanette",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-9.jpg",
-    url: "https://ui8.net",
-    buttonClass: "stroke",
-    buttonContent: "Unfollow",
-    gallery: [
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-3.jpg",
-      "/images/content/follower-pic-5.jpg",
-      "/images/content/follower-pic-4.jpg",
-    ],
-  },
-];
+// const following = [
+//   {
+//     name: "Sally Fadel",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-5.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "stroke",
+//     buttonContent: "Unfollow",
+//     gallery: [
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-2.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//       "/images/content/follower-pic-4.jpg",
+//     ],
+//   },
+//   {
+//     name: "Aniya Harber",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-6.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "stroke",
+//     buttonContent: "Unfollow",
+//     gallery: [
+//       "/images/content/follower-pic-5.jpg",
+//       "/images/content/follower-pic-6.jpg",
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//     ],
+//   },
+//   {
+//     name: "Edwardo Bea",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-7.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "stroke",
+//     buttonContent: "Unfollow",
+//     gallery: [
+//       "/images/content/follower-pic-4.jpg",
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//       "/images/content/follower-pic-6.jpg",
+//     ],
+//   },
+//   {
+//     name: "Reymundo",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-8.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "stroke",
+//     buttonContent: "Unfollow",
+//     gallery: [
+//       "/images/content/follower-pic-5.jpg",
+//       "/images/content/follower-pic-2.jpg",
+//       "/images/content/follower-pic-6.jpg",
+//       "/images/content/follower-pic-1.jpg",
+//     ],
+//   },
+//   {
+//     name: "Jeanette",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-9.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "stroke",
+//     buttonContent: "Unfollow",
+//     gallery: [
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//       "/images/content/follower-pic-5.jpg",
+//       "/images/content/follower-pic-4.jpg",
+//     ],
+//   },
+// ];
 
-const followers = [
-  {
-    name: "Sally Fadel",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-5.jpg",
-    url: "https://ui8.net",
-    buttonClass: "blue",
-    buttonContent: "Follow",
-    gallery: [
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-2.jpg",
-      "/images/content/follower-pic-3.jpg",
-      "/images/content/follower-pic-4.jpg",
-    ],
-  },
-  {
-    name: "Aniya Harber",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-6.jpg",
-    url: "https://ui8.net",
-    buttonClass: "blue",
-    buttonContent: "Follow",
-    gallery: [
-      "/images/content/follower-pic-5.jpg",
-      "/images/content/follower-pic-6.jpg",
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-3.jpg",
-    ],
-  },
-  {
-    name: "Edwardo Bea",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-7.jpg",
-    url: "https://ui8.net",
-    buttonClass: "blue",
-    buttonContent: "Follow",
-    gallery: [
-      "/images/content/follower-pic-4.jpg",
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-3.jpg",
-      "/images/content/follower-pic-6.jpg",
-    ],
-  },
-  {
-    name: "Reymundo",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-8.jpg",
-    url: "https://ui8.net",
-    buttonClass: "blue",
-    buttonContent: "Follow",
-    gallery: [
-      "/images/content/follower-pic-5.jpg",
-      "/images/content/follower-pic-2.jpg",
-      "/images/content/follower-pic-6.jpg",
-      "/images/content/follower-pic-1.jpg",
-    ],
-  },
-  {
-    name: "Jeanette",
-    counter: "161 followers",
-    avatar: "/images/content/avatar-9.jpg",
-    url: "https://ui8.net",
-    buttonClass: "blue",
-    buttonContent: "Follow",
-    gallery: [
-      "/images/content/follower-pic-1.jpg",
-      "/images/content/follower-pic-3.jpg",
-      "/images/content/follower-pic-5.jpg",
-      "/images/content/follower-pic-4.jpg",
-    ],
-  },
-];
+// const followers = [
+//   {
+//     name: "Sally Fadel",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-5.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "blue",
+//     buttonContent: "Follow",
+//     gallery: [
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-2.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//       "/images/content/follower-pic-4.jpg",
+//     ],
+//   },
+//   {
+//     name: "Aniya Harber",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-6.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "blue",
+//     buttonContent: "Follow",
+//     gallery: [
+//       "/images/content/follower-pic-5.jpg",
+//       "/images/content/follower-pic-6.jpg",
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//     ],
+//   },
+//   {
+//     name: "Edwardo Bea",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-7.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "blue",
+//     buttonContent: "Follow",
+//     gallery: [
+//       "/images/content/follower-pic-4.jpg",
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//       "/images/content/follower-pic-6.jpg",
+//     ],
+//   },
+//   {
+//     name: "Reymundo",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-8.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "blue",
+//     buttonContent: "Follow",
+//     gallery: [
+//       "/images/content/follower-pic-5.jpg",
+//       "/images/content/follower-pic-2.jpg",
+//       "/images/content/follower-pic-6.jpg",
+//       "/images/content/follower-pic-1.jpg",
+//     ],
+//   },
+//   {
+//     name: "Jeanette",
+//     counter: "161 followers",
+//     avatar: "/images/content/avatar-9.jpg",
+//     url: "https://ui8.net",
+//     buttonClass: "blue",
+//     buttonContent: "Follow",
+//     gallery: [
+//       "/images/content/follower-pic-1.jpg",
+//       "/images/content/follower-pic-3.jpg",
+//       "/images/content/follower-pic-5.jpg",
+//       "/images/content/follower-pic-4.jpg",
+//     ],
+//   },
+// ];
 
 const Profile = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -243,7 +243,7 @@ const Profile = () => {
               ))}
             </div>
             <div className={styles.group}>
-              <div className={styles.item}>
+              {/* <div className={styles.item}>
                 {activeIndex === 0 && (
                   <Items className={styles.items} posts={bids.slice(0, 3)} />
                 )}
@@ -262,7 +262,7 @@ const Profile = () => {
                 {activeIndex === 5 && (
                   <Followers className={styles.followers} items={followers} />
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

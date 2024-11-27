@@ -71,7 +71,7 @@ const Hot = ({ classSection }: HotProps) => {
           <div className={styles.inner}>
             <Slider className="bid-slider" {...settings}>
               {bids.map((x, index) => (
-                <Card key={index} className={styles.card} item={x} />
+                <Card key={index} className={styles.card} post={x} />
               ))}
             </Slider>
           </div>

@@ -10,8 +10,8 @@ interface CardProps {
     id: string;
     title: string;
     description: string;
-    image: string;
-    url: string;
+    image: string[];
+    downloadlink: string;
     filter: string[];
     favorites: string[];
     kits: string[];
@@ -19,19 +19,51 @@ interface CardProps {
 }
 
 const Card = ({ className, post }: CardProps) => {
+  const { id, title, description, image, kits } = post;
   const [visible, setVisible] = useState(false);
 
   const handleFavoriteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation(); // Зупиняє спливання події кліку
-    event.preventDefault(); // Запобігає переходу за посиланням, якщо це потрібно
+    event.stopPropagation();
+    event.preventDefault();
     setVisible(!visible);
   };
 
   return (
     <div className={cn(styles.card, className)}>
-      <Link to={`/post/${post.id}`}>
+      <Link to={`/post/${id}`}>
         <div className={styles.preview}>
-          <img src={post.image} alt="Post" />
+          {image && image.length > 0 ? (
+            <div className={styles.preview4x}>
+              {image.map((i, index) => {
+                return index === 0 ? (
+                  <div className={styles.firstRows}>
+                    <img
+                      key={index}
+                      src={i}
+                      srcSet={i}
+                      alt="Uploaded Thumbnail"
+                    />
+                  </div>
+                ) : (
+                  <div className={styles.imgwrapper}>
+                    <img
+                      key={index}
+                      src={i}
+                      srcSet={i}
+                      alt="Uploaded Thumbnail"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={styles.preview}>
+              <img
+                src={"/images/content/postsimg/post-template.png"}
+                alt="Post Template Image"
+              />
+            </div>
+          )}
           <div className={styles.control}>
             <button
               className={cn(styles.favorite, { [styles.active]: visible })}
@@ -45,12 +77,12 @@ const Card = ({ className, post }: CardProps) => {
       <div className={styles.desc}>
         <div className={styles.body}>
           <div className={styles.line}>
-            <div className={styles.title}>{post.title}</div>
+            <div className={styles.title}>{title}</div>
             {/* <div className={styles.price}>{item.price}</div> */}
           </div>
           <div className={styles.line}>
             <div className={styles.kits}>
-              {post.kits.map((i, index) => (
+              {kits.map((i, index) => (
                 <div className={styles.logo} key={index}>
                   <img
                     src={`./images/kit-logo/${i}-prog.svg`}
@@ -60,7 +92,7 @@ const Card = ({ className, post }: CardProps) => {
                 </div>
               ))}
             </div>
-            <Link to={`/post/${post.id}`}>
+            <Link to={`/post/${id}`}>
               <button className={styles.counter}>View Detail</button>
             </Link>
           </div>
@@ -68,7 +100,7 @@ const Card = ({ className, post }: CardProps) => {
         <div className={styles.foot}>
           <div className={styles.description}>
             <Icon title="candlesticks-up" size={20} />
-            <span>{post.description}</span>
+            <span>{description}</span>
           </div>
         </div>
       </div>
