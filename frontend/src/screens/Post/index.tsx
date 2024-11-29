@@ -1,83 +1,90 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import cn from "classnames";
 import styles from "./Post.module.sass";
-import Users from "./Users";
-import Control from "./Control";
-import Options from "./Options";
-
-const navLinks = ["Info", "Owners", "History", "Bids"];
-
-const users = [
-  {
-    name: "Raquel Will",
-    position: "Owner",
-    avatar: "/images/content/avatar-2.jpg",
-    reward: "/images/content/reward-1.svg",
-  },
-  {
-    name: "Selina Mayert",
-    position: "Creator",
-    avatar: "/images/content/avatar-1.jpg",
-  },
-];
+// import Control from "./Control";
+// import Options from "./Options";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { fetchPostById } from "../../redux/posts/post.thunk";
+import { selectIsLoading, selectPost, selectUser } from "../../redux/selectors";
+import Loader from "../../components/LoaderCircle";
+import Icon from "../../components/Icon";
+import { bids } from "../../mocks/bids";
 
 const Post = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-  return (
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchPostById(id));
+    } else {
+      navigate("/");
+    }
+  }, [dispatch, id, navigate]);
+
+  const isLoading = useAppSelector(selectIsLoading);
+  const post = useAppSelector(selectPost) || bids[0];
+  const user = useAppSelector(selectUser);
+
+  const [liked, setLiked] = useState<boolean>(
+    (user && post.favorites.some((i) => user.id === i)) || false
+  );
+
+  return isLoading || !post ? (
+    <Loader className={styles.mainloader} />
+  ) : (
     <>
       <div className={cn("section", styles.section)}>
         <div className={cn("container", styles.container)}>
-          <div className={styles.bg}>
-            <div className={styles.preview}>
-              <div className={styles.categories}>Like</div>
-              <img
-                srcSet="/images/content/item-pic@2x.jpg 2x"
-                src="/images/content/item-pic.jpg"
-                alt="Item"
-              />
-            </div>
-            <Options className={styles.options} />
-          </div>
-          <div className={styles.details}>
-            <h1 className={cn("h3", styles.title)}>The amazing art</h1>
-            <div className={styles.cost}>
-              <div className={cn("status-stroke-green", styles.price)}>
-                2.5 ETH
-              </div>
-              <div className={cn("status-stroke-black", styles.price)}>
-                $4,429.87
-              </div>
-              <div className={styles.counter}>10 in stock</div>
-            </div>
-            <div className={styles.info}>
-              This NFT Card will give you Access to Special Airdrops. To learn
-              more about UI8 please visit{" "}
-              <a
-                href="https://ui8.net"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://ui8.net
-              </a>
-            </div>
-            <div className={styles.nav}>
-              {navLinks.map((x, index) => (
-                <button
-                  className={cn(
-                    { [styles.active]: index === activeIndex },
-                    styles.link
-                  )}
-                  onClick={() => setActiveIndex(index)}
-                  key={index}
-                >
-                  {x}
-                </button>
+          <h1 className={cn("h3", styles.title)}>{post.title}</h1>
+          <div className={styles.cost}>
+            <div className={styles.kits}>
+              {post.kits.map((i, index) => (
+                <div key={index} className={styles.kit}>
+                  <img src={`/images/kit-logo/${i}-prog.svg`} alt="Logo" />
+                </div>
               ))}
             </div>
-            <Users className={styles.users} items={users} />
-            <Control className={styles.control} />
+            <div className={styles.download}>
+              <button
+                type="button"
+                onClick={() => setLiked(!liked)}
+                className={styles.like}
+              >
+                <p className={styles.liketext}>{post.favorites.length}</p>
+                {liked ? (
+                  <Icon title={"heart-fill"} size={28} />
+                ) : (
+                  <Icon title={"heart"} size={28} />
+                )}
+              </button>
+              <p className={styles.size}>{`${(
+                Number(post.filesize) /
+                1024 /
+                1024
+              ).toFixed(2)} Mb`}</p>
+              <button className={cn("button", styles.button)}>Download</button>
+            </div>
           </div>
+          <div className={styles.info}>
+            You can download this product with the All-Access Pass.
+            <button className={cn("button", styles.button)} type="button">
+              Get All-Access
+            </button>
+          </div>
+        </div>
+        <div className={cn("container", styles.imgcontainer)}>
+          {post.image.map((img, index) => (
+            <div key={index} className={styles.preview}>
+              <img src={img} alt="Item" />
+            </div>
+          ))}
+        </div>
+        <div className={cn("container", styles.container)}>
+          <h2>Description</h2>
+          <p>{post.description}</p>
         </div>
       </div>
     </>

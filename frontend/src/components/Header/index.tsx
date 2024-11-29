@@ -9,25 +9,6 @@ import User from "./User";
 import { useAppSelector } from "../../redux/hooks";
 import { selectIsAdmin, selectIsLoggedIn } from "../../redux/selectors";
 
-const nav = [
-  // {
-  // url: "/search01",
-  // title: "Discover",
-  // },
-  // {
-  //   url: "/faq",
-  //   title: "How it work",
-  // },
-  // {
-  //   url: "/item",
-  //   title: "Create item",
-  // },
-  {
-    url: "/profile",
-    title: "Profile",
-  },
-];
-
 const Headers = () => {
   const [visibleNav, setVisibleNav] = useState(false);
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
@@ -42,7 +23,11 @@ const Headers = () => {
   return (
     <header className={styles.header}>
       <div className={cn("container", styles.container)}>
-        <Link className={styles.logo} to="/">
+        <Link
+          className={styles.logo}
+          to="/"
+          onClick={() => setVisibleNav(false)}
+        >
           <Image
             className={styles.pic}
             src="/images/logo-dark.png"
@@ -50,18 +35,12 @@ const Headers = () => {
             alt="Fitness Pro"
           />
         </Link>
-        <div
-          className={cn(styles.wrapper, {
-            [styles.active]: visibleNav,
-          })}
-        >
-          <nav className={styles.nav}>
-            {nav.map((i, index) => (
-              <Link className={styles.link} to={i.url} key={index}>
-                {i.title}
-              </Link>
-            ))}
-          </nav>
+        <div className={styles.wrapper}>
+          {/* <nav className={styles.nav}>
+            <Link className={styles.link} to={user ? "/profile" : ""}>
+              Profile
+            </Link>
+          </nav> */}
         </div>
 
         {/* <Notification className={styles.notification} /> */}
@@ -72,31 +51,41 @@ const Headers = () => {
           </Link>
         )}
         {!isLoggedIn ? (
-          <>
+          <div
+            className={cn(styles.sign, {
+              [styles.active]: visibleNav,
+            })}
+          >
             <Link
               className={cn("button-stroke button-small", styles.button)}
               to="/register"
+              onClick={() => setVisibleNav(false)}
             >
               Sign Up
             </Link>
             <Link
               className={cn("button-stroke button-small", styles.button)}
               to="/login"
+              onClick={() => setVisibleNav(false)}
             >
               Sign In
             </Link>
-          </>
+          </div>
         ) : (
-          <>
+          <div
+            className={cn(styles.sign, {
+              [styles.active]: visibleNav,
+            })}
+          >
             <User className={styles.user} />
-            <button
-              className={cn(styles.burger, {
-                [styles.active]: visibleNav,
-              })}
-              onClick={() => setVisibleNav(!visibleNav)}
-            ></button>
-          </>
+          </div>
         )}
+        <button
+          className={cn(styles.burger, {
+            [styles.active]: visibleNav,
+          })}
+          onClick={() => setVisibleNav(!visibleNav)}
+        ></button>
       </div>
     </header>
   );

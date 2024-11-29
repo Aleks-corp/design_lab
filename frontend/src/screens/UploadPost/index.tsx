@@ -20,6 +20,12 @@ import {
   selectUserError,
 } from "../../redux/selectors";
 import { kitsConstant } from "../../constants/kits.constant";
+import TextArea from "../../components/TextArea";
+import { filterConstant } from "../../constants/filter.constant";
+import {
+  handleFileChange,
+  handleImageFileChange,
+} from "../../helpers/handleFileChange";
 // import { addPost } from "../../redux/posts/post.thunk";
 
 // const royaltiesOptions = ["10%", "20%", "30%"];
@@ -51,6 +57,9 @@ const Upload = () => {
   const [kits, setKits] = useState(
     kitsConstant.map((key) => ({ [key]: false }))
   );
+  const [filters, setFilters] = useState(
+    filterConstant.map((key) => ({ [key]: false }))
+  );
 
   const [visibleModal, setVisibleModal] = useState(false);
   const [visiblePreview, setVisiblePreview] = useState(false);
@@ -78,36 +87,6 @@ const Upload = () => {
     }
   }, [imageFiles]);
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const maxFiles = 4;
-    const maxSize = 4 * 1024 * 1024;
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    if (files.length > maxFiles) {
-      alert(`Maximum number of files is ${maxFiles}`);
-      return;
-    }
-    const totalSize = files.reduce((acc, file) => acc + file.size, 0);
-
-    if (totalSize > maxSize) {
-      alert(`Total file size exceeds the limit of 4MB.`);
-      return;
-    }
-    setImageFiles(files);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const file = e.target.files[0];
-
-      const maxFileSize = 100 * 1024 * 1024;
-      if (file.size > maxFileSize) {
-        alert("File size exceeds the maximum limit of 10MB.");
-      } else {
-        setDownloadFile(file);
-      }
-    }
-  };
-
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -116,11 +95,34 @@ const Upload = () => {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const downloadfile = formData.get("downloadfile") as File;
+    const filesize = downloadfile.size.toString();
     const imagefiles = formData.getAll("imagefiles") as File[];
+
+    const filter = filters
+      .map((i) => {
+        if (Object.values(i)[0] === true) {
+          return Object.keys(i)[0];
+        }
+        return null;
+      })
+      .filter((item) => item !== null);
+
+    const kits = filters
+      .map((i) => {
+        if (Object.values(i)[0] === true) {
+          return Object.keys(i)[0];
+        }
+        return null;
+      })
+      .filter((item) => item !== null);
 
     const dwdata = new FormData();
     dwdata.append("title", title);
     dwdata.append("description", description);
+    dwdata.append("filesize", filesize);
+    dwdata.append("filter", JSON.stringify(filter));
+    dwdata.append("kits", JSON.stringify(kits));
+    dwdata.append("filesize", filesize);
     if (downloadFile) dwdata.append("downloadfile", downloadFile);
     if (downloadfile) dwdata.append("downloadfile", downloadfile);
     imagefiles.forEach((file, index) =>
@@ -172,7 +174,7 @@ const Upload = () => {
                       name="imagefiles"
                       type="file"
                       accept=".jpg, .jpeg, .png, .webp"
-                      onChange={handleImageFileChange}
+                      onChange={(e) => handleImageFileChange(e, setImageFiles)}
                       multiple
                     />
                     <div className={styles.icon}>
@@ -198,10 +200,9 @@ const Upload = () => {
                       />
                     </div>
                     <div className={styles.field}>
-                      <TextInput
+                      <TextArea
                         label="Description"
                         name="description"
-                        type="text"
                         placeholder="Please enter short description"
                         value={descriptionValue}
                         onChange={(e) => setDescriptionValue(e.target.value)}
@@ -260,7 +261,7 @@ const Upload = () => {
                       name="downloadfile"
                       type="file"
                       accept=".zip"
-                      onChange={(e) => handleFileChange(e)}
+                      onChange={(e) => handleFileChange(e, setDownloadFile)}
                     />
                     <div className={styles.icon}>
                       <Icon title="upload-file" size={24} />
@@ -279,35 +280,57 @@ const Upload = () => {
                     />
                   </div>
                 </div>
-              </div>
-
-              <p className={styles.text}>Kits</p>
-              <div className={styles.options}>
-                {kitsConstant.map((kit, index) => (
-                  <div key={index} className={styles.option}>
-                    <Switch
-                      value={
-                        kits.find((i) => Object.keys(i)[0] === kit)?.[kit] ||
-                        false
-                      }
-                      setValue={(newValue) =>
-                        setKits((prevKits) =>
-                          prevKits.map((i) =>
-                            Object.keys(i)[0] === kit ? { [kit]: newValue } : i
+                <p className={styles.text}>Kits</p>
+                <div className={styles.options}>
+                  {kitsConstant.map((kit, index) => (
+                    <div key={index} className={styles.option}>
+                      <Switch
+                        value={
+                          kits.find((i) => Object.keys(i)[0] === kit)?.[kit] ||
+                          false
+                        }
+                        setValue={(newValue) =>
+                          setKits((prevKits) =>
+                            prevKits.map((i) =>
+                              Object.keys(i)[0] === kit
+                                ? { [kit]: newValue }
+                                : i
+                            )
                           )
-                        )
-                      }
-                      name={kit}
-                    />
-                  </div>
-                ))}
-
-                {/* <div className={styles.category}>Choose collection</div>
-                <div className={styles.text}>
-                  Choose an exiting collection or create a new one
+                        }
+                        name={kit}
+                      />
+                    </div>
+                  ))}
                 </div>
-                <Cards className={styles.cards} items={items} /> */}
+                <p className={styles.text}>Filter</p>
+                <div className={styles.filteroptions}>
+                  {filterConstant.map((filter, index) => (
+                    <div key={index} className={styles.filteroption}>
+                      <Switch
+                        value={
+                          filters.find((i) => Object.keys(i)[0] === filter)?.[
+                            filter
+                          ] || false
+                        }
+                        setValue={(newValue) =>
+                          setFilters((prevKits) =>
+                            prevKits.map((i) =>
+                              Object.keys(i)[0] === filter
+                                ? { [filter]: newValue }
+                                : i
+                            )
+                          )
+                        }
+                      />
+                      <div className={styles.box}>
+                        <p className={styles.category}>{filter}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
+
               <div className={styles.foot}>
                 <button
                   className={cn("button-stroke tablet-show", styles.button)}

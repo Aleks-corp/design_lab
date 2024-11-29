@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { toast } from "react-hot-toast";
 import { RootState } from "../store";
 import {
@@ -7,25 +7,14 @@ import {
   UserProfile,
   UserRegProfile,
 } from "../../types/auth.types";
-
-export const instance = axios.create({
-  baseURL: "http://localhost:3030",
-});
-
-export const setToken = (token: string) => {
-  instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-};
-
-export const delToken = () => {
-  instance.defaults.headers.common["Authorization"] = "";
-};
+import { delToken, instance, setToken } from "../../api/axios";
 
 export const signUp = createAsyncThunk(
   "auth/signup",
   async (userData: UserRegProfile, thunkAPI) => {
     try {
       const response = await instance.post("/users/register", userData);
-      setToken(response.data.token);
+      // setToken(response.data.token);
       toast.success("Congratulations! You are successfully signed up!");
       return response.data;
     } catch (error) {
@@ -136,7 +125,7 @@ export const resendVerifyUser = createAsyncThunk(
   async (userData: { email: string }, thunkAPI) => {
     try {
       const response = await instance.post(`/users/verify`, userData);
-      setToken(response.data.token);
+      // setToken(response.data.token);
       toast.success("Email sent");
       return response.data;
     } catch (error) {

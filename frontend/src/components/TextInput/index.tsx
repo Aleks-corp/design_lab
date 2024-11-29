@@ -4,6 +4,7 @@ import { ChangeEventHandler, InputHTMLAttributes } from "react";
 import { UseFormRegisterReturn } from "react-hook-form";
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  className?: string;
   label: string;
   value?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
@@ -11,6 +12,7 @@ interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const TextInput = ({
+  className,
   label,
   value,
   onChange,
@@ -18,15 +20,15 @@ const TextInput = ({
   ...props
 }: TextInputProps) => {
   return (
-    <div className={cn(styles.field)}>
+    <div className={cn(styles.field, className)}>
       {label && <div className={styles.label}>{label}</div>}
       <div className={styles.wrap}>
         <input
           className={styles.input}
-          {...props}
-          {...hookformprop}
           value={value}
           onChange={onChange}
+          {...props}
+          {...hookformprop}
         />
       </div>
     </div>

@@ -139,7 +139,7 @@
     color: $neutrals4
 
 .category
-    +body-bold-2
+    +caption-1
 
 .fieldset
     margin-top: 32px
@@ -185,8 +185,25 @@
     &:not(:last-child)
         margin-right: 8px
 
+.filteroptions
+    display: grid
+    grid-template-columns: repeat(3, 2fr)
+    gap: 12px
+    justify-content: space-between
+    align-items: flex-start
+    margin-bottom: 40px
+    +m
+        margin-bottom: 32px
+        grid-template-columns: repeat(2, 2fr)
+
+.filteroption
+    display: flex
+    align-items: flex-start
+    margin-right: 8px
+
 .box
     flex-grow: 1
+    margin-left: 8px
 
 .switch
     flex-shrink: 0

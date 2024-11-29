@@ -2,9 +2,12 @@ export interface GetPost {
   id: string;
   title: string;
   description: string;
-  favorites: string[];
-  image: string;
+  image: string[];
   downloadlink: string;
+  filesize: string;
+  favorites: string[];
+  filter: string[];
+  kits: string[];
   created_at: string;
   updated_at: string;
 }
@@ -12,8 +15,11 @@ export interface GetPost {
 export interface AddPost {
   title: string;
   description: string;
-  image: string;
+  image: string[];
   downloadlink: string;
+  filesize: string;
+  filter: string[];
+  kits: string[];
 }
 
 export interface AddFavorites {
@@ -25,7 +31,7 @@ export interface AddFavorites {
 //   id: string;
 //   name?: string;
 //   description?: string;
-//   image?: string;
+//   image?: string[];
 //   downloadlink?: string;
 //   favorites: string[];
 // }

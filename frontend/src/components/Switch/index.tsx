@@ -5,7 +5,7 @@ interface SwitchProps {
   className?: string;
   value: boolean;
   setValue: (newValue: boolean) => void;
-  name: string;
+  name?: string;
 }
 
 const Switch = ({ className, value, setValue, name }: SwitchProps) => {

@@ -12,9 +12,18 @@ export const bids = [
     ],
     downloadlink:
       "https://knigogo.top/wp-content/uploads/2023/05/Giertsogh-i-ia-Dzhuliia-Kvinn.epub",
+    filesize: "10000000",
     favorites: ["user01", "user02"],
     filter: ["Dashboard", "Health"],
-    kits: ["figma", "html"],
+    kits: [
+      "figma",
+      "react",
+      "html",
+      "photoshop",
+      "illustrator",
+      "framer",
+      "blender",
+    ],
   },
   {
     id: "02",
