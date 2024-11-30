@@ -6,8 +6,9 @@ import Icon from "../Icon";
 
 interface CardProps {
   className: string;
+  like?: (id: string) => void;
   post: {
-    id: string;
+    _id: string;
     title: string;
     description: string;
     image: string[];
@@ -18,8 +19,8 @@ interface CardProps {
   };
 }
 
-const Card = ({ className, post }: CardProps) => {
-  const { id, title, description, image, kits } = post;
+const Card = ({ className, post, like }: CardProps) => {
+  const { _id, title, description, image, kits } = post;
   const [visible, setVisible] = useState(false);
 
   const handleFavoriteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -30,28 +31,18 @@ const Card = ({ className, post }: CardProps) => {
 
   return (
     <div className={cn(styles.card, className)}>
-      <Link to={`/post/${id}`}>
+      <Link to={`/post/${_id}`}>
         <div className={styles.preview}>
           {image && image.length > 0 ? (
             <div className={styles.preview4x}>
               {image.map((i, index) => {
                 return index === 0 ? (
-                  <div className={styles.firstRows}>
-                    <img
-                      key={index}
-                      src={i}
-                      srcSet={i}
-                      alt="Uploaded Thumbnail"
-                    />
+                  <div key={index} className={styles.firstRows}>
+                    <img src={i} srcSet={i} alt="Uploaded Thumbnail" />
                   </div>
                 ) : (
-                  <div className={styles.imgwrapper}>
-                    <img
-                      key={index}
-                      src={i}
-                      srcSet={i}
-                      alt="Uploaded Thumbnail"
-                    />
+                  <div key={index} className={styles.imgwrapper}>
+                    <img src={i} srcSet={i} alt="Uploaded Thumbnail" />
                   </div>
                 );
               })}
@@ -67,7 +58,12 @@ const Card = ({ className, post }: CardProps) => {
           <div className={styles.control}>
             <button
               className={cn(styles.favorite, { [styles.active]: visible })}
-              onClick={handleFavoriteClick}
+              onClick={(e) => {
+                handleFavoriteClick(e);
+                if (like) {
+                  like(_id);
+                }
+              }}
             >
               <Icon title="heart" size={20} />
             </button>
@@ -92,7 +88,7 @@ const Card = ({ className, post }: CardProps) => {
                 </div>
               ))}
             </div>
-            <Link to={`/post/${id}`}>
+            <Link to={`/post/${_id}`}>
               <button className={styles.counter}>View Detail</button>
             </Link>
           </div>

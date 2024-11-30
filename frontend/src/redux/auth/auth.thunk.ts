@@ -14,7 +14,6 @@ export const signUp = createAsyncThunk(
   async (userData: UserRegProfile, thunkAPI) => {
     try {
       const response = await instance.post("/users/register", userData);
-      // setToken(response.data.token);
       toast.success("Congratulations! You are successfully signed up!");
       return response.data;
     } catch (error) {

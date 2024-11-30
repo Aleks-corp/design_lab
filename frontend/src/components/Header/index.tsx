@@ -77,7 +77,10 @@ const Headers = () => {
               [styles.active]: visibleNav,
             })}
           >
-            <User className={styles.user} />
+            <User
+              className={styles.user}
+              setVisibleNav={() => setVisibleNav(false)}
+            />
           </div>
         )}
         <button

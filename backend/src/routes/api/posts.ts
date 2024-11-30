@@ -8,6 +8,7 @@ import {
 import { validateBody } from "../../decorators/index";
 import { postSchemas } from "../../schemas/index";
 import { postController } from "../../controllers/index";
+import { fileUpload } from "../../middlewares/index";
 
 const { getAllPosts, getPostById, addPost, deletePostById, updateStatusPost } =
   postController;
@@ -19,9 +20,15 @@ postsRouter.use(authenticateToken);
 
 postsRouter.get("/", getAllPosts);
 postsRouter.get("/:postId", isValidId, getPostById);
-postsRouter.post("/", isEmptyBody, validateBody(postAddSchema), addPost);
+postsRouter.post(
+  "/",
+  fileUpload,
+  isEmptyBody,
+  // validateBody(postAddSchema),
+  addPost
+);
 postsRouter.patch(
-  "/:postId/favorite",
+  "/:postId",
   isValidId,
   isEmptyBodyStatus,
   validateBody(postUpdateStatusSchema),

@@ -5,8 +5,10 @@ const host = await setAxiosBaseUrl();
 
 export const instance = axios.create({
   baseURL: host,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
-console.log("instance:", instance);
 
 export const setToken = (token: string) => {
   instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;

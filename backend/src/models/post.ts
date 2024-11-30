@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { handleUpdateValidator, handlerSaveError } from "./hooks";
-import { kits } from "src/constants/kitsConstants";
-import { filter } from "src/constants/filterConstants";
+import { kits } from "../constants/kitsConstants";
+import { filter } from "../constants/filterConstants";
 
 const postSchema = new Schema(
   {
@@ -14,7 +14,7 @@ const postSchema = new Schema(
       required: [true, "Set description for post"],
     },
     image: {
-      type: String,
+      type: [String],
       required: [true, "Set image link for post"],
     },
     downloadlink: {
@@ -34,6 +34,10 @@ const postSchema = new Schema(
         },
         message: "Filter can only contain 'figma', 'react', or 'html'.",
       },
+    },
+    filesize: {
+      type: String,
+      required: [true, "Set filesize for file"],
     },
     favorites: {
       type: [Schema.Types.ObjectId],

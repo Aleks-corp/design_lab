@@ -50,7 +50,7 @@ const SignIn = () => {
 
   const [showPass, setShowPass] = useState(false);
   const [isntVerify, setIsntVerify] = useState(false);
-  const [email, setEmail] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -129,8 +129,6 @@ const SignIn = () => {
                           label="email"
                           name="Email"
                           type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
                           placeholder="example@email.com"
                         />
                         {errors?.email && (

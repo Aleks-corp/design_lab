@@ -5,7 +5,6 @@ import OutsideClickHandler from "react-outside-click-handler";
 import styles from "./User.module.sass";
 import Icon from "../../Icon";
 import Theme from "../../Theme";
-import { ClassNameProps } from "../../../types/className.types";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { logOut } from "../../../redux/auth/auth.thunk";
 import { selectUser } from "../../../redux/selectors";
@@ -32,7 +31,12 @@ const items = [
   },
 ];
 
-const User = ({ className }: ClassNameProps) => {
+export interface UserNavProps {
+  className?: string;
+  setVisibleNav: () => void;
+}
+
+const User = ({ className, setVisibleNav }: UserNavProps) => {
   const user = useAppSelector(selectUser);
   const [visible, setVisible] = useState(false);
   const dispatch = useAppDispatch();
@@ -40,6 +44,8 @@ const User = ({ className }: ClassNameProps) => {
 
   const logoutHandler = async () => {
     await dispatch(logOut());
+    setVisible(!visible);
+    setVisibleNav();
     navigate("/");
   };
 
@@ -59,14 +65,24 @@ const User = ({ className }: ClassNameProps) => {
             <div className={styles.name}>{user?.name}</div>
             <div className={styles.code}>
               <div className={styles.number}>{user?.email}</div>
-              <button className={styles.copy}>
+              <button
+                className={styles.copy}
+                onClick={() => {
+                  setVisible(!visible);
+                  setVisibleNav();
+                }}
+              >
                 <Icon title="copy" size={16} />
               </button>
             </div>
             <div className={styles.wrap}>
               <button
                 className={cn("button-stroke button-small", styles.button)}
-                onClick={() => navigate("/profile-edit")}
+                onClick={() => {
+                  navigate("/profile-edit");
+                  setVisible(!visible);
+                  setVisibleNav();
+                }}
               >
                 Edit Profile
               </button>
@@ -90,7 +106,10 @@ const User = ({ className }: ClassNameProps) => {
                     <Link
                       className={styles.item}
                       to={i.url}
-                      onClick={() => setVisible(!visible)}
+                      onClick={() => {
+                        setVisible(!visible);
+                        setVisibleNav();
+                      }}
                       key={index}
                     >
                       <div className={styles.icon}>

@@ -3,7 +3,7 @@ import cn from "classnames";
 import styles from "./Post.module.sass";
 // import Control from "./Control";
 // import Options from "./Options";
-import { useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { fetchPostById } from "../../redux/posts/post.thunk";
 import { selectIsLoading, selectPost, selectUser } from "../../redux/selectors";
@@ -65,7 +65,13 @@ const Post = () => {
                 1024 /
                 1024
               ).toFixed(2)} Mb`}</p>
-              <button className={cn("button", styles.button)}>Download</button>
+              <NavLink
+                className={cn("button", styles.button)}
+                to={post.downloadlink}
+                download
+              >
+                Download
+              </NavLink>
             </div>
           </div>
           <div className={styles.info}>

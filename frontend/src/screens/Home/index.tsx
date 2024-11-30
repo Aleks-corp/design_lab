@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import cn from "classnames";
 import styles from "./Home.module.sass";
 // import { Range, getTrackBackground } from "react-range";
@@ -6,8 +6,15 @@ import styles from "./Home.module.sass";
 import Card from "../../components/Card";
 import Dropdown from "../../components/Dropdown";
 
-// data
-import { bids } from "../../mocks/bids";
+// import { bids } from "../../mocks/bids";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+// import { useNavigate } from "react-router-dom";
+import { addRemoveFavorites, fetchPosts } from "../../redux/posts/post.thunk";
+import {
+  selectIsLoading,
+  selectPosts,
+  selectUser,
+} from "../../redux/selectors";
 
 const navLinks = [
   "All products",
@@ -24,8 +31,25 @@ const prodListOptions = ["All products", "Favorites"];
 // const creatorOptions = ["Verified only", "All", "Most liked"];
 
 const Home = () => {
+  const dispatch = useAppDispatch();
+  // const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, [dispatch]);
+
+  const isLoading = useAppSelector(selectIsLoading);
+  const posts = useAppSelector(selectPosts);
+  const postsPrew = posts;
+  const user = useAppSelector(selectUser);
   const [activeIndex, setActiveIndex] = useState(0);
   const [prodList, setProdList] = useState(prodListOptions[0]);
+
+  const like = (postId: string) => {
+    if (user) {
+      dispatch(addRemoveFavorites({ userId: user.id, postId }));
+    }
+  };
   // const [likes, setLikes] = useState(likesOptions[0]);
   // const [color, setColor] = useState(colorOptions[0]);
   // const [creator, setCreator] = useState(creatorOptions[0]);
@@ -42,7 +66,9 @@ const Home = () => {
   // const MIN = 0.01;
   // const MAX = 10;
 
-  return (
+  return isLoading ? (
+    <></>
+  ) : (
     <div className={cn("section-pt80", styles.section)}>
       <div className={cn("container", styles.container)}>
         {/* <div className={styles.top}>
@@ -204,9 +230,10 @@ const Home = () => {
           </div> */}
         {/* <div className={styles.wrapper}> */}
         <div className={styles.list}>
-          {bids.map((i, index) => (
-            <Card className={styles.card} post={i} key={index} />
-          ))}
+          {postsPrew.length > 0 &&
+            postsPrew.map((i, index) => (
+              <Card className={styles.card} post={i} key={index} like={like} />
+            ))}
         </div>
         <div className={styles.btns}>
           <button className={cn("button-stroke", styles.button)}>
@@ -215,9 +242,9 @@ const Home = () => {
         </div>
       </div>
     </div>
-    // </div>
-    // </div>
   );
+  // </div>
+  // </div>
 };
 
 export default Home;

@@ -11,7 +11,7 @@ import Preview from "./Preview";
 // import Cards from "./Cards";
 import FolowSteps from "./FolowSteps";
 
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -26,7 +26,8 @@ import {
   handleFileChange,
   handleImageFileChange,
 } from "../../helpers/handleFileChange";
-// import { addPost } from "../../redux/posts/post.thunk";
+import { addPost } from "../../redux/posts/post.thunk";
+import toast from "react-hot-toast";
 
 // const royaltiesOptions = ["10%", "20%", "30%"];
 
@@ -50,7 +51,7 @@ import {
 // ];
 
 const Upload = () => {
-  // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   // const [royalties, setRoyalties] = useState(royaltiesOptions[0]);
@@ -66,6 +67,8 @@ const Upload = () => {
   const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
   const isAdmin = useAppSelector(selectIsAdmin);
+
+  // const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[] | null>(null);
@@ -89,14 +92,6 @@ const Upload = () => {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
-    const downloadfile = formData.get("downloadfile") as File;
-    const filesize = downloadfile.size.toString();
-    const imagefiles = formData.getAll("imagefiles") as File[];
 
     const filter = filters
       .map((i) => {
@@ -107,7 +102,7 @@ const Upload = () => {
       })
       .filter((item) => item !== null);
 
-    const kits = filters
+    const kit = kits
       .map((i) => {
         if (Object.values(i)[0] === true) {
           return Object.keys(i)[0];
@@ -116,27 +111,35 @@ const Upload = () => {
       })
       .filter((item) => item !== null);
 
-    const dwdata = new FormData();
-    dwdata.append("title", title);
-    dwdata.append("description", description);
-    dwdata.append("filesize", filesize);
-    dwdata.append("filter", JSON.stringify(filter));
-    dwdata.append("kits", JSON.stringify(kits));
-    dwdata.append("filesize", filesize);
-    if (downloadFile) dwdata.append("downloadfile", downloadFile);
-    if (downloadfile) dwdata.append("downloadfile", downloadfile);
-    imagefiles.forEach((file, index) =>
-      dwdata.append(`imagefile_${index}`, file)
-    );
-    dwdata.forEach((value, key) => {
+    const data = new FormData();
+    data.append("title", titleValue);
+    data.append("description", descriptionValue);
+    data.append("filter", JSON.stringify(filter));
+    data.append("kits", JSON.stringify(kit));
+    data.append("filesize", downloadFile ? downloadFile.size.toString() : "0");
+    if (downloadFile) data.append("downloadfile", downloadFile);
+    if (downloadLink) data.append("downloadLink", downloadLink);
+    imageFiles.forEach((file) => data.append("imagefiles", file));
+    data.forEach((value, key) => {
       console.log(`${key}:`, value);
     });
-    // await dispatch(addPost({ title, description, image, downloadlink }));
-    if (error) {
-      return;
-    } else {
-      // reset();
-      // navigate("/verify/0");
+
+    // setIsUploading(true); // Починаємо індикатор завантаження
+
+    const resultAction = await dispatch(addPost(data));
+
+    if (addPost.fulfilled.match(resultAction)) {
+      toast.success("Post successfully uploaded!");
+      reset();
+      // setIsUploading(false);
+    } else if (addPost.rejected.match(resultAction)) {
+      toast.error("Upload failed");
+      // setIsUploading(false);
+    }
+
+    if (error instanceof Error) {
+      toast.error(error.message);
+      console.error(error);
     }
   };
   const reset = () => {
@@ -149,7 +152,7 @@ const Upload = () => {
 
   useEffect(() => {
     if (!isAdmin) {
-      // navigate("/");
+      navigate("/");
     }
   }, [isAdmin, navigate]);
 
@@ -276,7 +279,6 @@ const Upload = () => {
                       placeholder="Please incert download link for file"
                       value={downloadLink}
                       onChange={(e) => setDownloadLink(e.target.value)}
-                      required
                     />
                   </div>
                 </div>

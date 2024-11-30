@@ -25,9 +25,10 @@ const handleFulfilled = (state: PostsState) => {
 
 export const handleFulfilledPosts = (
   state: PostsState,
-  action: PayloadAction<GetPost[]>
+  action: PayloadAction<{ posts: GetPost[]; totalHits: number }>
 ): void => {
-  state.posts = action.payload;
+  state.posts = action.payload.posts;
+  state.totalHits = action.payload.totalHits;
 };
 
 export const handleFulfilledPostById = (
@@ -50,12 +51,12 @@ export const handleFulfilledAddFavorites = (
   action: PayloadAction<GetPost>
 ): void => {
   const updatedBoard = action.payload;
-  const index = state.posts.findIndex((board) => board.id === updatedBoard.id);
+  const index = state.posts.findIndex((i) => i.id === updatedBoard.id);
   if (index !== -1) {
     state.posts.splice(index, 1, updatedBoard);
   }
   if (state.selectedPost) {
-    state.selectedPost.name = updatedBoard.name;
+    state.selectedPost.favorites = updatedBoard.favorites;
   }
 };
 

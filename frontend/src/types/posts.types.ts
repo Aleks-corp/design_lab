@@ -1,5 +1,5 @@
 export interface GetPost {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   image: string[];
@@ -13,13 +13,15 @@ export interface GetPost {
 }
 
 export interface AddPost {
-  title: string;
-  description: string;
-  image: string[];
-  downloadlink: string;
-  filesize: string;
-  filter: string[];
-  kits: string[];
+  data: {
+    title: string;
+    description: string;
+    image: string[];
+    downloadlink: string;
+    filesize: string;
+    filter: string[];
+    kits: string[];
+  };
 }
 
 export interface AddFavorites {

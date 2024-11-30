@@ -22,12 +22,12 @@ export const handleFileChange = (
   e: React.ChangeEvent<HTMLInputElement>,
   setDownloadFile: React.Dispatch<React.SetStateAction<File | null>>
 ) => {
-  const maxFileSize = 100 * 1024 * 1024;
+  const maxFileSize = 1000 * 1024 * 1024;
   if (e.target.files) {
     const file = e.target.files[0];
 
     if (file.size > maxFileSize) {
-      alert("File size exceeds the maximum limit of 10MB.");
+      alert("File size exceeds the maximum limit of 1000MB.");
       return;
     }
     setDownloadFile(file);

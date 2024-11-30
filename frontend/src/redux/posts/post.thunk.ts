@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { AddFavorites, AddPost } from "../../types/posts.types";
+import { AddFavorites } from "../../types/posts.types";
 import { instance } from "../../api/axios";
+import { AxiosError } from "axios";
 
 export const fetchPosts = createAsyncThunk(
   "posts/fetchPosts",
@@ -32,13 +33,17 @@ export const fetchPostById = createAsyncThunk(
 
 export const addPost = createAsyncThunk(
   "posts/addPost",
-  async (post: AddPost, thunkAPI) => {
+  async (data: FormData, thunkAPI) => {
     try {
-      const response = await instance.post("/posts", post);
+      const response = await instance.post("/posts", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
-    } catch (e) {
-      if (e instanceof Error) {
-        return thunkAPI.rejectWithValue(e.message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(error.response ?? error.message);
       }
     }
   }
@@ -48,10 +53,10 @@ export const addRemoveFavorites = createAsyncThunk(
   "posts/favorites",
   async (favorites: AddFavorites, thunkAPI) => {
     try {
-      const response = await instance.patch(
-        `/posts/${favorites.postId}`,
-        favorites.userId
-      );
+      const response = await instance.patch(`/posts/${favorites.postId}`, {
+        userId: favorites.userId,
+      });
+
       return response.data;
     } catch (e) {
       if (e instanceof Error) {

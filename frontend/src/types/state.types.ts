@@ -8,6 +8,7 @@ export interface State {
 
 export interface PostsState {
   posts: GetPost[];
+  totalHits: number;
   selectedPost: GetPost | null;
   isLoading: boolean;
   error: Error | null;
