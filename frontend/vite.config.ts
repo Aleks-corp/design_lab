@@ -6,6 +6,7 @@ import { resolve } from "path";
 // https://vite.dev/config/
 export default defineConfig({
   base: "./",
+
   plugins: [react()],
   build: {
     rollupOptions: {
@@ -14,6 +15,7 @@ export default defineConfig({
         404: resolve("404.html"),
       },
     },
+    target: "esnext",
   },
   resolve: {
     alias: {
