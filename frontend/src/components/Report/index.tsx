@@ -18,7 +18,7 @@ const Report = ({ className }: ReportProps) => {
         label="message"
         name="Message"
         placeholder="Tell us the details"
-        required="required"
+        required={true}
       />
       <div className={styles.btns}>
         <button className={cn("button", styles.button)}>Send now</button>

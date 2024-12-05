@@ -6,7 +6,7 @@ import Loader from "../../../components/Loader";
 interface ItemsProps {
   className: string;
   posts: {
-    id: string;
+    _id: string;
     title: string;
     description: string;
     image: string[];

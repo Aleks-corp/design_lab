@@ -4,11 +4,11 @@ import styles from "./Discover.module.sass";
 import { Range, getTrackBackground } from "react-range";
 import Slider from "react-slick";
 import Icon from "../../../components/Icon";
-import Card from "../../../components/Card";
+// import Card from "../../../components/Card";
 import Dropdown from "../../../components/Dropdown";
 
 // data
-import { bids } from "../../../mocks/bids";
+// import { bids } from "../../../mocks/bids";
 
 const navLinks = ["All items", "Art", "Game", "Photography", "Music", "Video"];
 
@@ -235,9 +235,9 @@ const Discover = () => {
             className={cn("discover-slider", styles.slider)}
             {...settings}
           >
-            {bids.map((x, index) => (
+            {/* {bids.map((x, index) => (
               <Card className={styles.card} post={x} key={index} />
-            ))}
+            ))} */}
           </Slider>
         </div>
         <div className={styles.btns}>

@@ -51,7 +51,7 @@ export const handleFulfilledAddFavorites = (
   action: PayloadAction<GetPost>
 ): void => {
   const updatedBoard = action.payload;
-  const index = state.posts.findIndex((i) => i.id === updatedBoard.id);
+  const index = state.posts.findIndex((i) => i._id === updatedBoard._id);
   if (index !== -1) {
     state.posts.splice(index, 1, updatedBoard);
   }
@@ -64,7 +64,9 @@ export const handleFulfilledDeletePost = (
   state: PostsState,
   action: PayloadAction<string | undefined>
 ): void => {
-  const postIndex = state.posts.findIndex((item) => item.id === action.payload);
+  const postIndex = state.posts.findIndex(
+    (item) => item._id === action.payload
+  );
   if (postIndex !== -1) {
     state.posts.splice(postIndex, 1);
   }

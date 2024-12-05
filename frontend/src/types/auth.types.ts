@@ -22,3 +22,12 @@ export interface UserLogProfile {
   email: string;
   password: string;
 }
+
+export interface UserForgotProfile {
+  email: string;
+}
+
+export interface UserNewPassProfile {
+  newPassToken: string;
+  password: string;
+}
