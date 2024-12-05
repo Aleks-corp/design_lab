@@ -1,16 +1,29 @@
 import express, { NextFunction, Request, Response } from "express";
+import morgan from "morgan";
 import { Err } from "./types/error.type";
-import logger from "morgan";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
 
 import postsRouter from "./routes/api/posts";
 import authRouter from "./routes/api/auth";
 
+const logPath = path.resolve("logs");
+
+if (!fs.existsSync(logPath)) {
+  fs.mkdirSync(logPath);
+}
+
+const accessLogStream = fs.createWriteStream(path.join(logPath, "access.log"), {
+  flags: "a",
+});
+
 const app = express();
 
-const formatsLogger = app.get("env") === "development" ? "dev" : "short";
+const formatsLogger = app.get("env") === "development" ? "dev" : "combined";
 
-app.use(logger(formatsLogger));
+app.use(morgan(formatsLogger, { stream: accessLogStream }));
+
 app.use(
   cors({
     origin: "http://localhost:5173",
