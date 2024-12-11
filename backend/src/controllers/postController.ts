@@ -1,11 +1,25 @@
 import Post from "../models/post";
-import { ApiError, filterQuery } from "../helpers/index";
+import {
+  ApiError,
+  deleteFromS3,
+  filterQuery,
+  uploadToS3,
+} from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
-import path from "path";
-import "dotenv/config";
 
-const { BASE_URL } = process.env;
+interface PostRequest extends Request {
+  body: {
+    title: string;
+    description: string;
+    kits: string;
+    filter: string;
+    filesize: number;
+  };
+  files?:
+    | { [fieldname: string]: Express.Multer.File[] }
+    | Express.Multer.File[];
+}
 
 const getAllPosts = async (req: Request, res: Response) => {
   const { page = "1", limit = "10", ...query } = req.query;
@@ -28,26 +42,12 @@ const getAllPosts = async (req: Request, res: Response) => {
 
 const getPostById = async (req: Request, res: Response) => {
   const { postId } = req.params;
-  console.log("postId:", postId);
   const post = await Post.findById(postId);
   if (!post) {
     throw ApiError(404);
   }
   res.json(post);
 };
-
-interface PostRequest extends Request {
-  body: {
-    title: string;
-    description: string;
-    kits: string;
-    filter: string;
-    filesize: number;
-  };
-  files?:
-    | { [fieldname: string]: Express.Multer.File[] }
-    | Express.Multer.File[];
-}
 
 const addPost = async (req: PostRequest, res: Response): Promise<void> => {
   if (req.user.subscription !== "admin") {
@@ -65,41 +65,29 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
 
   const image = files["imagefiles"]
     ? Array.isArray(files["imagefiles"])
-      ? files["imagefiles"].map(
-          (file) => `${BASE_URL}/post-img/${path.basename(file.path)}`
+      ? await Promise.all(
+          files["imagefiles"].map((file) => uploadToS3(file, "post-images"))
         )
       : []
     : [];
 
   const downloadlink = files["downloadfile"]
     ? Array.isArray(files["downloadfile"])
-      ? `${BASE_URL}/file/${path.basename(
-          files["downloadfile"][0]?.path || ""
-        )}`
-      : `${BASE_URL}/upload/file/${path.basename(
-          files["downloadfile"].path || ""
-        )}`
+      ? await uploadToS3(files["downloadfile"][0], "post-files")
+      : await uploadToS3(files["downloadfile"], "post-files")
     : "";
 
   const kits = JSON.parse(req.body.kits);
   const filter = JSON.parse(req.body.filter);
 
-  try {
-    const post = await Post.create({
-      ...body,
-      kits,
-      filter,
-      image,
-      downloadlink,
-    });
-    res.status(201).json({ post });
-  } catch (err) {
-    console.error("Помилка при створенні посту:", err);
-    console.error("Error creating post:", err);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the post" });
-  }
+  const post = await Post.create({
+    ...body,
+    kits,
+    filter,
+    image,
+    downloadlink,
+  });
+  res.status(201).json({ post });
 };
 
 const updateStatusPost = async (req: Request, res: Response) => {
@@ -140,10 +128,22 @@ const updateStatusPost = async (req: Request, res: Response) => {
 
 const deletePostById = async (req: Request, res: Response) => {
   const { postId } = req.params;
-  const post = await Post.findByIdAndDelete(postId);
+  const post = await Post.findById(postId);
+
   if (!post) {
-    throw ApiError(404);
+    throw ApiError(404, "Post not found");
   }
+
+  if (post.image && Array.isArray(post.image)) {
+    await Promise.all(post.image.map((imageUrl) => deleteFromS3(imageUrl)));
+  }
+
+  if (post.downloadlink) {
+    await deleteFromS3(post.downloadlink);
+  }
+
+  await Post.findByIdAndDelete(postId);
+
   res.json({ message: "Post deleted" });
 };
 

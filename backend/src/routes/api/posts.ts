@@ -8,7 +8,7 @@ import {
 import { validateBody } from "../../decorators/index";
 import { postSchemas } from "../../schemas/index";
 import { postController } from "../../controllers/index";
-import { fileUpload } from "../../middlewares/index";
+import { upload } from "../../middlewares/index";
 
 const { getAllPosts, getPostById, addPost, deletePostById, updateStatusPost } =
   postController;
@@ -16,19 +16,21 @@ const { postAddSchema, postUpdateStatusSchema } = postSchemas;
 
 const postsRouter = express.Router();
 
-postsRouter.use(authenticateToken);
+// postsRouter.use(authenticateToken);
 
 postsRouter.get("/", getAllPosts);
 postsRouter.get("/:postId", isValidId, getPostById);
 postsRouter.post(
   "/",
-  fileUpload,
+  authenticateToken,
+  upload,
   isEmptyBody,
   // validateBody(postAddSchema),
   addPost
 );
 postsRouter.patch(
   "/:postId",
+  authenticateToken,
   isValidId,
   isEmptyBodyStatus,
   validateBody(postUpdateStatusSchema),

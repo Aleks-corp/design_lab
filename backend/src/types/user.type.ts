@@ -11,6 +11,8 @@ export interface IUser {
   token?: string;
   verificationToken: string;
   verify: boolean;
+  resetPasswordToken: string;
+  resetPasswordExpires: number;
   createdAt: Date;
   updatedAt: Date;
 }

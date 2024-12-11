@@ -10,6 +10,8 @@ const {
   usersLoginSchema,
   usersUpdateSubscriptionSchema,
   usersVerifySchema,
+  passwordResetSchema,
+  changePasswordSchema,
 } = usersSchemas;
 
 const {
@@ -20,6 +22,9 @@ const {
   updateUserSubscription,
   getVerification,
   resendVerify,
+  forgotPassword,
+  resetPassword,
+  changePassword,
 } = authController;
 
 const authRouter = express.Router();
@@ -30,6 +35,23 @@ authRouter.post("/logout", authenticateToken, logout);
 authRouter.get("/current", authenticateToken, getCurrent);
 authRouter.get("/verify/:verificationToken", getVerification);
 authRouter.post("/verify", validateBody(usersVerifySchema), resendVerify);
+authRouter.post(
+  "/forgot-password",
+  validateBody(usersVerifySchema),
+  forgotPassword
+);
+authRouter.post(
+  "/reset-password/:resetToken",
+  validateBody(passwordResetSchema),
+  resetPassword
+);
+
+authRouter.post(
+  "/change-password",
+  authenticateToken,
+  validateBody(changePasswordSchema),
+  changePassword
+);
 
 authRouter.patch(
   "/",

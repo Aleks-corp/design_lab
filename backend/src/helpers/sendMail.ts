@@ -2,15 +2,16 @@ import sgMail from "@sendgrid/mail";
 import "dotenv/config";
 import { ApiError } from "./index";
 
-const { FRONT_SERVER, FRONT_PORT, EMAIL_SEND_FROM, SENDGRID_API_KEY } =
-  process.env;
+const { FRONT_SERVER, EMAIL_SEND_FROM, SENDGRID_API_KEY } = process.env;
 
 interface Mail {
   email: string;
   verificationToken: string;
+  path: string;
+  text: string;
 }
 
-const sendMail = async ({ email, verificationToken }: Mail) => {
+const sendMail = async ({ email, verificationToken, path, text }: Mail) => {
   if (EMAIL_SEND_FROM && SENDGRID_API_KEY) {
     const msg = {
       to: email,
@@ -28,7 +29,7 @@ const sendMail = async ({ email, verificationToken }: Mail) => {
     border-radius: 5px; 
     border: 2px solid #3772FF; 
     text-align: center;
-  " href="http://${FRONT_SERVER}${FRONT_PORT}/verify/${verificationToken}" target:"_blank">Click to verify your Email</a>`,
+  " href="http://${FRONT_SERVER}/${path}/${verificationToken}" target:"_blank">${text}</a><p>If you didn't request this, please ignore this email</p>`,
     };
     sgMail.setApiKey(SENDGRID_API_KEY);
     return await sgMail.send(msg);

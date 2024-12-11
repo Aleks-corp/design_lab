@@ -64,9 +64,48 @@ const usersVerifySchema = Joi.object({
   }),
 });
 
+const passwordResetSchema = Joi.object({
+  newPassword: Joi.string()
+    .min(8)
+    .max(16)
+    .pattern(passRegexp)
+    .required()
+    .messages({
+      "string.pattern.base": `'newPassword' contain minimum 8 characters, at least one uppercase letter, one lowercase letter and one number`,
+      "string.empty": `'newPassword' cannot be an empty field`,
+      "any.required": `missing required 'newPassword' field`,
+    }),
+});
+
+// Схема для зміни пароля
+const changePasswordSchema = Joi.object({
+  oldPassword: Joi.string()
+    .min(8)
+    .max(16)
+    .pattern(passRegexp)
+    .required()
+    .messages({
+      "string.pattern.base": `'oldPassword' contain minimum 8 characters, at least one uppercase letter, one lowercase letter and one number`,
+      "string.empty": `'oldPassword' cannot be an empty field`,
+      "any.required": `missing required 'oldPassword' field`,
+    }),
+  newPassword: Joi.string()
+    .min(8)
+    .max(16)
+    .pattern(passRegexp)
+    .required()
+    .messages({
+      "string.pattern.base": `'newPassword' contain minimum 8 characters, at least one uppercase letter, one lowercase letter and one number`,
+      "string.empty": `'newPassword' cannot be an empty field`,
+      "any.required": `missing required 'newPassword' field`,
+    }),
+});
+
 export default {
   usersRegSchema,
   usersLoginSchema,
   usersUpdateSubscriptionSchema,
   usersVerifySchema,
+  passwordResetSchema,
+  changePasswordSchema,
 };

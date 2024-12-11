@@ -28,7 +28,7 @@
       "src/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "src/tests/setDate.js"],
+  "include": ["./src/**/*.ts"],
   "exclude": ["node_modules"],
   "tsc-alias": {
     "verbose": false,

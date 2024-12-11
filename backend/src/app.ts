@@ -4,6 +4,7 @@ import { Err } from "./types/error.type";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
+import "dotenv/config";
 
 import postsRouter from "./routes/api/posts";
 import authRouter from "./routes/api/auth";
@@ -26,7 +27,7 @@ app.use(morgan(formatsLogger, { stream: accessLogStream }));
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: `${process.env.FRONT_SERVER}`,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type"],
   })

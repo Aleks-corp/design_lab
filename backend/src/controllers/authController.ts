@@ -22,8 +22,15 @@ const register = async (req: Request, res: Response) => {
     password: hashPassword,
     verificationToken,
   });
-  const maildata = await sendMail({ email, verificationToken });
-  console.log("maildata:", maildata);
+  const maildata = await sendMail({
+    email,
+    verificationToken,
+    path: "verify",
+    text: "Click to verify your Email",
+  });
+  if (!maildata) {
+    throw ApiError(400, "Email not sent");
+  }
   res.status(201).json({
     user: {
       email: newUser.email,
@@ -115,6 +122,7 @@ const getVerification = async (req: Request, res: Response) => {
   }
   await User.findByIdAndUpdate(user._id, {
     verify: true,
+    verificationToken: "",
   });
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "23h" });
   res.json({
@@ -141,10 +149,85 @@ const resendVerify = async (req: Request, res: Response) => {
   }
   const maildata = await sendMail({
     email,
+    path: "verify",
     verificationToken: user.verificationToken,
+    text: "Click to verify your Email",
   });
-  console.log("maildata:", maildata);
+  if (!maildata) {
+    throw ApiError(400, "Email not sent");
+  }
   res.json({ message: "Verification email sent." });
+};
+
+const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw ApiError(404, "User not found");
+  }
+
+  const resetToken = nanoid();
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpires = Date.now() + 3600000;
+  await User.findByIdAndUpdate(user._id, {
+    ...user,
+  });
+
+  const maildata = await sendMail({
+    email: user.email,
+    path: "reset-password",
+    verificationToken: resetToken,
+    text: "You requested a password reset. Click the link to reset your password.",
+  });
+  if (!maildata) {
+    throw ApiError(400, "Email not sent");
+  }
+
+  res.json({ message: "Password reset link sent to email" });
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  const { resetToken } = req.params;
+  const { newPassword } = req.body;
+
+  const user = await User.findOne({
+    resetPasswordToken: resetToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw ApiError(400, "Invalid or expired reset token");
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetPasswordToken = "";
+  user.resetPasswordExpires = 0;
+  await User.findByIdAndUpdate(user._id, {
+    ...user,
+  });
+
+  res.json({ message: "Password successfully reset" });
+};
+
+const changePassword = async (req: Request, res: Response) => {
+  const { oldPassword, newPassword } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw ApiError(404, "User not found");
+  }
+
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) {
+    throw ApiError(401, "Old password is incorrect");
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  await User.findByIdAndUpdate(user._id, {
+    ...user,
+  });
+
+  res.json({ message: "Password successfully changed" });
 };
 
 export default {
@@ -155,4 +238,7 @@ export default {
   updateUserSubscription: ctrlWrapper(updateUserSubscription),
   getVerification: ctrlWrapper(getVerification),
   resendVerify: ctrlWrapper(resendVerify),
+  forgotPassword: ctrlWrapper(forgotPassword),
+  resetPassword: ctrlWrapper(resetPassword),
+  changePassword: ctrlWrapper(changePassword),
 };
