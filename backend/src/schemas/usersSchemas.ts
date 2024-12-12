@@ -77,7 +77,6 @@ const passwordResetSchema = Joi.object({
     }),
 });
 
-// Схема для зміни пароля
 const changePasswordSchema = Joi.object({
   oldPassword: Joi.string()
     .min(8)

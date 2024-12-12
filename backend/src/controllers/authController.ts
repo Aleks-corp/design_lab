@@ -192,11 +192,13 @@ const resetPassword = async (req: Request, res: Response) => {
 
   const user = await User.findOne({
     resetPasswordToken: resetToken,
-    resetPasswordExpires: { $gt: Date.now() },
   });
 
   if (!user) {
-    throw ApiError(400, "Invalid or expired reset token");
+    throw ApiError(400, "Invalid reset token");
+  }
+  if (user.resetPasswordExpires < Date.now()) {
+    throw ApiError(400, "Expired reset token");
   }
 
   user.password = await bcrypt.hash(newPassword, 10);

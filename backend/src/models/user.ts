@@ -56,11 +56,9 @@ const userSchema = new Schema<IUser, IUserModelType>(
     },
     resetPasswordToken: {
       type: String,
-      required: [true, "Verify token is required"],
     },
     resetPasswordExpires: {
       type: Number,
-      required: [true, "Verify token is required"],
     },
   },
   { versionKey: false, timestamps: true }

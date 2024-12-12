@@ -18,7 +18,18 @@ const sendMail = async ({ email, verificationToken, path, text }: Mail) => {
       from: EMAIL_SEND_FROM,
       subject: "Verify Email",
       text: "Your Link to Verify Email adress in Design Lab",
-      html: `<a style="
+      html: `<p style="
+    padding: 10px 20px;
+    margin 0 auto;
+    background-color: #151617;
+    color: #FCFCFD; 
+    text-decoration: none;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    border-radius: 5px; 
+    border: 2px solid #3772FF; 
+    text-align: center;
+  ">DesignUA Lab</p><a style="
     display: inline-block;
     padding: 10px 20px;
     background-color: #3772FF;
@@ -29,7 +40,7 @@ const sendMail = async ({ email, verificationToken, path, text }: Mail) => {
     border-radius: 5px; 
     border: 2px solid #3772FF; 
     text-align: center;
-  " href="http://${FRONT_SERVER}/${path}/${verificationToken}" target:"_blank">${text}</a><p>If you didn't request this, please ignore this email</p>`,
+  " href="${FRONT_SERVER}/${path}/${verificationToken}" target:"_blank">${text}</a><p>If you didn't request this, please ignore this email</p>`,
     };
     sgMail.setApiKey(SENDGRID_API_KEY);
     return await sgMail.send(msg);
