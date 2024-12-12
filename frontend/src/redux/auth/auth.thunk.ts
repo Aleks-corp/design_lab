@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 import { toast } from "react-hot-toast";
 import { RootState } from "../store";
 import {
+  UserChangePassProfile,
   UserForgotProfile,
   UserLogProfile,
   UserNewPassProfile,
@@ -49,7 +50,7 @@ export const logIn = createAsyncThunk(
     } catch (error) {
       if (error instanceof AxiosError) {
         toast.error(
-          `${error.response?.data.message ?? error.message} Please try again.`
+          `${error.response?.data.message ?? error.message}. Please try again.`
         );
         return thunkAPI.rejectWithValue(error.response ?? error.message);
       }
@@ -122,7 +123,7 @@ export const verifyUser = createAsyncThunk(
 );
 
 export const resendVerifyUser = createAsyncThunk(
-  "auth/verify",
+  "auth/resendverify",
   async (userData: { email: string }, thunkAPI) => {
     try {
       const response = await instance.post(`/users/verify`, userData);
@@ -141,14 +142,35 @@ export const resendVerifyUser = createAsyncThunk(
 );
 
 export const setNewPassword = createAsyncThunk(
-  "auth/newpassword",
+  "auth/resetpassword",
   async (userData: UserNewPassProfile, thunkAPI) => {
     try {
       const response = await instance.post(
-        `/users/forgot/${userData.newPassToken}`,
-        userData.password
+        `/users/reset-password/${userData.newPassToken}`,
+        { newPassword: userData.password }
       );
       toast.success("You are successfully change password!");
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(
+          `${
+            error.response?.data.message ?? error.message
+          }. Please resend email to reset password again.`
+        );
+
+        return thunkAPI.rejectWithValue(error.response ?? error.message);
+      }
+    }
+  }
+);
+
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotpassword",
+  async (userData: UserForgotProfile, thunkAPI) => {
+    try {
+      const response = await instance.post("/users/forgot-password", userData);
+      toast.success("Email sent");
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -161,12 +183,12 @@ export const setNewPassword = createAsyncThunk(
   }
 );
 
-export const forgotPassword = createAsyncThunk(
-  "auth/forgotpassword",
-  async (userData: UserForgotProfile, thunkAPI) => {
+export const changePassword = createAsyncThunk(
+  "auth/changepassword",
+  async (userData: UserChangePassProfile, thunkAPI) => {
     try {
-      const response = await instance.post("/users/forgot", userData);
-      toast.success("Email sent");
+      const response = await instance.post("/users/change-password", userData);
+      toast.success("Password changed successful");
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {

@@ -31,3 +31,8 @@ export interface UserNewPassProfile {
   newPassToken: string;
   password: string;
 }
+
+export interface UserChangePassProfile {
+  oldPassword: string;
+  newPassword: string;
+}

@@ -1,5 +1,5 @@
 import cn from "classnames";
-import styles from "./SignIn.module.sass";
+import styles from "./PassForgot.module.sass";
 import Control from "../../components/Control";
 import TextInput from "../../components/TextInput";
 import Icon from "../../components/Icon";
@@ -53,7 +53,7 @@ const ForgotPassPage = () => {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const ans = await dispatch(forgotPassword(data));
-    if (ans?.type === "auth/login/rejected") {
+    if (ans?.type === "auth/forgotpassword/rejected") {
       if (ans.payload.status === 404) {
         setNotFound(true);
       }
@@ -70,32 +70,30 @@ const ForgotPassPage = () => {
       <Control className={styles.control} item={breadcrumbs} />
       <div className={cn("section-pt80", styles.section)}>
         <div className={cn("container", styles.container)}>
-          {notFound && (
-            <div className={styles.top}>
-              <h1 className={cn("h2", styles.title)}>Vorgot Password</h1>
-              <div className={styles.info}>
-                <p>Check email to set new password</p>
-              </div>
-            </div>
-          )}
           {isSuccess && !notFound ? (
             <div className={styles.top}>
-              <h1 className={cn("h2", styles.title)}>Vorgot Password</h1>
+              <h1 className={cn("h2", styles.title)}>Forgot Password</h1>
               <div className={styles.info}>
-                Sorry, you haven't any registeration account on this site,
-                please{" "}
-                <Link className={styles.link} to="/register">
-                  Sign Up
-                </Link>{" "}
-                first.
+                <p>Check email to set new password</p>
               </div>
             </div>
           ) : (
             <>
               <div className={styles.top}>
-                <h1 className={cn("h2", styles.title)}>Vorgot Password</h1>
+                <h1 className={cn("h2", styles.title)}>Forgot Password</h1>
                 <div className={styles.info}>
-                  <p>Enter your Email to set new password</p>
+                  {notFound ? (
+                    <p>
+                      Sorry, you haven't any registeration account on this site,
+                      please{" "}
+                      <Link className={styles.link} to="/register">
+                        Sign Up
+                      </Link>{" "}
+                      first.
+                    </p>
+                  ) : (
+                    <p>Enter your Email to set new password</p>
+                  )}
                 </div>
               </div>
               <div className={styles.row}>

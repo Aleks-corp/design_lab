@@ -15,11 +15,11 @@ const items = [
     icon: "user",
     url: "/profile",
   },
-  {
-    title: "My favorites posts",
-    icon: "image",
-    url: "/?filter=favorites",
-  },
+  // {
+  //   title: "My favorites posts",
+  //   icon: "image",
+  //   url: "/?filter=favorites",
+  // },
   {
     title: "Dark theme",
     icon: "bulb",
@@ -79,12 +79,12 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
               <button
                 className={cn("button-stroke button-small", styles.button)}
                 onClick={() => {
-                  navigate("/profile-edit");
+                  navigate("/change-password");
                   setVisible(!visible);
                   setVisibleNav();
                 }}
               >
-                Edit Profile
+                Change Password
               </button>
             </div>
             <div className={styles.menu}>

@@ -9,7 +9,6 @@ import { fetchPostById } from "../../redux/posts/post.thunk";
 import { selectIsLoading, selectPost, selectUser } from "../../redux/selectors";
 import Loader from "../../components/LoaderCircle";
 import Icon from "../../components/Icon";
-import { bids } from "../../mocks/bids";
 
 const Post = () => {
   const { id } = useParams();
@@ -25,11 +24,11 @@ const Post = () => {
   }, [dispatch, id, navigate]);
 
   const isLoading = useAppSelector(selectIsLoading);
-  const post = useAppSelector(selectPost) || bids[0];
+  const post = useAppSelector(selectPost);
   const user = useAppSelector(selectUser);
 
   const [liked, setLiked] = useState<boolean>(
-    (user && post.favorites.some((i) => user.id === i)) || false
+    (user && post && post.favorites.some((i) => user.id === i)) || false
   );
 
   return isLoading || !post ? (
@@ -50,7 +49,12 @@ const Post = () => {
             <div className={styles.download}>
               <button
                 type="button"
-                onClick={() => setLiked(!liked)}
+                onClick={() => {
+                  if (!user) {
+                    return;
+                  }
+                  setLiked(!liked);
+                }}
                 className={styles.like}
               >
                 <p className={styles.liketext}>{post.favorites.length}</p>
@@ -65,21 +69,25 @@ const Post = () => {
                 1024 /
                 1024
               ).toFixed(2)} Mb`}</p>
-              <NavLink
-                className={cn("button", styles.button)}
-                to={post.downloadlink}
-                download
-              >
-                Download
-              </NavLink>
+              {user && user.subscription !== "free" && (
+                <NavLink
+                  className={cn("button", styles.button)}
+                  to={post.downloadlink}
+                  download
+                >
+                  Download
+                </NavLink>
+              )}
             </div>
           </div>
-          <div className={styles.info}>
-            You can download this product with the All-Access Pass.
-            <button className={cn("button", styles.button)} type="button">
-              Get All-Access
-            </button>
-          </div>
+          {(!user || user.subscription === "free") && (
+            <div className={styles.info}>
+              You can download this product with the All-Access Pass.
+              <button className={cn("button", styles.button)} type="button">
+                Get All-Access
+              </button>
+            </div>
+          )}
         </div>
         <div className={cn("container", styles.imgcontainer)}>
           {post.image.map((img, index) => (

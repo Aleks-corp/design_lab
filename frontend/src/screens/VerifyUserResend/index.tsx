@@ -33,7 +33,7 @@ const schema = yup.object().shape({
     .required(),
 });
 
-const SendEmail = () => {
+const VerifyPageResend = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isLoading = useAppSelector(selectIsLogining);
@@ -103,4 +103,4 @@ const SendEmail = () => {
   );
 };
 
-export default SendEmail;
+export default VerifyPageResend;

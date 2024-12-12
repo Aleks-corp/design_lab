@@ -22,7 +22,10 @@ import { refreshUser } from "./redux/auth/auth.thunk";
 import { useEffect } from "react";
 import { selectIsRefreshing } from "./redux/selectors";
 import Loader from "./components/LoaderCircle";
-import SendEmail from "./screens/SendEmail";
+import ForgotPassPage from "./screens/PassForgot";
+import VerifyPageResend from "./screens/VerifyUserResend";
+import ResetPasswordPage from "./screens/PassReset";
+import ChangePasswordPage from "./screens/PassChange";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -67,12 +70,36 @@ function App() {
               <VerifyPage />
             </Page>
           }
-        />{" "}
+        />
         <Route
           path="resendverify"
           element={
             <Page>
-              <SendEmail />
+              <VerifyPageResend />
+            </Page>
+          }
+        />
+        <Route
+          path="forgot-password"
+          element={
+            <Page>
+              <ForgotPassPage />
+            </Page>
+          }
+        />
+        <Route
+          path="reset-password/:newPassToken"
+          element={
+            <Page>
+              <ResetPasswordPage />
+            </Page>
+          }
+        />
+        <Route
+          path="change-password"
+          element={
+            <Page>
+              <ChangePasswordPage />
             </Page>
           }
         />

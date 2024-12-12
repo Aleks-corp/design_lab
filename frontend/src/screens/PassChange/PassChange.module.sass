@@ -17,16 +17,11 @@
 
 .info
     color: $neutrals4
-
-.link
-    font-weight: 500
-    color: $neutrals2
-    +dark
-        color: $neutrals8
-    &:hover 
-        color: $neutrals4
+    strong
+        font-weight: 500
+        color: $neutrals2
         +dark
-            color: $neutrals5
+            color: $neutrals8
 
 .row
     display: flex
@@ -51,50 +46,6 @@
             border-bottom: 1px solid $neutrals6
             +dark
                 border-color: $neutrals3
-
-.user
-    display: flex
-    +d
-        max-width: 416px
-
-.avatar
-    flex-shrink: 0
-    width: 128px
-    height: 128px
-    margin-right: 32px
-    +m
-        width: 64px
-        height: 64px
-        margin-right: 16px
-    img
-        width: 100%
-        height: 100%
-        border-radius: 50%
-        object-fit: cover
-    
-.details
-    flex-grow: 1
-
-.stage
-    margin-bottom: 8px
-    +body-bold-2
-
-.text
-    margin-bottom: 16px
-    +caption-2
-    color: $neutrals4
-
-.file
-    display: inline-block
-    position: relative
-    overflow: hidden
-
-.load
-    position: absolute
-    top: 0
-    left: 0
-    font-size: 140px
-    opacity: 0
     
 .list
     margin-bottom: 40px
@@ -130,19 +81,8 @@
     & > .field
         position: relative
         &:not(:last-child)
-            margin-bottom: 32px
+            margin-bottom: 40px
 
-.box
-    position: relative
-    .button
-        position: absolute
-        right: 12px
-        bottom: 8px
-        height: 32px
-        padding: 0 10px
-
-.note
-    color: $neutrals4
 
 .btns
     display: flex
@@ -177,7 +117,6 @@
         svg
             fill: $blue
 
-
 .error
     position: absolute
     left: 0
@@ -188,7 +127,7 @@
 .errorpass
     position: absolute
     left: 0
-    bottom: -32px
+    bottom: -28px
     font-size: 12px
     line-height: 1.15
     color: $alert3

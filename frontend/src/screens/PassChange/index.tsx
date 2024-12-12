@@ -1,11 +1,11 @@
 import cn from "classnames";
-import styles from "./SignUp.module.sass";
+import styles from "./PassChange.module.sass";
 import Control from "../../components/Control";
 import TextInput from "../../components/TextInput";
 import Icon from "../../components/Icon";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { useNavigate, useParams } from "react-router-dom";
-import { setNewPassword } from "../../redux/auth/auth.thunk";
+import { useNavigate } from "react-router-dom";
+import { changePassword } from "../../redux/auth/auth.thunk";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -25,12 +25,20 @@ const breadcrumbs = [
 ];
 
 type FormValues = {
-  password: string;
+  oldPassword: string;
+  newPassword: string;
   confpass: string;
 };
 
 const schema = yup.object().shape({
-  password: yup
+  oldPassword: yup
+    .string()
+    .matches(
+      passRegexp,
+      "Password must contain 8-16 characters, at least one uppercase letter, one lowercase letter and one number:"
+    )
+    .required(),
+  newPassword: yup
     .string()
     .matches(
       passRegexp,
@@ -44,13 +52,12 @@ const schema = yup.object().shape({
       "Password must contain 8-16 characters, at least one uppercase letter, one lowercase letter and one number:"
     )
     .required()
-    .oneOf([yup.ref("password")], "Passwords do not match"),
+    .oneOf([yup.ref("newPassword")], "Passwords do not match"),
 });
 
-const SetPassword = () => {
+const ChangePasswordPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { newPassToken = "" } = useParams();
   const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
 
@@ -65,8 +72,8 @@ const SetPassword = () => {
     resolver: yupResolver(schema),
   });
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const { password } = data;
-    await dispatch(setNewPassword({ password, newPassToken }));
+    const { oldPassword, newPassword } = data;
+    await dispatch(changePassword({ oldPassword, newPassword }));
     if (error) {
       return;
     } else {
@@ -96,11 +103,11 @@ const SetPassword = () => {
                     <div className={styles.fieldset}>
                       <div className={styles.field}>
                         <TextInput
-                          hookformprop={register("password")}
-                          label="your password"
-                          name="password"
+                          hookformprop={register("oldPassword")}
+                          label="please enter old password"
+                          name="oldPassword"
                           type={showPass ? "text" : "password"}
-                          placeholder="Qwerty123"
+                          placeholder="Example: Qwerty123"
                           required
                         />
                         <button
@@ -114,9 +121,35 @@ const SetPassword = () => {
                             <Icon title="eye-closed" size={24} />
                           )}
                         </button>
-                        {errors?.password && (
+                        {errors?.oldPassword && (
                           <p className={styles.errorpass}>
-                            {errors.password.message}
+                            {errors.oldPassword.message}
+                          </p>
+                        )}
+                      </div>
+                      <div className={styles.field}>
+                        <TextInput
+                          hookformprop={register("newPassword")}
+                          label="new password"
+                          name="newPassword"
+                          type={showPass ? "text" : "password"}
+                          placeholder="Example: Qwerty123"
+                          required
+                        />
+                        <button
+                          className={styles.showpass}
+                          type="button"
+                          onClick={() => setShowPass(!showPass)}
+                        >
+                          {showPass ? (
+                            <Icon title="eye-open" size={24} />
+                          ) : (
+                            <Icon title="eye-closed" size={24} />
+                          )}
+                        </button>
+                        {errors?.newPassword && (
+                          <p className={styles.errorpass}>
+                            {errors.newPassword.message}
                           </p>
                         )}
                       </div>
@@ -126,7 +159,7 @@ const SetPassword = () => {
                           label="Confirm password"
                           name="password"
                           type={showConfPass ? "text" : "password"}
-                          placeholder="Qwerty123"
+                          placeholder="Example: Qwerty123"
                           required
                         />
                         <button
@@ -168,4 +201,4 @@ const SetPassword = () => {
   );
 };
 
-export default SetPassword;
+export default ChangePasswordPage;

@@ -141,7 +141,7 @@ const SignIn = () => {
                           label="password"
                           name="password"
                           type={showPass ? "text" : "password"}
-                          placeholder="Qwerty123"
+                          placeholder="example: Qwerty123"
                         />
                         <button
                           className={styles.showpass}
@@ -160,6 +160,9 @@ const SignIn = () => {
                           </p>
                         )}
                       </div>
+                      <Link to="/forgot-password" className={styles.link}>
+                        Forgot Password
+                      </Link>
                     </div>
                   </div>
                   <div>
