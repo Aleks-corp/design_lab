@@ -2,19 +2,11 @@ import cn from "classnames";
 import styles from "./Items.module.sass";
 import Card from "../../../components/Card";
 import Loader from "../../../components/Loader";
+import { GetPost } from "../../../types/posts.types";
 
 interface ItemsProps {
   className: string;
-  posts: {
-    _id: string;
-    title: string;
-    description: string;
-    image: string[];
-    downloadlink: string;
-    filter: string[];
-    favorites: string[];
-    kits: string[];
-  }[];
+  posts: GetPost[];
 }
 
 const Items = ({ className, posts }: ItemsProps) => {

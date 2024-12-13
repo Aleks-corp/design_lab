@@ -6,5 +6,5 @@ export const initialState: PostsState = {
   currentFilter: "",
   selectedPost: null,
   isLoading: false,
-  error: null,
+  error: "",
 };

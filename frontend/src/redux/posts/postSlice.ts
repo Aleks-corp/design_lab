@@ -13,13 +13,13 @@ import { initialState } from "./initialState";
 const handlePending = (state: PostsState) => {
   state.isLoading = true;
 };
-const handleRejected = (state: PostsState, action: PayloadAction<Error>) => {
+const handleRejected = (state: PostsState, action: PayloadAction<string>) => {
   state.isLoading = false;
   state.error = action.payload;
 };
 
 const handleFulfilled = (state: PostsState) => {
-  state.error = null;
+  state.error = "";
   state.isLoading = false;
 };
 

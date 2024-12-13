@@ -57,14 +57,14 @@ const handleRefreshRejected = (state: AuthState) => {
   state.token = "";
 };
 
-const handleRejected = (state: AuthState, action: PayloadAction<Error>) => {
+const handleRejected = (state: AuthState, action: PayloadAction<string>) => {
   state.isLogining = false;
   state.error = action.payload;
 };
 
 const handlePending = (state: AuthState) => {
   state.isLogining = true;
-  state.error = null;
+  state.error = "";
 };
 
 const authSlice = createSlice({

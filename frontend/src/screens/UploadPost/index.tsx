@@ -137,8 +137,8 @@ const Upload = () => {
       // setIsUploading(false);
     }
 
-    if (error instanceof Error) {
-      toast.error(error.message);
+    if (error) {
+      toast.error(error);
       console.error(error);
     }
   };
