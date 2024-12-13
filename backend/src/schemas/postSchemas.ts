@@ -25,7 +25,10 @@ const postAddSchema = Joi.object({
 });
 
 const postUpdateStatusSchema = Joi.object({
-  userId: Joi.string().required(),
+  postId: Joi.string().required().messages({
+    "string.empty": `'userId' cannot be an empty field`,
+    "any.required": `missing required 'userId' field`,
+  }),
 });
 
 export default { postAddSchema, postUpdateStatusSchema };

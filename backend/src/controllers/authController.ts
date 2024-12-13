@@ -122,7 +122,6 @@ const getVerification = async (req: Request, res: Response) => {
   }
   await User.findByIdAndUpdate(user._id, {
     verify: true,
-    verificationToken: "",
   });
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "23h" });
   res.json({

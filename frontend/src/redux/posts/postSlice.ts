@@ -27,7 +27,12 @@ export const handleFulfilledPosts = (
   state: PostsState,
   action: PayloadAction<{ posts: GetPost[]; totalHits: number }>
 ): void => {
-  state.posts = action.payload.posts;
+  const newPosts = action.payload.posts.filter(
+    (newPost) =>
+      !state.posts.some((existingPost) => existingPost._id === newPost._id)
+  );
+  state.posts = [...state.posts, ...newPosts];
+
   state.totalHits = action.payload.totalHits;
 };
 
@@ -50,13 +55,13 @@ export const handleFulfilledAddFavorites = (
   state: PostsState,
   action: PayloadAction<GetPost>
 ): void => {
-  const updatedBoard = action.payload;
-  const index = state.posts.findIndex((i) => i._id === updatedBoard._id);
+  const updatedPost = action.payload;
+  const index = state.posts.findIndex((i) => i._id === updatedPost._id);
   if (index !== -1) {
-    state.posts.splice(index, 1, updatedBoard);
+    state.posts.splice(index, 1, updatedPost);
   }
   if (state.selectedPost) {
-    state.selectedPost.favorites = updatedBoard.favorites;
+    state.selectedPost.favorites = updatedPost.favorites;
   }
 };
 
@@ -76,18 +81,29 @@ export const handleFulfilledDeletePost = (
 const postsSlice = createSlice({
   name: "posts",
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    clearPosts(state: PostsState) {
+      state.posts = [];
+      state.totalHits = 0;
+    },
+    setFilter(state: PostsState, action: PayloadAction<string>) {
+      state.currentFilter = action.payload;
+    },
+    clearPost(state: PostsState) {
+      state.selectedPost = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchPosts.pending, handlePending)
       .addCase(fetchPosts.fulfilled, handleFulfilledPosts)
+      .addCase(fetchPostById.pending, handlePending)
       .addCase(fetchPostById.fulfilled, handleFulfilledPostById)
+      .addCase(addPost.pending, handlePending)
       .addCase(addPost.fulfilled, handleFulfilledAddPost)
       .addCase(addRemoveFavorites.fulfilled, handleFulfilledAddFavorites)
+      .addCase(deletePost.pending, handlePending)
       .addCase(deletePost.fulfilled, handleFulfilledDeletePost)
-      .addMatcher(
-        ({ type }) => type.endsWith("/pending") && type.startsWith("posts"),
-        handlePending
-      )
       .addMatcher(
         ({ type }) => type.endsWith("/rejected") && type.startsWith("posts"),
         handleRejected
@@ -99,4 +115,5 @@ const postsSlice = createSlice({
   },
 });
 
+export const { clearPosts, setFilter, clearPost } = postsSlice.actions;
 export const postsReducer = postsSlice.reducer;

@@ -1,33 +1,20 @@
-import { useState } from "react";
 import cn from "classnames";
 import { Link } from "react-router-dom";
 import styles from "./Card.module.sass";
 import Icon from "../Icon";
+import toast from "react-hot-toast";
+import { GetPost } from "../../types/posts.types";
 
 interface CardProps {
   className: string;
   like?: (id: string) => void;
-  post: {
-    _id: string;
-    title: string;
-    description: string;
-    image: string[];
-    downloadlink: string;
-    filter: string[];
-    favorites: string[];
-    kits: string[];
-  };
+  userId?: string;
+  post: GetPost;
 }
 
-const Card = ({ className, post, like }: CardProps) => {
-  const { _id, title, description, image, kits } = post;
-  const [visible, setVisible] = useState(false);
-
-  const handleFavoriteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    event.preventDefault();
-    setVisible(!visible);
-  };
+const Card = ({ className, post, like, userId }: CardProps) => {
+  const { _id, title, description, image, kits, favorites } = post;
+  const visible = favorites.some((id) => id === userId);
 
   return (
     <div className={cn(styles.card, className)}>
@@ -57,11 +44,17 @@ const Card = ({ className, post, like }: CardProps) => {
           )}
           <div className={styles.control}>
             <button
+              type="button"
               className={cn(styles.favorite, { [styles.active]: visible })}
               onClick={(e) => {
-                handleFavoriteClick(e);
+                e.preventDefault();
+                e.stopPropagation();
                 if (like) {
                   like(_id);
+                } else {
+                  toast("Please sign in first!", {
+                    icon: "👋",
+                  });
                 }
               }}
             >

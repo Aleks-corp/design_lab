@@ -48,7 +48,6 @@ const userSchema = new Schema<IUser, IUserModelType>(
     },
     verificationToken: {
       type: String,
-      required: [true, "Verify token is required"],
     },
     verify: {
       type: Boolean,

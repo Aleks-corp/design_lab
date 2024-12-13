@@ -5,6 +5,6 @@ export const initialState: AuthState = {
   isLoggedIn: false,
   isRefreshing: false,
   isLogining: false,
-  error: null,
+  error: "",
   profile: null,
 };

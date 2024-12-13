@@ -8,11 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { signUp } from "../../redux/auth/auth.thunk";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { emailRegexp, passRegexp } from "../../constants/user.constants";
 import { useState } from "react";
 import { selectIsLogining, selectUserError } from "../../redux/selectors";
 import Loader from "../../components/Loader";
+import { regSchema } from "../../schema/regSchema";
 
 const breadcrumbs = [
   {
@@ -31,29 +30,6 @@ type FormValues = {
   confpass: string;
 };
 
-const schema = yup.object().shape({
-  name: yup.string().min(3).max(12).required(),
-  email: yup
-    .string()
-    .matches(emailRegexp, "Oops! That email doesn't seem right")
-    .required(),
-  password: yup
-    .string()
-    .matches(
-      passRegexp,
-      "Password must contain 8-16 characters, at least one uppercase letter, one lowercase letter and one number:"
-    )
-    .required(),
-  confpass: yup
-    .string()
-    .matches(
-      passRegexp,
-      "Password must contain 8-16 characters, at least one uppercase letter, one lowercase letter and one number:"
-    )
-    .required()
-    .oneOf([yup.ref("password")], "Passwords do not match"),
-});
-
 const SignUp = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -68,18 +44,16 @@ const SignUp = () => {
     formState: { errors },
     reset,
   } = useForm<FormValues>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(regSchema),
   });
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const { name, email, password } = data;
-    console.log(data);
     await dispatch(signUp({ name, email, password }));
     if (error) {
       return;
-    } else {
-      reset();
-      navigate("/verify/0");
     }
+    reset();
+    navigate("/verify/0");
   };
 
   return (
@@ -251,7 +225,11 @@ const SignUp = () => {
                 wallet. Click 'Update profile' then sign the message
               </div> */}
                 <div className={styles.btns}>
-                  <button type="submit" className={cn("button", styles.button)}>
+                  <button
+                    type="submit"
+                    onSubmit={handleSubmit(onSubmit)}
+                    className={cn("button", styles.button)}
+                  >
                     {isLoading ? <Loader className="" /> : "Sign Up"}
                   </button>
                   <button type="reset" className={styles.clear}>

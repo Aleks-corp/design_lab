@@ -160,23 +160,18 @@ const SignIn = () => {
                           </p>
                         )}
                       </div>
-                      <Link to="/forgot-password" className={styles.link}>
-                        Forgot Password
-                      </Link>
+                      {isntVerify ? (
+                        <Link to="/resendverify" className={styles.link}>
+                          Resend Email
+                        </Link>
+                      ) : (
+                        <Link to="/forgot-password" className={styles.link}>
+                          Forgot Password
+                        </Link>
+                      )}
                     </div>
                   </div>
-                  <div>
-                    {isntVerify && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigate("/resendverify");
-                        }}
-                      >
-                        Resend Email
-                      </button>
-                    )}
-                  </div>
+
                   {/* <div className={styles.item}>
                   <div className={styles.category}>Social</div>
                   <div className={styles.fieldset}>

@@ -21,7 +21,6 @@ export const signUp = createAsyncThunk(
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.log("error:", error);
         if (error.response?.status === 409) {
           const data = JSON.parse(error.response.config.data);
           toast.error(
@@ -31,9 +30,7 @@ export const signUp = createAsyncThunk(
           toast.error(`${error.response?.data.message ?? error.message}`);
         }
 
-        return thunkAPI.rejectWithValue(
-          error.response?.data.message ?? error.message
-        );
+        return thunkAPI.rejectWithValue(error.response?.data ?? error.message);
       }
     }
   }

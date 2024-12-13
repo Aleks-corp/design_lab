@@ -20,9 +20,7 @@ const sendMail = async ({ email, verificationToken, path, text }: Mail) => {
       text: "Your Link to Verify Email adress in Design Lab",
       html: `<p style="
     padding: 10px 20px;
-    margin 0 auto;
-    background-color: #151617;
-    color: #FCFCFD; 
+    color: #151617; 
     text-decoration: none;
     font-size: 16px;
     font-family: Arial, sans-serif;

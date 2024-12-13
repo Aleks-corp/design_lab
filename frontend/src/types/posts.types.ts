@@ -6,8 +6,9 @@ export interface GetPost {
   downloadlink: string;
   filesize: string;
   favorites: string[];
-  filter: string[];
+  category: string[];
   kits: string[];
+  upload_at: string;
   created_at: string;
   updated_at: string;
 }
@@ -19,7 +20,7 @@ export interface AddPost {
     image: string[];
     downloadlink: string;
     filesize: string;
-    filter: string[];
+    category: string[];
     kits: string[];
   };
 }

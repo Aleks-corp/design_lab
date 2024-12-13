@@ -3,7 +3,7 @@ import styles from "./Loader.module.sass";
 
 interface LoaderProps {
   color?: string;
-  className: string;
+  className?: string;
 }
 
 const Loader = ({ className, color }: LoaderProps) => {

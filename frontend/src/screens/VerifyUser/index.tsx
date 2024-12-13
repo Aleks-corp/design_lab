@@ -14,7 +14,7 @@ const VerifyPage = () => {
   const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const isLoggining = useAppSelector(selectIsLogining);
-  const isError = useAppSelector(selectUserError);
+  const error = useAppSelector(selectUserError);
 
   const { token } = useParams();
   useEffect(() => {
@@ -25,11 +25,11 @@ const VerifyPage = () => {
 
   return (
     <>
-      {token === "0" && !isError && (
+      {token === "0" && !error && (
         <h3 className={styles.title}>Check Email to verify user</h3>
       )}
 
-      {isLoggining && !isError && <Loader className={styles.loader} />}
+      {isLoggining && !error && <Loader className={styles.loader} />}
       {!isLoggining && isLoggedIn && (
         <>
           <h3 className={styles.title}>
@@ -40,7 +40,7 @@ const VerifyPage = () => {
           </h3>
         </>
       )}
-      {isError && (
+      {error === "Verification has already been passed." && (
         <>
           <h3 className={styles.title}>
             Verification has already been passed

@@ -1,4 +1,4 @@
-export const filter = [
+export const category = [
   "UI Kits",
   "Mobile",
   "Web",

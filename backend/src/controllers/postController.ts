@@ -13,7 +13,7 @@ interface PostRequest extends Request {
     title: string;
     description: string;
     kits: string;
-    filter: string;
+    category: string;
     filesize: number;
   };
   files?:
@@ -22,20 +22,25 @@ interface PostRequest extends Request {
 }
 
 const getAllPosts = async (req: Request, res: Response) => {
-  const { page = "1", limit = "10", ...query } = req.query;
+  const { page = "1", limit = "12", filter = "" } = req.query;
 
   const pageNumber = parseInt(page as string, 10);
   const limitNumber = parseInt(limit as string, 10);
   const skip = (pageNumber - 1) * limitNumber;
-
-  const validQuery = filterQuery(query);
-
-  const posts = await Post.find(validQuery, "-owner -createdAt -updatedAt", {
-    skip,
-    limit: limitNumber,
-  });
-
-  const totalHits = await Post.countDocuments(validQuery);
+  const currentTime = new Date();
+  const filterQuery =
+    filter && filter !== "All products" ? { category: { $in: [filter] } } : {};
+  const uploadQuery = { upload_at: { $lte: currentTime } };
+  const query = { ...filterQuery, ...uploadQuery };
+  const posts = await Post.find(
+    query,
+    "-owner -createdAt -updatedAt -downloadlink",
+    {
+      skip,
+      limit: limitNumber,
+    }
+  );
+  const totalHits = await Post.countDocuments(query);
 
   res.json({ totalHits, posts });
 };
@@ -78,12 +83,12 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
     : "";
 
   const kits = JSON.parse(req.body.kits);
-  const filter = JSON.parse(req.body.filter);
+  const category = JSON.parse(req.body.category);
 
   const post = await Post.create({
     ...body,
     kits,
-    filter,
+    category,
     image,
     downloadlink,
   });
@@ -91,12 +96,15 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
 };
 
 const updateStatusPost = async (req: Request, res: Response) => {
-  const { postId } = req.params;
-  const userId = req.body;
+  const { postId } = req.body;
+  const { _id: userId } = req.user;
   const post = await Post.findById(postId);
 
   if (!post) {
     throw ApiError(404, "Post not found");
+  }
+  if (!userId) {
+    throw ApiError(404, "User not found");
   }
 
   const isFavorite = post.favorites.some(
@@ -123,7 +131,7 @@ const updateStatusPost = async (req: Request, res: Response) => {
     throw ApiError(404, "Post not found");
   }
 
-  res.json({ updatedPost });
+  res.json(updatedPost);
 };
 
 const deletePostById = async (req: Request, res: Response) => {

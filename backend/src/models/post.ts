@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { handleUpdateValidator, handlerSaveError } from "./hooks";
 import { kits } from "../constants/kitsConstants";
-import { filter } from "../constants/filterConstants";
+import { category } from "../constants/categoryConstants";
 
 const postSchema = new Schema(
   {
@@ -23,7 +23,7 @@ const postSchema = new Schema(
     },
     kits: {
       type: [String],
-      required: [true, "Set at least one filter"],
+      required: [true, "Set at least one kits"],
       validate: {
         validator: function (value: string[]) {
           const allowedValues = kits;
@@ -44,12 +44,12 @@ const postSchema = new Schema(
       ref: "user",
       required: true,
     },
-    filter: {
+    category: {
       type: [String],
-      required: [true, "Set at least one kits"],
+      required: [true, "Set at least one category"],
       validate: {
         validator: function (value: string[]) {
-          const allowedValues = filter;
+          const allowedValues = category;
           return (
             value.every((item: string) => allowedValues.includes(item)) &&
             value.length > 0
@@ -59,6 +59,7 @@ const postSchema = new Schema(
           "Kits can only contain 'All products', 'Web', 'Mobile', 'Dashboard', 'Health', 'Finance'.",
       },
     },
+    upload_at: { type: Date, required: true },
   },
 
   { versionKey: false, timestamps: true }

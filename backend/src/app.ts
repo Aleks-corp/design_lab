@@ -8,6 +8,7 @@ import "dotenv/config";
 
 import postsRouter from "./routes/api/posts";
 import authRouter from "./routes/api/auth";
+import adminRouter from "./routes/api/admin";
 
 const logPath = path.resolve("logs");
 
@@ -37,6 +38,7 @@ app.use(express.static("public"));
 
 app.use("/users", authRouter);
 app.use("/posts", postsRouter);
+app.use("/admin", adminRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });

@@ -20,7 +20,7 @@ const breadcrumbs = [
     url: "/",
   },
   {
-    title: "Sign In",
+    title: "Forgot Password",
   },
 ];
 

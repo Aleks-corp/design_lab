@@ -20,7 +20,7 @@ import VerifyPage from "./screens/VerifyUser";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { refreshUser } from "./redux/auth/auth.thunk";
 import { useEffect } from "react";
-import { selectIsRefreshing } from "./redux/selectors";
+import { selectIsRefreshing, selectToken } from "./redux/selectors";
 import Loader from "./components/LoaderCircle";
 import ForgotPassPage from "./screens/PassForgot";
 import VerifyPageResend from "./screens/VerifyUserResend";
@@ -30,9 +30,12 @@ import ChangePasswordPage from "./screens/PassChange";
 function App() {
   const dispatch = useAppDispatch();
   const isRefreshing = useAppSelector(selectIsRefreshing);
+  const token = useAppSelector(selectToken);
   useEffect(() => {
-    dispatch(refreshUser());
-  }, [dispatch]);
+    if (token) {
+      dispatch(refreshUser());
+    }
+  }, [dispatch, token]);
 
   return isRefreshing ? (
     <Loader className={styles.mainloader} />

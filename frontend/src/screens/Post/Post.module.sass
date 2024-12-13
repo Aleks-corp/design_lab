@@ -60,9 +60,6 @@
     flex-wrap: wrap
     margin: -8px 0 0 -8px
 
-.category
-    margin: 8px 0 0 8px
-
 .options
     position: absolute
     top: auto
@@ -121,6 +118,37 @@
     +dark
         color: $neutrals8
 
+.delete
+    padding: 0 14px
+    border: 2px solid $pink
+    color: $pink
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    height: 48px
+    border-radius: 24px
+    +dm-sans
+    font-size: 16px
+    line-height: 20px
+    transition: all 0.3s
+    svg
+        fill: $pink
+    &:hover
+        border-color: $red
+    +dark
+        border-color: $pink
+        color: $pink
+        svg
+            fill: $pink
+        &:hover
+            border-color: $red
+
+.deletetext
+    margin-left: 8px
+    color: $pink
+    +dark
+        color: $pink
+
 .size
     padding: 0 14px
     border: 2px solid $neutrals4
@@ -136,6 +164,21 @@
         border-color: $neutrals2
         color: $neutrals8
         
+.category
+    padding: 0 14px
+    margin: 0 0 12px 8px
+    border: 2px solid $neutrals4
+    color: $neutrals2
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    height: 48px
+    border-radius: 24px
+    background: none
+    +dm-sans
+    +dark
+        border-color: $neutrals2
+        color: $neutrals8
 
 .kits
     display: flex
@@ -206,7 +249,3 @@
 .users
     margin-bottom: auto
 
-.control
-    margin-top: 40px
-    +m
-        margin-top: 32px

@@ -11,18 +11,22 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 // import { useNavigate } from "react-router-dom";
 import { addRemoveFavorites, fetchPosts } from "../../redux/posts/post.thunk";
 import {
+  selectCurrentFilter,
   selectIsLoading,
   selectPosts,
+  selectTotalHits,
   selectUser,
 } from "../../redux/selectors";
+import Loader from "../../components/Loader";
+import { clearPosts, setFilter } from "../../redux/posts/postSlice";
 
 const navLinks = [
   "All products",
-  "Web",
   "Mobile",
+  "Web",
   "Dashboard",
-  "Health",
-  "Finance",
+  "UI Kits",
+  "Mockups",
 ];
 
 const prodListOptions = ["All products", "Favorites"];
@@ -35,19 +39,31 @@ const Home = () => {
   // const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(fetchPosts());
+    dispatch(fetchPosts({}));
   }, [dispatch]);
 
   const isLoading = useAppSelector(selectIsLoading);
   const posts = useAppSelector(selectPosts);
+  const totalHits = useAppSelector(selectTotalHits);
+  const currentFilter = useAppSelector(selectCurrentFilter);
   const postsPrew = posts;
   const user = useAppSelector(selectUser);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [prodList, setProdList] = useState(prodListOptions[0]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handleFilterClick = (filter: string) => {
+    if (filter !== currentFilter) {
+      dispatch(clearPosts());
+      dispatch(setFilter(filter));
+      dispatch(fetchPosts({ page: 1, filter }));
+      setCurrentPage(1);
+    }
+  };
 
   const like = (postId: string) => {
     if (user) {
-      dispatch(addRemoveFavorites({ userId: user.id, postId }));
+      dispatch(addRemoveFavorites(postId));
     }
   };
   // const [likes, setLikes] = useState(likesOptions[0]);
@@ -66,9 +82,7 @@ const Home = () => {
   // const MIN = 0.01;
   // const MAX = 10;
 
-  return isLoading ? (
-    <></>
-  ) : (
+  return (
     <div className={cn("section-pt80", styles.section)}>
       <div className={cn("container", styles.container)}>
         {/* <div className={styles.top}>
@@ -102,15 +116,17 @@ const Home = () => {
             />
           </div>
           <div className={styles.nav}>
-            {navLinks.map((x, index) => (
+            {navLinks.map((filter) => (
               <button
                 className={cn(styles.link, {
-                  [styles.active]: index === activeIndex,
+                  [styles.active]: filter === currentFilter,
                 })}
-                onClick={() => setActiveIndex(index)}
-                key={index}
+                onClick={() => {
+                  handleFilterClick(filter);
+                }}
+                key={filter}
               >
-                {x}
+                {filter}
               </button>
             ))}
           </div>
@@ -231,18 +247,56 @@ const Home = () => {
         {/* <div className={styles.wrapper}> */}
         <div className={styles.list}>
           {postsPrew.length > 0 &&
-            postsPrew.map((i, index) => (
-              <Card className={styles.card} post={i} key={index} like={like} />
-            ))}
+            postsPrew.map((i, index) =>
+              user ? (
+                <Card
+                  className={styles.card}
+                  post={i}
+                  key={index}
+                  like={like}
+                  userId={user.id}
+                />
+              ) : (
+                <Card className={styles.card} post={i} key={index} />
+              )
+            )}
         </div>
         <div className={styles.btns}>
-          <button className={cn("button-stroke", styles.button)}>
-            <span>Load more</span>
-          </button>
+          {isLoading ? (
+            <button
+              className={cn("button-stroke", styles.button)}
+              type="button"
+            >
+              <Loader />
+            </button>
+          ) : (
+            <>
+              {totalHits > posts.length && (
+                <button
+                  className={cn("button-stroke", styles.button)}
+                  type="button"
+                  onClick={() => {
+                    const nextPage = currentPage + 1;
+                    setCurrentPage(nextPage);
+                    dispatch(
+                      fetchPosts({
+                        page: nextPage,
+                        limit: 1,
+                        filter: currentFilter,
+                      })
+                    );
+                  }}
+                >
+                  <span>Load more</span>
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
   );
+
   // </div>
   // </div>
 };

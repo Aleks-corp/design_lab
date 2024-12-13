@@ -1,5 +1,5 @@
 const filterQuery = (query: any) => {
-  const allowedFields = ["title", "category", "tags"]; // Поля, які можна використовувати у фільтрах
+  const allowedFields = ["title", "category", "kits"];
   const filteredQuery: Record<string, any> = {};
 
   for (const key in query) {

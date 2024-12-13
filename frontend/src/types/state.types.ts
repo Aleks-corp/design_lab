@@ -9,9 +9,10 @@ export interface State {
 export interface PostsState {
   posts: GetPost[];
   totalHits: number;
+  currentFilter: string;
   selectedPost: GetPost | null;
   isLoading: boolean;
-  error: Error | null;
+  error: string;
 }
 
 export interface AuthState {
@@ -19,6 +20,6 @@ export interface AuthState {
   isLoggedIn: boolean;
   isRefreshing: boolean;
   isLogining: boolean;
-  error: Error | null;
+  error: string;
   profile: UserProfile | null;
 }

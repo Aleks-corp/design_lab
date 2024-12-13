@@ -1,18 +1,23 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import cn from "classnames";
 import styles from "./Header.module.sass";
 // import Icon from "../Icon";
 import Image from "../Image";
 // import Notification from "./Notification";
 import User from "./User";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectIsAdmin, selectIsLoggedIn } from "../../redux/selectors";
+import { fetchPosts } from "../../redux/posts/post.thunk";
+import { setFilter } from "../../redux/posts/postSlice";
 
 const Headers = () => {
   const [visibleNav, setVisibleNav] = useState(false);
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const isAdmin = useAppSelector(selectIsAdmin);
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   // const [search, setSearch] = useState("");
 
@@ -23,10 +28,15 @@ const Headers = () => {
   return (
     <header className={styles.header}>
       <div className={cn("container", styles.container)}>
-        <Link
+        <button
           className={styles.logo}
-          to="/"
-          onClick={() => setVisibleNav(false)}
+          type="button"
+          onClick={() => {
+            setVisibleNav(false);
+            navigate("/");
+            dispatch(fetchPosts({}));
+            dispatch(setFilter(""));
+          }}
         >
           <Image
             className={styles.pic}
@@ -34,7 +44,7 @@ const Headers = () => {
             srcDark="/images/logo-light.png"
             alt="Fitness Pro"
           />
-        </Link>
+        </button>
         <div className={styles.wrapper}>
           {/* <nav className={styles.nav}>
             <Link className={styles.link} to={user ? "/profile" : ""}>

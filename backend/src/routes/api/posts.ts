@@ -29,9 +29,8 @@ postsRouter.post(
   addPost
 );
 postsRouter.patch(
-  "/:postId",
+  "/",
   authenticateToken,
-  isValidId,
   isEmptyBodyStatus,
   validateBody(postUpdateStatusSchema),
   updateStatusPost

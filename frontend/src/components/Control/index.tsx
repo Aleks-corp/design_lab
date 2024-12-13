@@ -1,5 +1,5 @@
 import cn from "classnames";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Control.module.sass";
 import Icon from "../Icon";
 
@@ -12,16 +12,17 @@ interface ControlProps {
 }
 
 const Control = ({ className, item }: ControlProps) => {
+  const navigate = useNavigate();
   return (
     <div className={cn(styles.control, className)}>
       <div className={cn("container", styles.container)}>
-        <Link
+        <button
           className={cn("button-stroke button-small", styles.button)}
-          to="/"
+          onClick={() => navigate(-1)}
         >
           <Icon title="arrow-prev" size={10} />
-          <span>Back to home</span>
-        </Link>
+          <span>Back</span>
+        </button>
         <div className={styles.breadcrumbs}>
           {item.map((x, index) => (
             <div className={styles.item} key={index}>
