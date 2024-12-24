@@ -10,8 +10,14 @@ import { postSchemas } from "../../schemas/index";
 import { postController } from "../../controllers/index";
 import { upload } from "../../middlewares/index";
 
-const { getAllPosts, getPostById, addPost, deletePostById, updateStatusPost } =
-  postController;
+const {
+  getAllPosts,
+  getPostById,
+  addPost,
+  deletePostById,
+  updateStatusPost,
+  postPresignedUrl,
+} = postController;
 const { postAddSchema, postUpdateStatusSchema } = postSchemas;
 
 const postsRouter = express.Router();
@@ -21,11 +27,16 @@ const postsRouter = express.Router();
 postsRouter.get("/", getAllPosts);
 postsRouter.get("/:postId", isValidId, getPostById);
 postsRouter.post(
+  "/generate-presigned-url",
+  authenticateToken,
+  postPresignedUrl
+);
+postsRouter.post(
   "/",
   authenticateToken,
-  upload,
+  // upload,
   isEmptyBody,
-  // validateBody(postAddSchema),
+  validateBody(postAddSchema),
   addPost
 );
 postsRouter.patch(

@@ -14,11 +14,23 @@ const postAddSchema = Joi.object({
     "string.empty": `'description' cannot be an empty field`,
     "any.required": `missing required 'description' field`,
   }),
-  filter: Joi.array().items(Joi.string()).required().messages({
+  category: Joi.array().items(Joi.string()).required().messages({
     "string.empty": `'description' cannot be an empty field`,
     "any.required": `missing required 'description' field`,
   }),
   filesize: Joi.string().required().messages({
+    "string.empty": `'description' cannot be an empty field`,
+    "any.required": `missing required 'description' field`,
+  }),
+  image: Joi.array().items(Joi.string()).required().messages({
+    "string.empty": `'description' cannot be an empty field`,
+    "any.required": `missing required 'description' field`,
+  }),
+  downloadlink: Joi.string().required().messages({
+    "string.empty": `'description' cannot be an empty field`,
+    "any.required": `missing required 'description' field`,
+  }),
+  upload_at: Joi.string().required().messages({
     "string.empty": `'description' cannot be an empty field`,
     "any.required": `missing required 'description' field`,
   }),

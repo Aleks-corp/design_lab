@@ -7,18 +7,19 @@ import {
 } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
+import { generatePresignedUrl } from "../helpers/generatePresignedUrl";
 
 interface PostRequest extends Request {
   body: {
     title: string;
     description: string;
-    kits: string;
-    category: string;
-    filesize: number;
+    image: string[];
+    downloadlink: string;
+    filesize: string;
+    category: string[];
+    kits: string[];
+    upload_at: string;
   };
-  files?:
-    | { [fieldname: string]: Express.Multer.File[] }
-    | Express.Multer.File[];
 }
 
 const getAllPosts = async (req: Request, res: Response) => {
@@ -54,43 +55,65 @@ const getPostById = async (req: Request, res: Response) => {
   res.json(post);
 };
 
+const postPresignedUrl = async (req: Request, res: Response) => {
+  const { fileName, fileType } = req.body;
+
+  const url = await generatePresignedUrl(fileName, fileType);
+  if (!url) {
+    throw ApiError(404, "Failed to generate pre-signed URL");
+  }
+  res.json({ url });
+};
+
 const addPost = async (req: PostRequest, res: Response): Promise<void> => {
   if (req.user.subscription !== "admin") {
     throw ApiError(403, "No access to create POST");
   }
-
-  const { body } = req;
-  const files = req.files;
-
-  if (!files || (!files["imagefiles"] && !files["downloadfile"])) {
-    console.error("No files uploaded");
-    res.status(400).json({ error: "No files uploaded" });
-    return;
-  }
-
-  const image = files["imagefiles"]
-    ? Array.isArray(files["imagefiles"])
-      ? await Promise.all(
-          files["imagefiles"].map((file) => uploadToS3(file, "post-images"))
-        )
-      : []
-    : [];
-
-  const downloadlink = files["downloadfile"]
-    ? Array.isArray(files["downloadfile"])
-      ? await uploadToS3(files["downloadfile"][0], "post-files")
-      : await uploadToS3(files["downloadfile"], "post-files")
-    : "";
-
-  const kits = JSON.parse(req.body.kits);
-  const category = JSON.parse(req.body.category);
-
-  const post = await Post.create({
-    ...body,
-    kits,
-    category,
+  const {
+    title,
+    description,
     image,
     downloadlink,
+    filesize,
+    category,
+    kits,
+    upload_at,
+  } = req.body;
+  // const { body } = req;
+  // const files = req.files;
+
+  // if (!files || (!files["imagefiles"] && !files["downloadfile"])) {
+  //   console.error("No files uploaded");
+  //   res.status(400).json({ error: "No files uploaded" });
+  //   return;
+  // }
+
+  // const image = files["imagefiles"]
+  //   ? Array.isArray(files["imagefiles"])
+  //     ? await Promise.all(
+  //         files["imagefiles"].map((file) => uploadToS3(file, "post-images"))
+  //       )
+  //     : []
+  //   : [];
+
+  // const downloadlink = files["downloadfile"]
+  //   ? Array.isArray(files["downloadfile"])
+  //     ? await uploadToS3(files["downloadfile"][0], "post-files")
+  //     : await uploadToS3(files["downloadfile"], "post-files")
+  //   : "";
+
+  // const kits = JSON.parse(req.body.kits);
+  // const category = JSON.parse(req.body.category);
+
+  const post = await Post.create({
+    title,
+    description,
+    image,
+    downloadlink,
+    filesize,
+    category,
+    kits,
+    upload_at,
   });
   res.status(201).json({ post });
 };
@@ -161,4 +184,5 @@ export default {
   addPost: ctrlWrapper(addPost),
   deletePostById: ctrlWrapper(deletePostById),
   updateStatusPost: ctrlWrapper(updateStatusPost),
+  postPresignedUrl: ctrlWrapper(postPresignedUrl),
 };
