@@ -43,11 +43,7 @@ export const addPost = createAsyncThunk(
   "posts/addPost",
   async (data: AddPost, thunkAPI) => {
     try {
-      const response = await instance.post("/posts", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await instance.post("/posts", data);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
