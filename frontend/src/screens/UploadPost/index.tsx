@@ -29,32 +29,20 @@ import {
 import { addPost } from "../../redux/posts/post.thunk";
 import toast from "react-hot-toast";
 
-// const royaltiesOptions = ["10%", "20%", "30%"];
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import axios from "axios";
+import { instance } from "../../api/axios";
 
-// const items = [
-//   {
-//     title: "Create collection",
-//     color: "#4BC9F0",
-//   },
-//   {
-//     title: "Crypto Legend - Professor",
-//     color: "#45B26B",
-//   },
-//   {
-//     title: "Crypto Legend - Professor",
-//     color: "#EF466F",
-//   },
-//   {
-//     title: "Legend Photography",
-//     color: "#9757D7",
-//   },
-// ];
+interface FileUploadProgress {
+  fileName: string;
+  progress: number;
+}
 
 const Upload = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // const [royalties, setRoyalties] = useState(royaltiesOptions[0]);
   const [kits, setKits] = useState(
     kitsConstant.map((key) => ({ [key]: false }))
   );
@@ -68,14 +56,17 @@ const Upload = () => {
   const isLoading = useAppSelector(selectIsLogining);
   const isAdmin = useAppSelector(selectIsAdmin);
 
-  // const [isUploading, setIsUploading] = useState<boolean>(false);
-
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[] | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
   const [downloadLink, setDownloadLink] = useState<string>("");
   const [titleValue, seTitleValue] = useState<string>("");
   const [descriptionValue, setDescriptionValue] = useState<string>("");
+  const [fileUploadProgress, setFileUploadProgress] = useState<
+    FileUploadProgress[]
+  >([]);
+
+  const [uploadAt, setUploadAt] = useState<string>("");
 
   useEffect(() => {
     if (imageFiles.length > 0) {
@@ -92,7 +83,83 @@ const Upload = () => {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // 1. Отримуємо підписані URL з бекенду
+    const response = await instance.post("/generate-signed-urls", {
+      files: [
+        ...imageFiles.map((file) => file.name),
+        downloadFile ? downloadFile.name : "",
+      ],
+    });
 
+    const { signedUrls } = response.data;
+
+    // 2. Завантажуємо файли на S3 за підписаними URL
+
+    // Масив для URL зображень
+    const uploadedImageUrls: string[] = [];
+
+    // Масив для всіх обіцянок завантаження
+    const uploadPromises = [];
+    // Завантаження зображень
+    imageFiles.forEach((file, index) => {
+      const url = signedUrls[index];
+      const uploadPromise = axios.put(url, file, {
+        headers: {
+          "Content-Type": file.type,
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setFileUploadProgress((prev) => {
+              const newProgress = [...prev];
+              newProgress.push({
+                fileName: downloadFile?.name || "",
+                progress: percent,
+              });
+              return newProgress;
+            });
+          }
+        },
+      });
+
+      // Додаємо URL до списку зображень після завершення
+      uploadPromise
+        .then(() => {
+          uploadedImageUrls.push(url.split("?")[0]); // URL без параметрів
+        })
+        .catch((error) => {
+          console.error(`Failed to upload image ${file.name}:`, error);
+        });
+
+      uploadPromises.push(uploadPromise);
+    });
+
+    // Завантаження основного файлу (якщо є)
+
+    let uploadedFileUrl = "";
+    if (downloadFile) {
+      const url = signedUrls[imageFiles.length]; // Позиція для основного файлу
+      const uploadPromise = axios.put(url, downloadFile, {
+        headers: {
+          "Content-Type": downloadFile.type,
+        },
+      });
+      uploadPromise
+        .then(() => {
+          uploadedFileUrl = url.split("?")[0]; // URL без параметрів
+        })
+        .catch((error) => {
+          console.error(`Failed to upload file ${downloadFile.name}:`, error);
+        });
+      uploadPromises.push(uploadPromise);
+    }
+
+    // Чекаємо завершення завантаження всіх файлів
+    await Promise.all(uploadPromises);
+
+    toast.success("Files uploaded successfully!");
     const filter = filters
       .map((i) => {
         if (Object.values(i)[0] === true) {
@@ -111,30 +178,41 @@ const Upload = () => {
       })
       .filter((item) => item !== null);
 
-    const data = new FormData();
-    data.append("title", titleValue);
-    data.append("description", descriptionValue);
-    data.append("filter", JSON.stringify(filter));
-    data.append("kits", JSON.stringify(kit));
-    data.append("filesize", downloadFile ? downloadFile.size.toString() : "0");
-    if (downloadFile) data.append("downloadfile", downloadFile);
-    if (downloadLink) data.append("downloadLink", downloadLink);
-    imageFiles.forEach((file) => data.append("imagefiles", file));
-    data.forEach((value, key) => {
-      console.log(`${key}:`, value);
-    });
+    if (!uploadAt) {
+      return;
+    }
 
-    // setIsUploading(true); // Починаємо індикатор завантаження
+    // const data = new FormData();
+    // data.append("title", titleValue);
+    // data.append("description", descriptionValue);
+    // data.append("filter", JSON.stringify(filter));
+    // data.append("kits", JSON.stringify(kit));
+    // data.append("upload_at", uploadAt.toString());
+    // data.append("filesize", downloadFile ? downloadFile.size.toString() : "0");
+    // if (downloadFile) data.append("downloadfile", downloadFile);
+    // if (downloadLink) data.append("downloadLink", downloadLink);
+    // imageFiles.forEach((file) => data.append("imagefiles", file));
+    // data.forEach((value, key) => {
+    //   console.log(`${key}:`, value);
+    // });
+    const data = {
+      title: titleValue,
+      description: descriptionValue,
+      category: filter,
+      kits: kit,
+      upload_at: uploadAt,
+      filesize: downloadFile ? downloadFile.size.toString() : "0",
+      downloadlink: uploadedFileUrl, // URL основного файлу
+      image: uploadedImageUrls, // Масив URL зображень
+    };
 
     const resultAction = await dispatch(addPost(data));
 
     if (addPost.fulfilled.match(resultAction)) {
       toast.success("Post successfully uploaded!");
       reset();
-      // setIsUploading(false);
     } else if (addPost.rejected.match(resultAction)) {
       toast.error("Upload failed");
-      // setIsUploading(false);
     }
 
     if (error) {
@@ -148,6 +226,9 @@ const Upload = () => {
     setDownloadFile(null);
     seTitleValue("");
     setDescriptionValue("");
+    setKits(kitsConstant.map((key) => ({ [key]: false })));
+    setFilters(filterConstant.map((key) => ({ [key]: false })));
+    setUploadAt("");
   };
 
   useEffect(() => {
@@ -155,6 +236,13 @@ const Upload = () => {
       navigate("/");
     }
   }, [isAdmin, navigate]);
+
+  const inputProps = {
+    placeholder: "Select upload Date",
+    className: styles.input,
+    required: true,
+    value: uploadAt ? uploadAt : "",
+  };
 
   return (
     <>
@@ -189,7 +277,6 @@ const Upload = () => {
                   </div>
                 </div>
                 <div className={styles.item}>
-                  <div className={styles.category}>Post Details</div>
                   <div className={styles.fieldset}>
                     <div className={styles.field}>
                       <TextInput
@@ -212,45 +299,18 @@ const Upload = () => {
                         required
                       />
                     </div>
-
-                    {/* <div className={styles.row}>
-                      <div className={styles.col}>
-                        <div className={styles.field}>
-                          <div className={styles.label}>Royalties</div>
-                          <Dropdown
-                            className={styles.dropdown}
-                            value={royalties}
-                            setValue={setRoyalties}
-                            options={royaltiesOptions}
-                          />
-                        </div>
+                    <div className={styles.field}>
+                      <div className={styles.label}>Datetime to upload</div>
+                      <div className={styles.wrap}>
+                        <Datetime
+                          inputProps={inputProps}
+                          onChange={(e) => setUploadAt(e.toString())}
+                          value={uploadAt !== "" ? new Date(uploadAt) : ""}
+                        />
                       </div>
-                      <div className={styles.col}>
-                        <div className={styles.field}>
-                          <TextInput
-                            label="Size"
-                            name="Size"
-                            type="text"
-                            placeholder="e. g. Size"
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className={styles.col}>
-                        <div className={styles.field}>
-                          <TextInput
-                            label="Propertie"
-                            name="Propertie"
-                            type="text"
-                            placeholder="e. g. Propertie"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
-
                 <div className={styles.item}>
                   <div className={styles.category}>
                     Upload File (or insert download link)
@@ -334,6 +394,16 @@ const Upload = () => {
               </div>
 
               <div className={styles.foot}>
+                {fileUploadProgress.map((fileProgress, index) => (
+                  <div key={index}>
+                    <div>{fileProgress.fileName}</div>
+                    <progress
+                      value={fileProgress.progress}
+                      max={100}
+                    ></progress>
+                    <div>{fileProgress.progress}%</div>
+                  </div>
+                ))}
                 <button
                   className={cn("button-stroke tablet-show", styles.button)}
                   onClick={() => setVisiblePreview(true)}
@@ -354,10 +424,6 @@ const Upload = () => {
 
                   <Icon title="arrow-next" size={10} />
                 </button>
-                {/* <div className={styles.saving}>
-                  <span>Auto saving</span>
-                  <Loader className={styles.loader} />
-                </div> */}
               </div>
             </form>
           </div>
@@ -370,6 +436,7 @@ const Upload = () => {
             desc={descriptionValue}
             kits={kits}
             fileSize={downloadFile?.size}
+            uploadAt={uploadAt}
           />
         </div>
       </div>

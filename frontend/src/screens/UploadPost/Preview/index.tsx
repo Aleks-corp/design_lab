@@ -1,6 +1,7 @@
 import cn from "classnames";
 import styles from "./Preview.module.sass";
 import Icon from "../../../components/Icon";
+import { format } from "date-fns";
 
 interface PreviewProp {
   className?: string;
@@ -11,6 +12,7 @@ interface PreviewProp {
   desc?: string;
   kits?: { [x: string]: boolean }[];
   fileSize?: number;
+  uploadAt?: string;
 }
 
 const Preview = ({
@@ -22,6 +24,7 @@ const Preview = ({
   desc,
   kits,
   fileSize,
+  uploadAt,
 }: PreviewProp) => {
   return (
     <div className={cn(className, styles.wrap)}>
@@ -31,9 +34,12 @@ const Preview = ({
         </button>
         <div className={styles.info}>Preview</div>
         <div className={styles.card}>
-          {previews && previews.length > 0 ? (
+          {previews && previews.length >= 4 && (
             <div className={styles.preview4x}>
               {previews.map((i, index) => {
+                if (index >= 4) {
+                  return;
+                }
                 return index === 0 ? (
                   <div key={index} className={styles.firstRows}>
                     <img src={i} srcSet={i} alt="Post Image" />
@@ -45,15 +51,24 @@ const Preview = ({
                 );
               })}
             </div>
-          ) : (
+          )}
+          {previews && previews.length < 4 && (
             <div className={styles.preview}>
               <img
-                src={"/images/content/postsimg/post-template.png"}
+                src={previews[0]}
+                srcSet={previews[0]}
                 alt="Post Template Image"
               />
             </div>
           )}
-
+          {(!previews || previews.length < 0) && (
+            <div className={styles.preview}>
+              <img
+                src={"/images/content/postsimg/post-template.jpg"}
+                alt="Post Template Image"
+              />
+            </div>
+          )}
           <div className={styles.link}>
             <div className={styles.body}>
               <div className={styles.line}>
@@ -90,6 +105,11 @@ const Preview = ({
                   : "File Size Mb"}
               </div>
             </div>
+            {uploadAt && (
+              <p>
+                Upload date: {format(new Date(uploadAt), "dd-MM-yyyy_HH:mm")}
+              </p>
+            )}
           </div>
         </div>
         <button className={styles.clear} onClick={reset}>

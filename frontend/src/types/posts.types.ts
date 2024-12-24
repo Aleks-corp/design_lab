@@ -14,15 +14,14 @@ export interface GetPost {
 }
 
 export interface AddPost {
-  data: {
-    title: string;
-    description: string;
-    image: string[];
-    downloadlink: string;
-    filesize: string;
-    category: string[];
-    kits: string[];
-  };
+  title: string;
+  description: string;
+  image: string[];
+  downloadlink: string;
+  filesize: string;
+  category: string[];
+  kits: string[];
+  upload_at: string;
 }
 
 export interface AddFavorites {

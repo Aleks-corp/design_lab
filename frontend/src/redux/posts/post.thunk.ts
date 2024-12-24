@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { instance } from "../../api/axios";
 import { AxiosError } from "axios";
+import { AddPost } from "../../types/posts.types";
 
 interface Query {
   page?: number;
@@ -40,7 +41,7 @@ export const fetchPostById = createAsyncThunk(
 
 export const addPost = createAsyncThunk(
   "posts/addPost",
-  async (data: FormData, thunkAPI) => {
+  async (data: AddPost, thunkAPI) => {
     try {
       const response = await instance.post("/posts", data, {
         headers: {

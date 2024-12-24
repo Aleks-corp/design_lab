@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "./Card.module.sass";
 import Icon from "../Icon";
 import toast from "react-hot-toast";
+import { format } from "date-fns";
 import { GetPost } from "../../types/posts.types";
 
 interface CardProps {
@@ -13,31 +14,37 @@ interface CardProps {
 }
 
 const Card = ({ className, post, like, userId }: CardProps) => {
-  const { _id, title, description, image, kits, favorites } = post;
+  const { _id, title, description, image, kits, favorites, upload_at } = post;
   const visible = favorites.some((id) => id === userId);
 
   return (
     <div className={cn(styles.card, className)}>
       <Link to={`/post/${_id}`}>
         <div className={styles.preview}>
-          {image && image.length > 0 ? (
+          {image && image.length >= 4 && (
             <div className={styles.preview4x}>
-              {image.map((i, index) => {
+              {image.slice(0, 4).map((i, index) => {
                 return index === 0 ? (
                   <div key={index} className={styles.firstRows}>
-                    <img src={i} srcSet={i} alt="Uploaded Thumbnail" />
+                    <img src={i} srcSet={i} alt="Post Image" />
                   </div>
                 ) : (
                   <div key={index} className={styles.imgwrapper}>
-                    <img src={i} srcSet={i} alt="Uploaded Thumbnail" />
+                    <img src={i} srcSet={i} alt="Post Image" />
                   </div>
                 );
               })}
             </div>
-          ) : (
+          )}
+          {image && image.length < 4 && (
+            <div className={styles.preview}>
+              <img src={image[0]} srcSet={image[0]} alt="Post Template Image" />
+            </div>
+          )}
+          {(!image || image.length < 0) && (
             <div className={styles.preview}>
               <img
-                src={"/images/content/postsimg/post-template.png"}
+                src={"/images/content/postsimg/post-template.jpg"}
                 alt="Post Template Image"
               />
             </div>
@@ -88,8 +95,13 @@ const Card = ({ className, post, like, userId }: CardProps) => {
         </div>
         <div className={styles.foot}>
           <div className={styles.description}>
-            <Icon title="candlesticks-up" size={20} />
             <span>{description}</span>
+          </div>
+          <div className={styles.description}>
+            <Icon title="candlesticks-up" size={20} />
+            <span>
+              Post created: {format(new Date(upload_at), "dd-MM-yyyy_HH:mm")}
+            </span>
           </div>
         </div>
       </div>

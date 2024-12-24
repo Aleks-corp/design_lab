@@ -118,7 +118,7 @@
     display: flex
     flex-direction: column
     flex-grow: 1
-    padding: 20px 0
+    padding: 20px 0 8px
     color: $neutrals2
     +dark
         color: $neutrals8
@@ -182,8 +182,10 @@
     
 .foot
     display: flex
-    align-items: center
-    justify-content: space-between
+    flex-direction: column
+    align-items: space-between
+    justify-content: center
+    gap: 8px
     margin-top: 12px
     padding-top: 12px
     border-top: 1px solid $neutrals6
