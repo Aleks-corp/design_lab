@@ -3,17 +3,14 @@ import "./styles/app.sass";
 import styles from "./styles/App.module.sass";
 import Page from "./components/Page";
 import Main from "./screens/Main";
-// import UploadVariants from "./screens/UploadVariants";
 import UploadPost from "./screens/UploadPost";
 // import ConnectWallet from "./screens/ConnectWallet";
 import Faq from "./screens/Faq/index";
-// import Activity from "./screens/Activity";
 import Home from "./screens/Home";
 // import Search02 from "./screens/Search02";
 import Profile from "./screens/Profile";
 import ProfileEdit from "./screens/ProfileEdit";
 import Post from "./screens/Post";
-import PageList from "./screens/PageList";
 import SignUp from "./screens/SignUp";
 import SignIn from "./screens/SignIn";
 import VerifyPage from "./screens/VerifyUser";
@@ -26,6 +23,7 @@ import ForgotPassPage from "./screens/PassForgot";
 import VerifyPageResend from "./screens/VerifyUserResend";
 import ResetPasswordPage from "./screens/PassReset";
 import ChangePasswordPage from "./screens/PassChange";
+import ErrorPage from "./screens/Error";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -106,14 +104,7 @@ function App() {
             </Page>
           }
         />
-        {/* <Route
-          path="upload-variants"
-          element={
-            <Page>
-              <UploadVariants />
-            </Page>
-          }
-        /> */}
+
         <Route
           path="upload-post"
           element={
@@ -138,14 +129,7 @@ function App() {
             </Page>
           }
         />
-        {/* <Route
-          path="activity"
-          element={
-            <Page>
-              <Activity />
-            </Page>
-          }
-        /> */}
+
         <Route
           path="main"
           element={
@@ -186,19 +170,11 @@ function App() {
             </Page>
           }
         />
-        {/* <Route
-          path="pagelist"
-          element={
-            <Page>
-              <PageList />
-            </Page>
-          }
-        /> */}
         <Route
           path="*"
           element={
             <Page>
-              <PageList />
+              <ErrorPage />
             </Page>
           }
         />

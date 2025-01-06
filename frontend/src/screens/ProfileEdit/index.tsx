@@ -2,8 +2,8 @@ import cn from "classnames";
 import styles from "./ProfileEdit.module.sass";
 import Control from "../../components/Control";
 import TextInput from "../../components/TextInput";
-import TextArea from "../../components/TextArea";
 import Icon from "../../components/Icon";
+import { Link } from "react-router-dom";
 
 const breadcrumbs = [
   {
@@ -24,13 +24,12 @@ const ProfileEdit = () => {
           <div className={styles.top}>
             <h1 className={cn("h2", styles.title)}>Edit profile</h1>
             <div className={styles.info}>
-              You can set preferred display name, create{" "}
-              <strong>your profile URL</strong> and manage other personal
+              You can set preferred display name, and manage other personal
               settings.
             </div>
           </div>
           <div className={styles.row}>
-            <div className={styles.col}>
+            {/* <div className={styles.col}>
               <div className={styles.user}>
                 <div className={styles.avatar}>
                   <img src="/images/content/avatar-1.jpg" alt="Avatar" />
@@ -56,7 +55,7 @@ const ProfileEdit = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className={styles.col}>
               <div className={styles.list}>
                 <div className={styles.item}>
@@ -70,64 +69,21 @@ const ProfileEdit = () => {
                       placeholder="Enter your display name"
                       required
                     />
-                    <TextInput
-                      className={styles.field}
-                      label="Custom url"
-                      name="Url"
-                      type="text"
-                      placeholder="ui8.net/Your custom URL"
-                      required
-                    />
-                    <TextArea
-                      className={styles.field}
-                      label="Bio"
-                      name="Bio"
-                      placeholder="About yourselt in a few words"
-                      required
-                    />
                   </div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.category}>Social</div>
                   <div className={styles.fieldset}>
-                    <TextInput
-                      className={styles.field}
-                      label="portfolio or website"
-                      name="Portfolio"
-                      type="text"
-                      placeholder="Enter URL"
-                      required
-                    />
-                    <div className={styles.box}>
-                      <TextInput
-                        className={styles.field}
-                        label="twitter"
-                        name="Twitter"
-                        type="text"
-                        placeholder="@twitter username"
-                        required
-                      />
-                      <button
+                    <div className={styles.btns}>
+                      <Link
                         className={cn(
                           "button-stroke button-small",
                           styles.button
                         )}
+                        to="/change-password"
                       >
-                        Verify account
-                      </button>
+                        <span>Change Password</span>
+                      </Link>
                     </div>
                   </div>
-                  <button
-                    className={cn("button-stroke button-small", styles.button)}
-                  >
-                    <Icon title="plus-circle" size={16} />
-                    <span>Add more social account</span>
-                  </button>
                 </div>
-              </div>
-              <div className={styles.note}>
-                To update your settings you should sign message through your
-                wallet. Click 'Update profile' then sign the message
               </div>
               <div className={styles.btns}>
                 <button className={cn("button", styles.button)}>

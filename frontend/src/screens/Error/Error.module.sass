@@ -1,0 +1,62 @@
+@use "../../styles/helpers" as * 
+
+.head
+    margin-bottom: 80px
+    padding-bottom: 40px
+    border-bottom: 2px solid $neutrals6
+    +m
+        margin-bottom: 40px
+        padding-bottom: 24px
+    +dark
+        border-color: $neutrals3
+
+.back
+    display: inline-flex
+    align-items: center
+    color: $neutrals2
+    svg
+        margin-right: 24px
+        transition: transform .2s
+        +m
+            flex-shrink: 0
+            width: 24px
+            height: 24px
+            margin-right: 16px
+    +dark
+        color: $neutrals8
+        svg
+            fill: $neutrals8
+    &:hover
+        svg
+            transform: translateX(-2px)
+
+.stage
+    +m
+        font-size: 24px
+
+.body
+    display: flex
+    +m
+        display: block
+
+.wrapper
+    flex-grow: 1
+    padding-left: 128px
+    +x
+        padding-left: 64px
+    +t
+        padding-left: 32px
+    +m
+        padding-left: 0
+    & > div
+        &:not(:last-child)
+            margin-bottom: 48px
+    
+
+    
+.title
+    margin-bottom: 8px
+    text-align: center
+    +m
+        font-size: 32px
+

@@ -5,6 +5,7 @@ export interface UserProfile {
   subscription: string;
   substart: number;
   subend: number;
+  createdAt: string;
 }
 
 export interface GetUser {

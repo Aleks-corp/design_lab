@@ -1,16 +1,13 @@
 import { FormEvent, useEffect, useState } from "react";
 import cn from "classnames";
 import styles from "./UploadPost.module.sass";
-// import Dropdown from "../../components/Dropdown";
 import Icon from "../../components/Icon";
 import TextInput from "../../components/TextInput";
 import Switch from "../../components/Switch";
 import Loader from "../../components/Loader";
 import Modal from "../../components/Modal";
 import Preview from "./Preview";
-// import Cards from "./Cards";
 import FolowSteps from "./FolowSteps";
-
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
 
@@ -28,25 +25,21 @@ import {
 } from "../../helpers/handleFileChange";
 import { addPost } from "../../redux/posts/post.thunk";
 import toast from "react-hot-toast";
-
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import axios from "axios";
-import { instance } from "../../api/axios";
-
-interface FileUploadProgress {
-  fileName: string;
-  progress: number;
-}
+import { FileUploadProgress } from "../../types/upload.types";
+import { uploadDownLoadFile, uploadImgFiles } from "../../helpers/uploadFile";
+import { generatePresignedUrl } from "../../helpers/genSignedUrl";
+import { setArrayString } from "../../helpers/categoryKitSetArray";
 
 const Upload = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [kits, setKits] = useState(
+  const [kitState, setKitState] = useState(
     kitsConstant.map((key) => ({ [key]: false }))
   );
-  const [filters, setFilters] = useState(
+  const [categoryState, setCategoryState] = useState(
     filterConstant.map((key) => ({ [key]: false }))
   );
 
@@ -62,9 +55,12 @@ const Upload = () => {
   const [downloadLink, setDownloadLink] = useState<string>("");
   const [titleValue, seTitleValue] = useState<string>("");
   const [descriptionValue, setDescriptionValue] = useState<string>("");
-  const [fileUploadProgress, setFileUploadProgress] = useState<
+  const [fileUploadProgress, setFileUploadProgress] =
+    useState<FileUploadProgress>({ fileName: "", progress: 0 });
+  const [imgUploadProgress, setImgUploadProgress] = useState<
     FileUploadProgress[]
   >([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [uploadAt, setUploadAt] = useState<string>("");
 
@@ -83,127 +79,52 @@ const Upload = () => {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // 1. Отримуємо підписані URL з бекенду
-    const response = await instance.post("/generate-signed-urls", {
-      files: [
-        ...imageFiles.map((file) => file.name),
-        downloadFile ? downloadFile.name : "",
-      ],
-    });
+    setIsUploading(true);
 
-    const { signedUrls } = response.data;
+    // 1. Отримуємо підписані URL з бекенду
+    const signedUrls = await generatePresignedUrl(imageFiles, downloadFile);
 
     // 2. Завантажуємо файли на S3 за підписаними URL
 
-    // Масив для URL зображень
-    const uploadedImageUrls: string[] = [];
+    const { uploadedImageUrls, uploadImgPromises } = await uploadImgFiles(
+      imageFiles,
+      signedUrls,
+      setImgUploadProgress
+    );
 
-    // Масив для всіх обіцянок завантаження
-    const uploadPromises = [];
-    // Завантаження зображень
-    imageFiles.forEach((file, index) => {
-      const url = signedUrls[index];
-      const uploadPromise = axios.put(url, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const percent = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setFileUploadProgress((prev) => {
-              const newProgress = [...prev];
-              newProgress.push({
-                fileName: downloadFile?.name || "",
-                progress: percent,
-              });
-              return newProgress;
-            });
-          }
-        },
-      });
-
-      // Додаємо URL до списку зображень після завершення
-      uploadPromise
-        .then(() => {
-          uploadedImageUrls.push(url.split("?")[0]); // URL без параметрів
-        })
-        .catch((error) => {
-          console.error(`Failed to upload image ${file.name}:`, error);
-        });
-
-      uploadPromises.push(uploadPromise);
-    });
-
-    // Завантаження основного файлу (якщо є)
-
-    let uploadedFileUrl = "";
-    if (downloadFile) {
-      const url = signedUrls[imageFiles.length]; // Позиція для основного файлу
-      const uploadPromise = axios.put(url, downloadFile, {
-        headers: {
-          "Content-Type": downloadFile.type,
-        },
-      });
-      uploadPromise
-        .then(() => {
-          uploadedFileUrl = url.split("?")[0]; // URL без параметрів
-        })
-        .catch((error) => {
-          console.error(`Failed to upload file ${downloadFile.name}:`, error);
-        });
-      uploadPromises.push(uploadPromise);
-    }
+    const { uploadedFileUrl, uploadFilePromises } = await uploadDownLoadFile(
+      downloadFile,
+      signedUrls,
+      imageFiles,
+      setFileUploadProgress
+    );
+    const uploadPromises: Promise<void>[] = [
+      ...uploadImgPromises,
+      ...uploadFilePromises,
+    ];
 
     // Чекаємо завершення завантаження всіх файлів
     await Promise.all(uploadPromises);
 
     toast.success("Files uploaded successfully!");
-    const filter = filters
-      .map((i) => {
-        if (Object.values(i)[0] === true) {
-          return Object.keys(i)[0];
-        }
-        return null;
-      })
-      .filter((item) => item !== null);
+    const category = setArrayString(categoryState);
 
-    const kit = kits
-      .map((i) => {
-        if (Object.values(i)[0] === true) {
-          return Object.keys(i)[0];
-        }
-        return null;
-      })
-      .filter((item) => item !== null);
+    const kits = setArrayString(kitState);
 
     if (!uploadAt) {
+      toast.error("Upload set date is fail");
       return;
     }
 
-    // const data = new FormData();
-    // data.append("title", titleValue);
-    // data.append("description", descriptionValue);
-    // data.append("filter", JSON.stringify(filter));
-    // data.append("kits", JSON.stringify(kit));
-    // data.append("upload_at", uploadAt.toString());
-    // data.append("filesize", downloadFile ? downloadFile.size.toString() : "0");
-    // if (downloadFile) data.append("downloadfile", downloadFile);
-    // if (downloadLink) data.append("downloadLink", downloadLink);
-    // imageFiles.forEach((file) => data.append("imagefiles", file));
-    // data.forEach((value, key) => {
-    //   console.log(`${key}:`, value);
-    // });
     const data = {
       title: titleValue,
       description: descriptionValue,
-      category: filter,
-      kits: kit,
+      category,
+      kits,
       upload_at: uploadAt,
       filesize: downloadFile ? downloadFile.size.toString() : "0",
-      downloadlink: uploadedFileUrl, // URL основного файлу
-      image: uploadedImageUrls, // Масив URL зображень
+      image: uploadedImageUrls,
+      downloadlink: downloadLink ? downloadLink : uploadedFileUrl,
     };
 
     const resultAction = await dispatch(addPost(data));
@@ -213,6 +134,7 @@ const Upload = () => {
       reset();
     } else if (addPost.rejected.match(resultAction)) {
       toast.error("Upload failed");
+      setIsUploading(false);
     }
 
     if (error) {
@@ -226,9 +148,12 @@ const Upload = () => {
     setDownloadFile(null);
     seTitleValue("");
     setDescriptionValue("");
-    setKits(kitsConstant.map((key) => ({ [key]: false })));
-    setFilters(filterConstant.map((key) => ({ [key]: false })));
+    setKitState(kitsConstant.map((key) => ({ [key]: false })));
+    setCategoryState(filterConstant.map((key) => ({ [key]: false })));
     setUploadAt("");
+    setIsUploading(false);
+    setFileUploadProgress({ fileName: "", progress: 0 });
+    setImgUploadProgress([]);
   };
 
   useEffect(() => {
@@ -348,11 +273,12 @@ const Upload = () => {
                     <div key={index} className={styles.option}>
                       <Switch
                         value={
-                          kits.find((i) => Object.keys(i)[0] === kit)?.[kit] ||
-                          false
+                          kitState.find((i) => Object.keys(i)[0] === kit)?.[
+                            kit
+                          ] || false
                         }
                         setValue={(newValue) =>
-                          setKits((prevKits) =>
+                          setKitState((prevKits) =>
                             prevKits.map((i) =>
                               Object.keys(i)[0] === kit
                                 ? { [kit]: newValue }
@@ -371,13 +297,13 @@ const Upload = () => {
                     <div key={index} className={styles.filteroption}>
                       <Switch
                         value={
-                          filters.find((i) => Object.keys(i)[0] === filter)?.[
-                            filter
-                          ] || false
+                          categoryState.find(
+                            (i) => Object.keys(i)[0] === filter
+                          )?.[filter] || false
                         }
                         setValue={(newValue) =>
-                          setFilters((prevKits) =>
-                            prevKits.map((i) =>
+                          setCategoryState((prevCats) =>
+                            prevCats.map((i) =>
                               Object.keys(i)[0] === filter
                                 ? { [filter]: newValue }
                                 : i
@@ -391,19 +317,31 @@ const Upload = () => {
                     </div>
                   ))}
                 </div>
+                <div>
+                  {imgUploadProgress.map((fileProgress, index) => (
+                    <div key={index}>
+                      <div>{fileProgress.fileName}</div>
+                      <progress
+                        value={fileProgress.progress}
+                        max={100}
+                      ></progress>
+                      <div>{fileProgress.progress}%</div>
+                    </div>
+                  ))}
+                  {fileUploadProgress.fileName !== "" && (
+                    <div>
+                      <div>{fileUploadProgress.fileName}</div>
+                      <progress
+                        value={fileUploadProgress.progress}
+                        max={100}
+                      ></progress>
+                      <div>{fileUploadProgress.progress}%</div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className={styles.foot}>
-                {fileUploadProgress.map((fileProgress, index) => (
-                  <div key={index}>
-                    <div>{fileProgress.fileName}</div>
-                    <progress
-                      value={fileProgress.progress}
-                      max={100}
-                    ></progress>
-                    <div>{fileProgress.progress}%</div>
-                  </div>
-                ))}
                 <button
                   className={cn("button-stroke tablet-show", styles.button)}
                   onClick={() => setVisiblePreview(true)}
@@ -416,7 +354,7 @@ const Upload = () => {
                   // onClick={() => setVisibleModal(true)}
                   type="submit"
                 >
-                  {isLoading ? (
+                  {isLoading || isUploading ? (
                     <Loader className="" />
                   ) : (
                     <span>Create POST</span>
@@ -434,7 +372,7 @@ const Upload = () => {
             reset={reset}
             title={titleValue}
             desc={descriptionValue}
-            kits={kits}
+            kits={kitState}
             fileSize={downloadFile?.size}
             uploadAt={uploadAt}
           />
