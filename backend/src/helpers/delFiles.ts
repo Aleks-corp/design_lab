@@ -1,20 +1,24 @@
-import AWS from "aws-sdk";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import "dotenv/config";
+import ApiError from "./ApiError";
 
 const { S3_BUCKET_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION } =
   process.env;
 
-const s3 = new AWS.S3({
-  accessKeyId: AWS_ACCESS_KEY_ID,
-  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+const s3 = new S3Client({
   region: AWS_REGION,
+  credentials: {
+    accessKeyId: AWS_ACCESS_KEY_ID!,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY!,
+  },
 });
 
 const deleteFromS3 = async (fileUrl: string) => {
   try {
     const bucketName = S3_BUCKET_NAME;
-    const key = fileUrl.split(`${bucketName}/`)[1]; // Витягуємо ключ файлу після імені бакету
-
+    const key = fileUrl.split(
+      `${bucketName}.s3.${AWS_REGION}.amazonaws.com/`
+    )[1];
     if (!key) throw new Error("Invalid S3 URL");
 
     const params = {
@@ -22,11 +26,11 @@ const deleteFromS3 = async (fileUrl: string) => {
       Key: key,
     };
 
-    await s3.deleteObject(params).promise();
-    console.log(`File deleted from S3: ${fileUrl}`);
+    const command = new DeleteObjectCommand(params);
+    await s3.send(command);
   } catch (err) {
     console.error("Помилка при видаленні файлу з S3:", err);
-    throw new Error("Error deleting file from S3");
+    throw ApiError(404, "Error deleting file from S3");
   }
 };
 

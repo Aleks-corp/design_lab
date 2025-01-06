@@ -40,7 +40,7 @@ const getAllPosts = async (req: Request, res: Response) => {
       skip,
       limit: limitNumber,
     }
-  );
+  ).sort({ upload_at: -1 });
   const totalHits = await Post.countDocuments(query);
 
   res.json({ totalHits, posts });
@@ -56,13 +56,19 @@ const getPostById = async (req: Request, res: Response) => {
 };
 
 const postPresignedUrl = async (req: Request, res: Response) => {
-  const { fileName, fileType } = req.body;
-
-  const url = await generatePresignedUrl(fileName, fileType);
-  if (!url) {
+  const { files } = req.body;
+  if (!files || !Array.isArray(files) || files.length === 0) {
+    throw ApiError(400, "No files provided.");
+  }
+  const signedUrls = [];
+  for (const file of files) {
+    const signedUrl = await generatePresignedUrl(file);
+    signedUrls.push(signedUrl);
+  }
+  if (signedUrls.length < 0) {
     throw ApiError(404, "Failed to generate pre-signed URL");
   }
-  res.json({ url });
+  res.json({ signedUrls });
 };
 
 const addPost = async (req: PostRequest, res: Response): Promise<void> => {
@@ -115,7 +121,7 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
     kits,
     upload_at,
   });
-  res.status(201).json({ post });
+  res.status(201).json(post);
 };
 
 const updateStatusPost = async (req: Request, res: Response) => {

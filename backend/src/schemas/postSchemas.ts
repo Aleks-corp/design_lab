@@ -11,28 +11,28 @@ const postAddSchema = Joi.object({
     "any.required": `missing required 'description' field`,
   }),
   kits: Joi.array().items(Joi.string()).required().messages({
-    "string.empty": `'description' cannot be an empty field`,
-    "any.required": `missing required 'description' field`,
+    "string.empty": `'kits' cannot be an empty field`,
+    "any.required": `missing required 'kits' field`,
   }),
   category: Joi.array().items(Joi.string()).required().messages({
-    "string.empty": `'description' cannot be an empty field`,
-    "any.required": `missing required 'description' field`,
+    "string.empty": `'category' cannot be an empty field`,
+    "any.required": `missing required 'category' field`,
   }),
   filesize: Joi.string().required().messages({
-    "string.empty": `'description' cannot be an empty field`,
-    "any.required": `missing required 'description' field`,
+    "string.empty": `'filesize' cannot be an empty field`,
+    "any.required": `missing required 'filesize' field`,
   }),
   image: Joi.array().items(Joi.string()).required().messages({
-    "string.empty": `'description' cannot be an empty field`,
-    "any.required": `missing required 'description' field`,
+    "string.empty": `'image' cannot be an empty field`,
+    "any.required": `missing required 'image' field`,
   }),
   downloadlink: Joi.string().required().messages({
-    "string.empty": `'description' cannot be an empty field`,
-    "any.required": `missing required 'description' field`,
+    "string.empty": `'downloadlink' cannot be an empty field`,
+    "any.required": `missing required 'downloadlink' field`,
   }),
   upload_at: Joi.string().required().messages({
-    "string.empty": `'description' cannot be an empty field`,
-    "any.required": `missing required 'description' field`,
+    "string.empty": `'upload_at' cannot be an empty field`,
+    "any.required": `missing required 'upload_at' field`,
   }),
 });
 

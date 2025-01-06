@@ -62,6 +62,7 @@ const login = async (req: Request, res: Response) => {
       subscription: user.subscription,
       substart: user.substart,
       subend: user.subend,
+      createdAt: user.createdAt,
     },
   });
 };
@@ -73,15 +74,17 @@ const logout = async (req: Request, res: Response) => {
 };
 
 const getCurrent = async (req: Request, res: Response) => {
-  const { _id, name, email, subscription, substart, subend } = req.user;
+  const { _id, name, email, subscription, substart, subend, createdAt } =
+    req.user;
   if (req.user) {
     res.json({
       id: _id,
-      name: name,
-      email: email,
-      subscription: subscription,
-      substart: substart,
-      subend: subend,
+      name,
+      email,
+      subscription,
+      substart,
+      subend,
+      createdAt,
     });
   }
 };
@@ -133,6 +136,7 @@ const getVerification = async (req: Request, res: Response) => {
       subscription: user.subscription,
       substart: user.substart,
       subend: user.subend,
+      createdAt: user.createdAt,
     },
   });
 };
