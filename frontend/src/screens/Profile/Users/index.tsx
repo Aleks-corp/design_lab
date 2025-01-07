@@ -6,7 +6,7 @@ import Report from "../../../components/Report";
 import Modal from "../../../components/Modal";
 import { UserProfile } from "../../../types/auth.types";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import moment from "moment";
 
 interface UserProps {
   className: string;
@@ -36,7 +36,8 @@ const User = ({ className, user }: UserProps) => {
           )}
           {user.subscription === "member" && (
             <p>
-              Subscription until {format(new Date(user.subend), "dd-MM-yyyy")}
+              Subscription until{" "}
+              {moment(new Date(user.subend)).format("dd-MM-yyyy")}
             </p>
           )}
           {user.subscription === "admin" && (
@@ -70,7 +71,7 @@ const User = ({ className, user }: UserProps) => {
         </div>
 
         <div className={styles.note}>
-          Member since {format(new Date(user.createdAt), "dd-MM-yyyy")}
+          Member since {moment(new Date(user.createdAt)).format("dd-MM-yyyy")}
         </div>
       </div>
       <Modal

@@ -1,7 +1,7 @@
 import cn from "classnames";
 import styles from "./Preview.module.sass";
 import Icon from "../../../components/Icon";
-import { format } from "date-fns";
+import moment from "moment";
 
 interface PreviewProp {
   className?: string;
@@ -107,7 +107,8 @@ const Preview = ({
             </div>
             {uploadAt && (
               <p>
-                Upload date: {format(new Date(uploadAt), "dd-MM-yyyy_HH:mm")}
+                Upload date:{" "}
+                {moment(new Date(uploadAt)).format("dd-MM-yyyy_HH:mm")}
               </p>
             )}
           </div>
