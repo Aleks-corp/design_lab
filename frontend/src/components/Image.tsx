@@ -1,4 +1,4 @@
-import useDarkMode from "use-dark-mode";
+import { useTheme } from "../helpers/darkModeContext";
 
 interface ImageProps {
   className?: string;
@@ -17,13 +17,13 @@ const Image = ({
   srcSetDark,
   alt,
 }: ImageProps) => {
-  const darkMode = useDarkMode(false);
+  const { darkMode } = useTheme();
 
   return (
     <img
       className={className}
-      srcSet={darkMode.value ? srcSetDark : srcSet}
-      src={darkMode.value ? srcDark : src}
+      srcSet={darkMode ? srcSetDark : srcSet}
+      src={darkMode ? srcDark : src}
       alt={alt}
     />
   );

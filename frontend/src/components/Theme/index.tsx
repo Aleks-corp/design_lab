@@ -1,10 +1,10 @@
 import cn from "classnames";
 import styles from "./Theme.module.sass";
-import useDarkMode from "use-dark-mode";
 import { ClassNameProps } from "../../types/className.types";
+import { useTheme } from "../../helpers/darkModeContext";
 
 const Theme = ({ className }: ClassNameProps) => {
-  const darkMode = useDarkMode(false);
+  const { darkMode, toggleDarkMode } = useTheme();
 
   return (
     <label
@@ -16,8 +16,8 @@ const Theme = ({ className }: ClassNameProps) => {
     >
       <input
         className={styles.input}
-        checked={darkMode.value}
-        onChange={darkMode.toggle}
+        checked={darkMode}
+        onChange={toggleDarkMode}
         type="checkbox"
       />
       <span className={styles.inner}>

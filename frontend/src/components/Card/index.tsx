@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "./Card.module.sass";
 import Icon from "../Icon";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
+import moment from "moment";
 import { GetPost } from "../../types/posts.types";
 
 interface CardProps {
@@ -100,7 +100,8 @@ const Card = ({ className, post, like, userId }: CardProps) => {
           <div className={styles.description}>
             <Icon title="candlesticks-up" size={20} />
             <span>
-              Post created: {format(new Date(upload_at), "dd-MM-yyyy_HH:mm")}
+              Post created:{" "}
+              {moment(new Date(upload_at)).format("dd-MM-yyyy_HH:mm")}
             </span>
           </div>
         </div>
