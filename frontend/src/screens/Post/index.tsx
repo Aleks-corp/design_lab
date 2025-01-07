@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import cn from "classnames";
 import styles from "./Post.module.sass";
-// import Control from "./Control";
-// import Options from "./Options";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {

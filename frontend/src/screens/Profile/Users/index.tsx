@@ -36,7 +36,8 @@ const User = ({ className, user }: UserProps) => {
           )}
           {user.subscription === "member" && (
             <p>
-              Subscription until {format(new Date(user.subend), "dd-MM-yyyy")}
+              Subscription until{" "}
+              {moment(new Date(user.subend)).format("dd-MM-yyyy")}
             </p>
           )}
           {user.subscription === "admin" && (
