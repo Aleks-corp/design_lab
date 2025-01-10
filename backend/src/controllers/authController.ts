@@ -51,7 +51,7 @@ const login = async (req: Request, res: Response) => {
     throw ApiError(403, "Non verified user, please check email.");
   }
 
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "23h" });
+  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "333h" });
   await User.findByIdAndUpdate(user._id, { token });
   res.json({
     token,
@@ -126,7 +126,7 @@ const getVerification = async (req: Request, res: Response) => {
   await User.findByIdAndUpdate(user._id, {
     verify: true,
   });
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "23h" });
+  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "333h" });
   res.json({
     token,
     user: {

@@ -1,10 +1,5 @@
 import Post from "../models/post";
-import {
-  ApiError,
-  deleteFromS3,
-  filterQuery,
-  uploadToS3,
-} from "../helpers/index";
+import { ApiError, deleteFromS3 } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
 import { generatePresignedUrl } from "../helpers/generatePresignedUrl";
