@@ -52,7 +52,7 @@ const getAllPosts = async (req: Request, res: Response) => {
     })
   );
 
-  res.json({ totalHits, signedPosts });
+  res.json({ totalHits, posts: signedPosts });
 };
 
 const getPostById = async (req: Request, res: Response) => {
