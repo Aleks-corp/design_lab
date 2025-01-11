@@ -136,7 +136,7 @@ const Post = () => {
             )}
           </div>
           <div className={cn("container", styles.imgcontainer)}>
-            {post.image.map((img, index) => (
+            {post.images.map((img, index) => (
               <div key={index} className={styles.preview}>
                 <img src={img} alt="Item" />
               </div>
