@@ -3,18 +3,20 @@ import { ApiError, deleteFromS3 } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
 import { generatePresignedUrl } from "../helpers/generatePresignedUrl";
+import { generateSignedGetUrl } from "src/helpers/getSignedUrl";
 
+interface Post {
+  title: string;
+  description: string;
+  images: string[];
+  downloadlink: string;
+  filesize: string;
+  category: string[];
+  kits: string[];
+  upload_at: string;
+}
 interface PostRequest extends Request {
-  body: {
-    title: string;
-    description: string;
-    image: string[];
-    downloadlink: string;
-    filesize: string;
-    category: string[];
-    kits: string[];
-    upload_at: string;
-  };
+  body: Post;
 }
 
 const getAllPosts = async (req: Request, res: Response) => {
@@ -38,7 +40,19 @@ const getAllPosts = async (req: Request, res: Response) => {
   ).sort({ upload_at: -1 });
   const totalHits = await Post.countDocuments(query);
 
-  res.json({ totalHits, posts });
+  const signedPosts = await Promise.all(
+    posts.map(async (post) => {
+      const signedImages = await Promise.all(
+        post.images.map((image: string) => generateSignedGetUrl(image))
+      );
+      return {
+        ...post.toObject(),
+        images: signedImages,
+      };
+    })
+  );
+
+  res.json({ totalHits, signedPosts });
 };
 
 const getPostById = async (req: Request, res: Response) => {
@@ -47,7 +61,17 @@ const getPostById = async (req: Request, res: Response) => {
   if (!post) {
     throw ApiError(404);
   }
-  res.json(post);
+  const signedPost = async (post) => {
+    const signedImages = await Promise.all(
+      post.images.map((image: string) => generateSignedGetUrl(image))
+    );
+    return {
+      ...post.toObject(),
+      images: signedImages,
+    };
+  };
+
+  res.json(signedPost);
 };
 
 const postPresignedUrl = async (req: Request, res: Response) => {
@@ -73,7 +97,7 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
   const {
     title,
     description,
-    image,
+    images,
     downloadlink,
     filesize,
     category,
@@ -109,7 +133,7 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
   const post = await Post.create({
     title,
     description,
-    image,
+    images,
     downloadlink,
     filesize,
     category,
@@ -166,8 +190,8 @@ const deletePostById = async (req: Request, res: Response) => {
     throw ApiError(404, "Post not found");
   }
 
-  if (post.image && Array.isArray(post.image)) {
-    await Promise.all(post.image.map((imageUrl) => deleteFromS3(imageUrl)));
+  if (post.images && Array.isArray(post.images)) {
+    await Promise.all(post.images.map((imageUrl) => deleteFromS3(imageUrl)));
   }
 
   if (post.downloadlink) {

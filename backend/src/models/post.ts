@@ -13,9 +13,9 @@ const postSchema = new Schema(
       type: String,
       required: [true, "Set description for post"],
     },
-    image: {
+    images: {
       type: [String],
-      required: [true, "Set image link for post"],
+      required: [true, "Set array of images link for post"],
     },
     downloadlink: {
       type: String,

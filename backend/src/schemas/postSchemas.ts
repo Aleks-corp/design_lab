@@ -22,7 +22,7 @@ const postAddSchema = Joi.object({
     "string.empty": `'filesize' cannot be an empty field`,
     "any.required": `missing required 'filesize' field`,
   }),
-  image: Joi.array().items(Joi.string()).required().messages({
+  images: Joi.array().items(Joi.string()).required().messages({
     "string.empty": `'image' cannot be an empty field`,
     "any.required": `missing required 'image' field`,
   }),
