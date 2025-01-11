@@ -42,10 +42,9 @@ const getAllPosts = async (req: Request, res: Response) => {
 
   const signedPosts = await Promise.all(
     posts.map(async (post) => {
-      const signedImages = post.images.map((image: string) =>
-        generateSignedGetUrl(image)
+      const signedImages = await Promise.all(
+        post.images.map((image: string) => generateSignedGetUrl(image))
       );
-
       return {
         ...post.toObject(),
         images: signedImages,
