@@ -40,15 +40,18 @@ const getAllPosts = async (req: Request, res: Response) => {
   ).sort({ upload_at: -1 });
   const totalHits = await Post.countDocuments(query);
 
-  const signedPosts = posts.map((post) => {
-    const signedImages = post.images.map((image: string) =>
-      generateSignedGetUrl(image)
-    );
-    return {
-      ...post,
-      images: signedImages,
-    };
-  });
+  const signedPosts = await Promise.all(
+    posts.map(async (post) => {
+      const signedImages = post.images.map((image: string) =>
+        generateSignedGetUrl(image)
+      );
+
+      return {
+        ...post.toObject(),
+        images: signedImages,
+      };
+    })
+  );
 
   res.json({ totalHits, posts: signedPosts });
 };
@@ -59,12 +62,14 @@ const getPostById = async (req: Request, res: Response) => {
   if (!post) {
     throw ApiError(404);
   }
-  const signedImages = post.images.map((image: string) =>
-    generateSignedGetUrl(image)
-  );
-  const signedPost = {
-    ...post,
-    images: signedImages,
+  const signedPost = async (post) => {
+    const signedImages = await Promise.all(
+      post.images.map((image: string) => generateSignedGetUrl(image))
+    );
+    return {
+      ...post.toObject(),
+      images: signedImages,
+    };
   };
 
   res.json(signedPost);
