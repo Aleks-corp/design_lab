@@ -2,7 +2,7 @@ export interface GetPost {
   _id: string;
   title: string;
   description: string;
-  image: string[];
+  images: string[];
   downloadlink: string;
   filesize: string;
   favorites: string[];
@@ -16,7 +16,7 @@ export interface GetPost {
 export interface AddPost {
   title: string;
   description: string;
-  image: string[];
+  images: string[];
   downloadlink: string;
   filesize: string;
   category: string[];

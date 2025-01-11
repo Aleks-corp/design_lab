@@ -81,10 +81,7 @@ const Upload = () => {
     e.preventDefault();
     setIsUploading(true);
 
-    // 1. Отримуємо підписані URL з бекенду
     const signedUrls = await generatePresignedUrl(imageFiles, downloadFile);
-
-    // 2. Завантажуємо файли на S3 за підписаними URL
 
     const { uploadedImageUrls, uploadImgPromises } = await uploadImgFiles(
       imageFiles,
@@ -103,7 +100,6 @@ const Upload = () => {
       ...uploadFilePromises,
     ];
 
-    // Чекаємо завершення завантаження всіх файлів
     await Promise.all(uploadPromises);
 
     toast.success("Files uploaded successfully!");
@@ -123,7 +119,7 @@ const Upload = () => {
       kits,
       upload_at: uploadAt,
       filesize: downloadFile ? downloadFile.size.toString() : "0",
-      image: uploadedImageUrls,
+      images: uploadedImageUrls,
       downloadlink: downloadLink ? downloadLink : uploadedFileUrl,
     };
 

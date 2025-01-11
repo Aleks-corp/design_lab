@@ -14,16 +14,16 @@ interface CardProps {
 }
 
 const Card = ({ className, post, like, userId }: CardProps) => {
-  const { _id, title, description, image, kits, favorites, upload_at } = post;
+  const { _id, title, description, images, kits, favorites, upload_at } = post;
   const visible = favorites.some((id) => id === userId);
 
   return (
     <div className={cn(styles.card, className)}>
       <Link to={`/post/${_id}`}>
         <div className={styles.preview}>
-          {image && image.length >= 4 && (
+          {images && images.length >= 4 && (
             <div className={styles.preview4x}>
-              {image.slice(0, 4).map((i, index) => {
+              {images.slice(0, 4).map((i, index) => {
                 return index === 0 ? (
                   <div key={index} className={styles.firstRows}>
                     <img src={i} srcSet={i} alt="Post Image" />
@@ -36,12 +36,16 @@ const Card = ({ className, post, like, userId }: CardProps) => {
               })}
             </div>
           )}
-          {image && image.length < 4 && (
+          {images && images.length < 4 && (
             <div className={styles.preview}>
-              <img src={image[0]} srcSet={image[0]} alt="Post Template Image" />
+              <img
+                src={images[0]}
+                srcSet={images[0]}
+                alt="Post Template Image"
+              />
             </div>
           )}
-          {(!image || image.length < 0) && (
+          {(!images || images.length < 0) && (
             <div className={styles.preview}>
               <img
                 src={"/images/content/postsimg/post-template.jpg"}
