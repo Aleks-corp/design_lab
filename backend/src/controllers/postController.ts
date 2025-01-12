@@ -4,6 +4,7 @@ import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
 import { generatePresignedUrl } from "../helpers/generatePresignedUrl";
 import { generateSignedGetUrl } from "src/helpers/getSignedUrl";
+import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
 
 interface Post {
   title: string;
@@ -43,7 +44,10 @@ const getAllPosts = async (req: Request, res: Response) => {
   const signedPosts = await Promise.all(
     posts.map(async (post) => {
       const signedImages = await Promise.all(
-        post.images.map((image: string) => generateSignedGetUrl(image))
+        post.images.map((image: string) => {
+          const key = getKeyFromUrl(image);
+          return generateSignedGetUrl(key);
+        })
       );
       return {
         ...post.toObject(),
