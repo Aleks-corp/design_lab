@@ -14,6 +14,7 @@ createRoot(document.getElementById("root")!).render(
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter
           future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+          basename="/"
         >
           <ThemeProvider>
             <App />
