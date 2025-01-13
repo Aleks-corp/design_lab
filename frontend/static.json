@@ -1,8 +1,5 @@
 {
-  "routes": [
-    {
-      "src": "/.*",
-      "dest": "/index.html"
-    }
-  ]
+  "root": "/",
+  "cleanUrls": true,
+  "rewrites": [{ "source": "**", "destination": "/index.html" }]
 }
