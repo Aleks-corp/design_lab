@@ -23,6 +23,29 @@
     +t
         display: block
 
+.created
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    width: 100%
+    margin-top:30px
+    span
+        flex-grow: 1
+        font-weight: 600
+        font-style: italic
+        color: $neutrals3
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
+        max-width: 100%
+        +dark
+            color: $neutrals8
+        span
+            font-weight: 400
+
+    +t
+        display: block
+
 .imgcontainer
     display: grid
     grid-template-columns: repeat(2, 1fr)

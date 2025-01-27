@@ -1,0 +1,75 @@
+@use "sass:color"
+@use "../../styles/helpers" as * 
+
+.footer
+    border-top: 1px solid $neutrals6
+    +dark
+        border-color: $neutrals3
+
+
+.about
+    padding: 18px 24px
+    border-radius: 16px
+    background: $neutrals8
+    border: 1px solid $neutrals6
+    box-shadow: 0px 40px 32px -24px rgba(15, 15, 15, 0.12)
+    +dark
+        background: $neutrals2
+        border-color: $neutrals3
+    
+.category
+    margin-bottom: 18px
+    +body-bold-1
+    +t
+        margin-block-end: 24px
+
+.text
+    margin-bottom: 4px
+    +body-bold-2
+    
+    span
+        +caption-1
+        font-weight: 400
+
+.table 
+    margin: 20px auto
+
+
+.caption 
+  caption-side: bottom
+  padding: 10px
+  font-weight: bold
+
+
+
+.thead
+    background: $neutrals6
+    +dark
+        background: $neutrals3
+
+
+.tcol 
+    padding: 8px 10px
+    text-align: left
+    &.free 
+        color: $blue
+    &.member 
+        color: $green
+    &.admin 
+        color: $red
+  
+
+.tsel 
+    padding: 8px 10px
+
+.trow
+    border-radius: 20px
+    &:nth-of-type(even) 
+        overflow: hidden
+        background: $neutrals7
+        +dark
+            background: $neutrals2
+
+.selectbtn
+    color: inherit
+

@@ -18,6 +18,9 @@ import Loader from "../../components/LoaderCircle";
 import Icon from "../../components/Icon";
 import { clearPost } from "../../redux/posts/postSlice";
 import Control from "../../components/Control";
+import moment from "moment";
+import { handleWayForPay } from "../../helpers/wayforpay";
+import toast from "react-hot-toast";
 
 const breadcrumbs = [
   {
@@ -129,7 +132,13 @@ const Post = () => {
             {(!user || user.subscription === "free") && (
               <div className={styles.info}>
                 You can download this product with the All-Access Pass.
-                <button className={cn("button", styles.button)} type="button">
+                <button
+                  className={cn("button", styles.button)}
+                  type="button"
+                  onClick={() =>
+                    user ? handleWayForPay(user) : toast.error("sign in first")
+                  }
+                >
                   Get All-Access
                 </button>
               </div>
@@ -145,6 +154,14 @@ const Post = () => {
           <div className={cn("container", styles.container)}>
             <h2>Description</h2>
             <p>{post.description}</p>
+          </div>
+          <div className={cn("container", styles.created)}>
+            <span>
+              Post created:{" "}
+              <span>
+                {moment(new Date(post.upload_at)).format("DD MMM YYYY HH:mm")}
+              </span>
+            </span>
           </div>
         </div>
       )}

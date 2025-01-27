@@ -108,7 +108,7 @@ const Preview = ({
             {uploadAt && (
               <p>
                 Upload date:{" "}
-                {moment(new Date(uploadAt)).format("dd-MM-yyyy_HH:mm")}
+                {moment(new Date(uploadAt)).format("DD-MM-YYYY_HH:mm")}
               </p>
             )}
           </div>

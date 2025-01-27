@@ -24,6 +24,7 @@ import VerifyPageResend from "./screens/VerifyUserResend";
 import ResetPasswordPage from "./screens/PassReset";
 import ChangePasswordPage from "./screens/PassChange";
 import ErrorPage from "./screens/Error";
+import Users from "./screens/Users";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -167,6 +168,14 @@ function App() {
           element={
             <Page>
               <Post />
+            </Page>
+          }
+        />
+        <Route
+          path="admin/users"
+          element={
+            <Page>
+              <Users />
             </Page>
           }
         />

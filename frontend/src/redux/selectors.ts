@@ -26,3 +26,5 @@ export const selectPost = (state: State) => state.posts.selectedPost;
 export const selectIsLoading = (state: State) => state.posts.isLoading;
 
 export const selectError = (state: State) => state.posts.error;
+
+export const selectAdminUsers = (state: State) => state.admin.folowers;

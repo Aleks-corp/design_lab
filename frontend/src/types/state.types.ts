@@ -1,9 +1,10 @@
-import { UserProfile } from "./auth.types";
+import { UserList, UserProfile } from "./auth.types";
 import { GetPost } from "./posts.types";
 
 export interface State {
   posts: PostsState;
   auth: AuthState;
+  admin: AdminState;
 }
 
 export interface PostsState {
@@ -22,4 +23,12 @@ export interface AuthState {
   isLogining: boolean;
   error: string;
   profile: UserProfile | null;
+}
+
+export interface AdminState {
+  folowers: UserList[];
+  totalHits: number;
+  unpublPosts: GetPost[];
+  isLogining: boolean;
+  error: string;
 }

@@ -105,7 +105,9 @@ const Card = ({ className, post, like, userId }: CardProps) => {
             <Icon title="candlesticks-up" size={20} />
             <span>
               Post created:{" "}
-              {moment(new Date(upload_at)).format("dd-MM-yyyy_HH:mm")}
+              <span>
+                {moment(new Date(upload_at)).format("DD MMM YYYY HH:mm")}
+              </span>
             </span>
           </div>
         </div>

@@ -8,6 +8,16 @@ export interface UserProfile {
   createdAt: string;
 }
 
+export interface UserList {
+  _id: string;
+  name: string;
+  email: string;
+  subscription: string;
+  substart: number;
+  subend: number;
+  createdAt: string;
+}
+
 export interface GetUser {
   token: string;
   user: UserProfile;
