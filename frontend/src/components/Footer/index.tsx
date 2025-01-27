@@ -6,18 +6,19 @@ import Group from "./Group";
 import Image from "../Image";
 import Form from "../Form";
 import Theme from "../Theme";
+import toast from "react-hot-toast";
 
 const items = [
   {
-    title: "Crypter.",
+    title: "Design",
     menu: [
       {
         title: "Discover",
-        url: "/search01",
+        url: "/",
       },
       {
-        title: "Connect wallet",
-        url: "/connect-wallet",
+        title: "Registration",
+        url: "/register",
       },
     ],
   },
@@ -29,8 +30,8 @@ const items = [
         url: "/faq",
       },
       {
-        title: "Create item",
-        url: "/upload-variants",
+        title: "Profile",
+        url: "/profile",
       },
     ],
   },
@@ -40,7 +41,7 @@ const Footers = () => {
   const [email, setEmail] = useState("");
 
   const handleSubmit = () => {
-    alert();
+    toast.success("You have successfully subscribed to our newsletter!");
   };
 
   return (
@@ -56,7 +57,7 @@ const Footers = () => {
                 alt="Fitness Pro"
               />
             </Link>
-            <div className={styles.info}>The New Creative Economy.</div>
+            <div className={styles.info}>The New Creative Economy</div>
             <div className={styles.version}>
               <div className={styles.details}>Dark theme</div>
               <Theme className="theme-big" />
@@ -70,8 +71,7 @@ const Footers = () => {
           <div className={styles.col}>
             <div className={styles.category}>Join Newsletter</div>
             <div className={styles.text}>
-              Subscribe our newsletter to get more free design course and
-              resource
+              Subscribe our newsletter to get more design course and resource
             </div>
             <Form
               className={styles.form}
@@ -86,11 +86,9 @@ const Footers = () => {
         </div>
         <div className={styles.foot}>
           <div className={styles.copyright}>
-            Copyright © 2021 UI8 LLC. All rights reserved
+            Copyright © 2024 ACITS GROUP. All rights reserved
           </div>
-          <div className={styles.note}>
-            We use cookies for better service. <a href="/#">Accept</a>
-          </div>
+          <div className={styles.note}>We use cookies for better service.</div>
         </div>
       </div>
     </footer>
