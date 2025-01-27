@@ -7,7 +7,7 @@ import {
 } from "../constants/usersConstants";
 
 const usersRegSchema = Joi.object({
-  name: Joi.string().required().min(3).max(12).messages({
+  name: Joi.string().required().min(3).max(18).messages({
     "string.empty": `'email' cannot be an empty field`,
     "any.required": `missing required 'name' field`,
   }),
@@ -18,11 +18,11 @@ const usersRegSchema = Joi.object({
   }),
   password: Joi.string()
     .min(8)
-    .max(16)
+    .max(18)
     .pattern(passRegexp)
     .required()
     .messages({
-      "string.pattern.base": `'password' contain minimum 8 characters, at least one uppercase letter, one lowercase letter and one number`,
+      "string.pattern.base": `'password' contain 8-18 characters, at least one uppercase letter, one lowercase letter and one number`,
       "string.empty": `'password' cannot be an empty field`,
       "any.required": `missing required 'password' field`,
     }),

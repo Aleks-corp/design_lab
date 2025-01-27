@@ -2,7 +2,7 @@ import * as yup from "yup";
 import { emailRegexp, passRegexp } from "../constants/user.constants";
 
 export const regSchema = yup.object().shape({
-  name: yup.string().min(3).max(12).required(),
+  name: yup.string().min(3).max(18).required(),
   email: yup
     .string()
     .matches(emailRegexp, "Oops! That email doesn't seem right")
@@ -11,7 +11,7 @@ export const regSchema = yup.object().shape({
     .string()
     .matches(
       passRegexp,
-      "Password must contain 8-16 characters, at least one uppercase letter, one lowercase letter and one number:"
+      "Password must contain 8-18 characters, at least one uppercase letter, one lowercase letter and one number:"
     )
     .required(),
   confpass: yup

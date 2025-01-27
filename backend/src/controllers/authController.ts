@@ -253,7 +253,6 @@ const generateSignature = async (req: Request, res: Response) => {
     ...data.productCount,
     ...data.productPrice,
   ].join(";");
-  console.log("string:", string);
   const hmac = crypto.createHmac("md5", secretKey);
   hmac.update(string);
 
