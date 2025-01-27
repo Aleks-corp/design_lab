@@ -4,7 +4,7 @@ import Icon from "../Icon";
 
 interface FormProps {
   className: string;
-  onSubmit: () => void;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
   placeholder: string;
   value: string;
   setValue: (value: string) => void;

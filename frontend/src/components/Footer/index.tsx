@@ -40,8 +40,10 @@ const items = [
 const Footers = () => {
   const [email, setEmail] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     toast.success("You have successfully subscribed to our newsletter!");
+    setEmail("");
   };
 
   return (
@@ -77,7 +79,7 @@ const Footers = () => {
               className={styles.form}
               value={email}
               setValue={setEmail}
-              onSubmit={() => handleSubmit()}
+              onSubmit={(e) => handleSubmit(e)}
               placeholder="Enter your email"
               type="email"
               name="email"
