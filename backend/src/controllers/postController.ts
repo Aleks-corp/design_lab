@@ -66,7 +66,10 @@ const getPostById = async (req: Request, res: Response) => {
     throw ApiError(404);
   }
   const signedImages = await Promise.all(
-    post.images.map((image: string) => generateSignedGetUrl(image))
+    post.images.map((image: string) => {
+      const key = getKeyFromUrl(image);
+      return generateSignedGetUrl(key);
+    })
   );
   const signedPost = {
     ...post.toObject(),

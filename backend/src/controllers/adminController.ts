@@ -3,7 +3,7 @@ import User from "../models/user";
 import { ApiError } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
-import Post from "src/models/post";
+import Post from "../models/post";
 
 const getAllUser = async (req: Request, res: Response) => {
   const { page = "1", limit = "50", filter = "" } = req.query;
@@ -23,6 +23,16 @@ const getAllUser = async (req: Request, res: Response) => {
   );
   const totalHits = await User.countDocuments(query);
 
+  const newDate = new Date();
+  users.map(async (user) => {
+    if (user.subend && newDate.getTime() > user.subend.getTime()) {
+      user.subscription = "free";
+      await User.findByIdAndUpdate(user._id, {
+        subscription: "free",
+      });
+    }
+  });
+
   res.json({ totalHits, users });
 };
 
@@ -30,15 +40,68 @@ const changeUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
   const newUser = req.body;
 
-  const user = await User.findByIdAndUpdate(userId, {
-    ...newUser,
-  });
-
+  const user = await User.findById(userId);
   if (!user) {
     throw ApiError(400, "Invalid user id");
   }
 
-  res.json({ message: "User successfully changed" });
+  const newSubscription = newUser.subscription;
+  if (newSubscription === "admin") {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        subscription: newSubscription,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json({ updatedUser });
+    return;
+  }
+
+  const newDate = new Date();
+  if (newSubscription === "member") {
+    const newSubstart =
+      !user.subend && user.subend.getTime() < newDate.getTime()
+        ? newDate
+        : user.subend;
+    const newSubend =
+      !user.subend && user.subend.getTime() < newDate.getTime()
+        ? newDate.setMonth(newDate.getMonth() + 1)
+        : new Date(
+            new Date(user.subend).setMonth(new Date(user.subend).getMonth() + 1)
+          ).getTime();
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        subscription: newSubscription,
+        substart: newSubstart,
+        subend: newSubend,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json({ updatedUser });
+    return;
+  }
+
+  if (newSubscription === "free") {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        subscription: newSubscription,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json({ updatedUser });
+    return;
+  }
+
+  res.json({ message: "User not changed" });
 };
 
 const getUnpublishedPosts = async (req: Request, res: Response) => {

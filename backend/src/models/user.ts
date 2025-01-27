@@ -30,14 +30,14 @@ const userSchema = new Schema<IUser, IUserModelType>(
       default: "free",
     },
     substart: {
-      type: Number,
+      type: Date,
       default: null,
       required: function () {
         return this.subscription === "member";
       },
     },
     subend: {
-      type: Number,
+      type: Date,
       default: null,
       required: function () {
         return this.subscription === "member";

@@ -10,7 +10,7 @@ import postsRouter from "./routes/api/posts";
 import authRouter from "./routes/api/auth";
 import adminRouter from "./routes/api/admin";
 
-const logPath = path.resolve("logs");
+const logPath = path.resolve("dist/logs");
 
 if (!fs.existsSync(logPath)) {
   fs.mkdirSync(logPath);

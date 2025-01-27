@@ -25,6 +25,7 @@ const {
   forgotPassword,
   resetPassword,
   changePassword,
+  generateSignature,
 } = authController;
 
 const authRouter = express.Router();
@@ -59,5 +60,6 @@ authRouter.patch(
   validateBody(usersUpdateSubscriptionSchema),
   updateUserSubscription
 );
+authRouter.post("/getsignature", authenticateToken, generateSignature);
 
 export default authRouter;

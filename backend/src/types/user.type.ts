@@ -6,8 +6,8 @@ export interface IUser {
   email: string;
   password: string;
   subscription: "free" | "member" | "admin";
-  substart: number;
-  subend: number;
+  substart: Date;
+  subend: Date;
   token?: string;
   verificationToken: string;
   verify: boolean;

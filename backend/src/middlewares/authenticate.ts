@@ -31,9 +31,12 @@ const authenticateToken = async (
     if (!user || !user.token) {
       throw ApiError(401);
     }
-    const newDate = new Date().getTime();
-    if (user.subend && newDate > user.subend) {
+    const newDate = new Date();
+    if (user.subend && newDate.getTime() > user.subend.getTime()) {
       user.subscription = "free";
+      await User.findByIdAndUpdate(user._id, {
+        subscription: user.subscription,
+      });
     }
 
     req.user = user;

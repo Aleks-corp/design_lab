@@ -6,8 +6,9 @@ import User from "../models/user";
 import { ApiError, sendMail } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
+import crypto from "crypto";
 
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET, WFP_SECRET_KEY } = process.env;
 
 const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -95,12 +96,15 @@ const updateUserSubscription = async (req: Request, res: Response) => {
     res.json({ message: "You already have this subscription." });
     return;
   }
-  const newDate = new Date().getTime();
+  const newDate = new Date();
   const newSubscription = body.subscription;
-  const newSubstart = !user.substart ? newDate : user.substart;
+  const newSubstart =
+    !user.subend && user.subend.getTime() < newDate.getTime()
+      ? newDate
+      : user.subend;
   const newSubend =
-    !user.subend || user.subend < newDate
-      ? new Date().getTime()
+    !user.subend && user.subend.getTime() < newDate.getTime()
+      ? newDate.setMonth(newDate.getMonth() + 1)
       : new Date(
           new Date(user.subend).setMonth(new Date(user.subend).getMonth() + 1)
         ).getTime();
@@ -235,6 +239,29 @@ const changePassword = async (req: Request, res: Response) => {
   res.json({ message: "Password successfully changed" });
 };
 
+const generateSignature = async (req: Request, res: Response) => {
+  const { data } = req.body;
+  const secretKey = WFP_SECRET_KEY;
+  const string = [
+    data.merchantAccount,
+    data.merchantDomainName,
+    data.orderReference,
+    data.orderDate,
+    data.amount,
+    data.currency,
+    ...data.productName,
+    ...data.productCount,
+    ...data.productPrice,
+  ].join(";");
+  console.log("string:", string);
+  const hmac = crypto.createHmac("md5", secretKey);
+  hmac.update(string);
+
+  const merchantSignature = hmac.digest("hex");
+
+  res.json({ merchantSignature });
+};
+
 export default {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
@@ -246,4 +273,5 @@ export default {
   forgotPassword: ctrlWrapper(forgotPassword),
   resetPassword: ctrlWrapper(resetPassword),
   changePassword: ctrlWrapper(changePassword),
+  generateSignature: ctrlWrapper(generateSignature),
 };
