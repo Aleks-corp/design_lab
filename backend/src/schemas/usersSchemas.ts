@@ -36,7 +36,7 @@ const usersLoginSchema = Joi.object({
   }),
   password: Joi.string()
     .min(8)
-    .max(16)
+    .max(18)
     .pattern(passRegexp)
     .required()
     .messages({
@@ -67,7 +67,7 @@ const usersVerifySchema = Joi.object({
 const passwordResetSchema = Joi.object({
   newPassword: Joi.string()
     .min(8)
-    .max(16)
+    .max(18)
     .pattern(passRegexp)
     .required()
     .messages({
@@ -80,7 +80,7 @@ const passwordResetSchema = Joi.object({
 const changePasswordSchema = Joi.object({
   oldPassword: Joi.string()
     .min(8)
-    .max(16)
+    .max(18)
     .pattern(passRegexp)
     .required()
     .messages({
