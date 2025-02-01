@@ -2,9 +2,11 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone: string;
   subscription: string;
-  substart: number;
-  subend: number;
+  orderReference: string;
+  substart: Date;
+  subend: Date;
   createdAt: string;
 }
 
@@ -12,9 +14,11 @@ export interface UserList {
   _id: string;
   name: string;
   email: string;
+  phone: string;
   subscription: string;
-  substart: number;
-  subend: number;
+  orderReference: string;
+  substart: Date;
+  subend: Date;
   createdAt: string;
 }
 

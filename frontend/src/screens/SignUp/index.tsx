@@ -8,8 +8,12 @@ import { useNavigate } from "react-router-dom";
 import { signUp } from "../../redux/auth/auth.thunk";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
-import { selectIsLogining, selectUserError } from "../../redux/selectors";
+import { useEffect, useState } from "react";
+import {
+  selectIsLogining,
+  selectUser,
+  selectUserError,
+} from "../../redux/selectors";
 import Loader from "../../components/Loader";
 import { regSchema } from "../../schema/regSchema";
 
@@ -35,6 +39,7 @@ const SignUp = () => {
   const navigate = useNavigate();
   const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
+  const user = useAppSelector(selectUser);
 
   const [showPass, setShowPass] = useState(false);
   const [showConfPass, setShowConfPass] = useState(false);
@@ -55,6 +60,12 @@ const SignUp = () => {
     reset();
     navigate("/verify/0");
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [navigate, user]);
 
   return (
     <div className={styles.page}>

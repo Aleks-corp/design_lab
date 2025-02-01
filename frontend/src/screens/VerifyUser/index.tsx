@@ -26,7 +26,7 @@ const VerifyPage = () => {
   return (
     <>
       {token === "0" && !error && (
-        <h3 className={styles.title}>Check Email to verify user</h3>
+        <h3 className={styles.title}>Check Your Email to verify account</h3>
       )}
 
       {isLoggining && !error && <Loader className={styles.loader} />}
@@ -40,16 +40,18 @@ const VerifyPage = () => {
           </h3>
         </>
       )}
-      {error === "Verification has already been passed." && (
-        <>
-          <h3 className={styles.title}>
-            Verification has already been passed
-            <NavLink className={styles.titlelink} to="/login">
-              Go to Login
-            </NavLink>
-          </h3>
-        </>
-      )}
+      {error === "Verification has already been passed." &&
+        !isLoggining &&
+        !isLoggedIn && (
+          <>
+            <h3 className={styles.title}>
+              Verification has already been passed
+              <NavLink className={styles.titlelink} to="/login">
+                Go to Login
+              </NavLink>
+            </h3>
+          </>
+        )}
     </>
   );
 };

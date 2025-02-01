@@ -1,4 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
 import cn from "classnames";
 import styles from "./UploadPost.module.sass";
 import Icon from "../../components/Icon";
@@ -25,8 +27,6 @@ import {
 } from "../../helpers/handleFileChange";
 import { addPost } from "../../redux/posts/post.thunk";
 import toast from "react-hot-toast";
-import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
 import { FileUploadProgress } from "../../types/upload.types";
 import { uploadDownLoadFile, uploadImgFiles } from "../../helpers/uploadFile";
 import { generatePresignedUrl } from "../../helpers/genSignedUrl";
@@ -160,7 +160,7 @@ const Upload = () => {
 
   const inputProps = {
     placeholder: "Select upload Date",
-    className: styles.input,
+    className: styles.inputdate,
     required: true,
     value: uploadAt ? uploadAt : "",
   };
@@ -369,6 +369,7 @@ const Upload = () => {
             title={titleValue}
             desc={descriptionValue}
             kits={kitState}
+            category={categoryState}
             fileSize={downloadFile?.size}
             uploadAt={uploadAt}
           />

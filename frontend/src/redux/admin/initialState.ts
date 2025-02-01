@@ -2,8 +2,10 @@ import { AdminState } from "../../types/state.types";
 
 export const initialState: AdminState = {
   folowers: [],
-  totalHits: 0,
+  totalFolowers: 0,
+  totalPosts: 0,
+  unpublPost: null,
   unpublPosts: [],
-  isLogining: false,
+  isLoading: false,
   error: "",
 };

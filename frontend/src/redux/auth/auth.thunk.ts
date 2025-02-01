@@ -197,3 +197,17 @@ export const changePassword = createAsyncThunk(
     }
   }
 );
+
+export const checkPaymentStatus = createAsyncThunk(
+  "users/checkpayment",
+  async (_, thunkAPI) => {
+    try {
+      const response = await instance.get(`/users/payment-status`);
+      return response.data;
+    } catch (e) {
+      if (e instanceof Error) {
+        return thunkAPI.rejectWithValue(e.message);
+      }
+    }
+  }
+);

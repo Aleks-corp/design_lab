@@ -7,10 +7,10 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { emailRegexp, passRegexp } from "../../constants/user.constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { selectIsLogining } from "../../redux/selectors";
+import { selectIsLogining, selectUser } from "../../redux/selectors";
 import Loader from "../../components/Loader";
 import { logIn } from "../../redux/auth/auth.thunk";
 
@@ -47,6 +47,7 @@ const SignIn = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isLoading = useAppSelector(selectIsLogining);
+  const user = useAppSelector(selectUser);
 
   const [showPass, setShowPass] = useState(false);
   const [isntVerify, setIsntVerify] = useState(false);
@@ -73,6 +74,13 @@ const SignIn = () => {
       navigate("/");
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [navigate, user]);
+
   return (
     <div className={styles.page}>
       <Control className={styles.control} item={breadcrumbs} />

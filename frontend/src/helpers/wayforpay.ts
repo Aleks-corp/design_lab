@@ -1,9 +1,8 @@
 import { instance } from "../api/axios";
 import { UserProfile } from "../types/auth.types";
+import { nextDate } from "./setDate";
 
 interface FormData {
-  merchantAccount: string;
-  merchantDomainName: string;
   orderReference: string;
   orderDate: number;
   amount: string;
@@ -11,26 +10,22 @@ interface FormData {
   productName: string[];
   productCount: number[];
   productPrice: string[];
-}
-interface WayForPayFormData extends FormData {
   clientAccountId: string;
   clientEmail: string;
-  merchantSignature: string;
   merchantAuthType: string;
   merchantTransactionSecureType: string;
   recurringToken: string;
-  returnUrl: string;
-  serviceUrl: string;
   regularMode: string;
   regularAmount: string;
   regularBehavior?: string;
   regularOn: number;
   dateNext: string;
+  dateEnd: string;
 }
 
-const generateSignature = async (data: FormData) => {
-  const response = await instance.post("/users/getsignature", { data });
-  return response.data.merchantSignature;
+const generatePaymentData = async (data: FormData) => {
+  const response = await instance.post("/users/create-payment", { data });
+  return response.data;
 };
 
 export const handleWayForPay = async (user: UserProfile) => {
@@ -39,68 +34,45 @@ export const handleWayForPay = async (user: UserProfile) => {
   form.method = "POST";
   form.style.display = "none";
 
-  const currentDate = new Date().getTime();
-  const nextDate = () => {
-    const nextDay =
-      new Date(currentDate).getDate() > 28
-        ? 28
-        : new Date(currentDate).getDate();
-    const nextMonth =
-      new Date(currentDate).getMonth() === 11
-        ? 1
-        : new Date(currentDate).getMonth() + 2;
-    const nextYear =
-      new Date(currentDate).getMonth() === 11
-        ? new Date(currentDate).getFullYear() + 1
-        : new Date(currentDate).getFullYear();
-    const nextDate = `${nextDay < 10 ? `0` + nextDay : nextDay}.${
-      nextMonth < 10 ? `0` + nextMonth : nextMonth
-    }.${nextYear}`;
-    return nextDate;
-  };
+  const currentDate = new Date();
 
   const data = {
-    merchantAccount: "test_merch_n1",
-    merchantDomainName: "www.market.ua",
-    orderReference: `ORDER-${currentDate}`,
-    orderDate: Math.floor(currentDate / 1000),
+    orderReference: `ORDER-${currentDate.getTime()}`,
+    orderDate: currentDate.getTime(),
     amount: "5.00",
     currency: "USD",
     productName: ["All-Access-Pass"],
     productCount: [1],
     productPrice: ["5.00"],
-  };
-
-  const wayForPayData: WayForPayFormData = {
-    ...data,
     clientAccountId: `${user.email}`,
     clientEmail: `${user.email}`,
-    merchantSignature: await generateSignature(data),
     merchantAuthType: "SimpleSignature",
     merchantTransactionSecureType: "AUTO",
     recurringToken: "auto",
-    returnUrl: "",
-    serviceUrl: "",
     regularMode: "monthly",
     regularAmount: "5.00",
     regularBehavior: "preset",
     regularOn: 1,
-    dateNext: nextDate(),
+    dateNext: nextDate(currentDate).nextDate,
+    dateEnd: nextDate(currentDate).dateEnd,
+  };
+  const paymentData = await generatePaymentData(data);
+
+  const wayForPayData: FormData = {
+    ...paymentData,
   };
 
   for (const key in wayForPayData) {
-    const typedKey = key as keyof WayForPayFormData; // Явно задаємо тип ключа
+    const typedKey = key as keyof FormData;
     if (Array.isArray(wayForPayData[typedKey])) {
-      // Якщо значення є масивом, додаємо окремі поля для кожного елемента
       wayForPayData[typedKey].forEach((value) => {
         const input = document.createElement("input");
         input.type = "hidden";
-        input.name = `${key}[]`; // Масив має використовувати `[]`
+        input.name = `${key}[]`;
         input.value = value;
         form.appendChild(input);
       });
     } else {
-      // Якщо значення не є масивом, додаємо як одне поле
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = key;
@@ -109,11 +81,9 @@ export const handleWayForPay = async (user: UserProfile) => {
     }
   }
 
-  // Додаємо форму до DOM
   document.body.appendChild(form);
 
   console.log("Submitting form with data:", wayForPayData);
 
-  // Відправка форми
   form.submit();
 };

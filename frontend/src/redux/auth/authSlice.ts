@@ -10,6 +10,7 @@ import {
   setNewPassword,
   forgotPassword,
   changePassword,
+  checkPaymentStatus,
 } from "./auth.thunk";
 import { AuthState } from "../../types/state.types";
 import { GetUser, UserProfile } from "../../types/auth.types";
@@ -38,6 +39,16 @@ const handleLogOutFulfilled = (state: AuthState) => {
   state.profile = null;
   state.token = "";
   state.isLoggedIn = false;
+};
+
+const handleCheckPaymentFulfilled = (
+  state: AuthState,
+  action: PayloadAction<{ subscription: string }>
+) => {
+  state.isLogining = false;
+  if (state.profile) {
+    state.profile.subscription = action.payload.subscription;
+  }
 };
 
 const handleRefreshFulfilled = (
@@ -81,6 +92,7 @@ const authSlice = createSlice({
       .addCase(setNewPassword.fulfilled, handleFulfilled)
       .addCase(forgotPassword.fulfilled, handleFulfilled)
       .addCase(changePassword.fulfilled, handleFulfilled)
+      .addCase(checkPaymentStatus.fulfilled, handleCheckPaymentFulfilled)
       .addCase(refreshUser.fulfilled, handleRefreshFulfilled)
       .addCase(refreshUser.pending, handleRefreshPending)
       .addCase(refreshUser.rejected, handleRefreshRejected)

@@ -2,29 +2,35 @@ import { useEffect, useState } from "react";
 import styles from "./Users.module.sass";
 import cn from "classnames";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { getAllUsers } from "../../redux/admin/admin.thunk";
-import { selectAdminUsers } from "../../redux/selectors";
+import { getAllUsers, patchUsers } from "../../redux/admin/admin.thunk";
+import {
+  selectAdminUsers,
+  selectTotalFolowers,
+  selectUserIsLoading,
+} from "../../redux/selectors";
 import moment from "moment";
+import Loader from "../../components/Loader";
 
 interface UserList {
   _id?: string;
   name: string;
   email: string;
   subscription: string;
-  substart?: string;
-  subend?: string;
 }
 
 const Users = () => {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAdminUsers);
+  const totalUsers = useAppSelector(selectTotalFolowers);
+  const isLoading = useAppSelector(selectUserIsLoading);
 
+  const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<keyof UserList | "">("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [updateUser, setUpdateUser] = useState<string[]>([]);
+  const [updateUsers, setUpdateUsers] = useState<string[]>([]);
 
   useEffect(() => {
-    dispatch(getAllUsers());
+    dispatch(getAllUsers({}));
   }, [dispatch]);
 
   const handleSort = (field: keyof UserList) => {
@@ -47,7 +53,7 @@ const Users = () => {
   });
 
   const handleCheckboxChange = (id: string, checked: boolean) => {
-    setUpdateUser((prev) =>
+    setUpdateUsers((prev) =>
       checked ? [...prev, id] : prev.filter((userId) => userId !== id)
     );
   };
@@ -111,6 +117,7 @@ const Users = () => {
                     : ""}
                 </button>
               </th>
+
               <th className={styles.tcol} scope="col">
                 <button
                   className={styles.selectbtn}
@@ -126,10 +133,16 @@ const Users = () => {
                 </button>
               </th>
               <th className={styles.tcol} scope="col">
+                Order Reference
+              </th>
+              <th className={styles.tcol} scope="col">
                 Subscription start
               </th>
               <th className={styles.tcol} scope="col">
                 Subscription end
+              </th>
+              <th className={styles.tcol} scope="col">
+                Phone
               </th>
             </tr>
           </thead>
@@ -139,7 +152,7 @@ const Users = () => {
                 <th className={styles.tsel} scope="row">
                   <input
                     type="checkbox"
-                    checked={updateUser.includes(user._id)}
+                    checked={updateUsers.includes(user._id)}
                     onChange={(e) =>
                       handleCheckboxChange(user._id, e.target.checked)
                     }
@@ -147,6 +160,7 @@ const Users = () => {
                 </th>
                 <td className={styles.tcol}>{user.name}</td>
                 <td className={styles.tcol}>{user.email}</td>
+
                 <td
                   className={cn(styles.tcol, {
                     [styles.free]: user.subscription === "free",
@@ -156,6 +170,7 @@ const Users = () => {
                 >
                   {user.subscription}
                 </td>
+                <td className={styles.tcol}>{user.orderReference}</td>
                 <td className={styles.tcol}>
                   {user.substart &&
                     moment(new Date(user.substart)).format("DD-MM-YYYY")}
@@ -164,19 +179,81 @@ const Users = () => {
                   {user.subend &&
                     moment(new Date(user.subend)).format("DD-MM-YYYY")}
                 </td>
+                <td className={styles.tcol}>{user.phone}</td>
               </tr>
             ))}
           </tbody>
-          {/* <tfoot>
-          <tr>
-            <th scope="row" colSpan={2}>
-              Average age
-            </th>
-            <td>33</td>
-          </tr>
-        </tfoot> */}
+          {updateUsers.length > 0 && (
+            <tfoot>
+              <tr>
+                <td className={styles.tselected} colSpan={1}>
+                  {updateUsers.length}
+                </td>
+                <th className={styles.tcol} scope="row" colSpan={3}>
+                  <button
+                    className={cn("button-stroke", styles.updateBtn)}
+                    type="button"
+                    onClick={() => {
+                      dispatch(
+                        patchUsers({
+                          users: updateUsers,
+                          subscription: "member",
+                        })
+                      );
+                    }}
+                  >
+                    Set membership 1 month
+                  </button>
+                </th>
+                <th className={styles.tcol} scope="row" colSpan={3}>
+                  <button
+                    className={cn("button-stroke", styles.updateBtnRed)}
+                    type="button"
+                    onClick={() => {
+                      dispatch(
+                        patchUsers({
+                          users: updateUsers,
+                          subscription: "free",
+                        })
+                      );
+                    }}
+                  >
+                    Delete subscription
+                  </button>
+                </th>
+              </tr>
+            </tfoot>
+          )}
         </table>
       )}
+      <div className={styles.btns}>
+        {isLoading ? (
+          <button className={cn("button-stroke", styles.button)} type="button">
+            <Loader />
+          </button>
+        ) : (
+          <>
+            {totalUsers > users.length && (
+              <button
+                className={cn("button-stroke", styles.button)}
+                type="button"
+                onClick={() => {
+                  const nextPage = currentPage + 1;
+                  setCurrentPage(nextPage);
+                  dispatch(
+                    getAllUsers({
+                      page: nextPage,
+                      limit: 1,
+                    })
+                  );
+                }}
+              >
+                <span>Load more</span>
+              </button>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

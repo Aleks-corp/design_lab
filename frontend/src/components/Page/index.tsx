@@ -25,13 +25,7 @@ const Page = ({ children }: PageProps) => {
   return (
     <div className={styles.page}>
       <Header />
-      {user && user.subscription === "free" && (
-        // <div className={styles.subsciption}>
-        //   Get full access to download files and enjoy all features by purchasing
-        //   a subscription today!
-        // </div>
-        <SubscriptionBanner />
-      )}
+      {user && user.subscription === "free" && <SubscriptionBanner />}
       <div className={styles.inner}>{children}</div>
       <Footer />
       <Toaster position="top-center" reverseOrder={false} />

@@ -19,7 +19,6 @@ import Icon from "../../components/Icon";
 import { clearPost } from "../../redux/posts/postSlice";
 import Control from "../../components/Control";
 import moment from "moment";
-import { handleWayForPay } from "../../helpers/wayforpay";
 import toast from "react-hot-toast";
 
 const breadcrumbs = [
@@ -136,7 +135,7 @@ const Post = () => {
                   className={cn("button", styles.button)}
                   type="button"
                   onClick={() =>
-                    user ? handleWayForPay(user) : toast.error("sign in first")
+                    user ? navigate("/payment") : toast.error("sign in first")
                   }
                 >
                   Get All-Access

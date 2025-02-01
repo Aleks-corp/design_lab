@@ -11,6 +11,7 @@ interface PreviewProp {
   title?: string;
   desc?: string;
   kits?: { [x: string]: boolean }[];
+  category?: { [x: string]: boolean }[];
   fileSize?: number;
   uploadAt?: string;
 }
@@ -23,9 +24,14 @@ const Preview = ({
   title,
   desc,
   kits,
+  category,
   fileSize,
   uploadAt,
 }: PreviewProp) => {
+  const categoryString = category?.reduce((acc, i) => {
+    const [key, value] = Object.entries(i)[0];
+    return value ? (acc ? acc + ", " + key : key) : acc;
+  }, "");
   return (
     <div className={cn(className, styles.wrap)}>
       <div className={styles.inner}>
@@ -105,8 +111,14 @@ const Preview = ({
                   : "File Size Mb"}
               </div>
             </div>
+            {categoryString && (
+              <>
+                <p>Category:</p>
+                <p className={styles.category}>{categoryString}</p>
+              </>
+            )}{" "}
             {uploadAt && (
-              <p>
+              <p className={styles.upload}>
                 Upload date:{" "}
                 {moment(new Date(uploadAt)).format("DD-MM-YYYY_HH:mm")}
               </p>

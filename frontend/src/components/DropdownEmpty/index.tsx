@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import cn from "classnames";
-import OutsideClickHandler from "react-outside-click-handler";
 import styles from "./DropdownEmpty.module.sass";
 import Icon from "../Icon";
 
@@ -18,6 +17,23 @@ const DropdownEmpty = ({
   options,
 }: DropdownProps) => {
   const [visible, setVisible] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleClick = (value: string) => {
     setValue(value);
@@ -25,29 +41,28 @@ const DropdownEmpty = ({
   };
 
   return (
-    <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
-      <div
-        className={cn(styles.dropdown, className, { [styles.active]: visible })}
-      >
-        <div className={styles.head} onClick={() => setVisible(!visible)}>
-          <div className={styles.selection}>{value}</div>
-          <Icon title="arrow-bottom" size={15} />
-        </div>
-        <div className={styles.body}>
-          {options.map((x, index) => (
-            <div
-              className={cn(styles.option, {
-                [styles.selectioned]: x === value,
-              })}
-              onClick={() => handleClick(x)}
-              key={index}
-            >
-              {x}
-            </div>
-          ))}
-        </div>
+    <div
+      ref={dropdownRef}
+      className={cn(styles.dropdown, className, { [styles.active]: visible })}
+    >
+      <div className={styles.head} onClick={() => setVisible(!visible)}>
+        <div className={styles.selection}>{value}</div>
+        <Icon title="arrow-bottom" size={15} />
       </div>
-    </OutsideClickHandler>
+      <div className={styles.body}>
+        {options.map((x, index) => (
+          <div
+            className={cn(styles.option, {
+              [styles.selectioned]: x === value,
+            })}
+            onClick={() => handleClick(x)}
+            key={index}
+          >
+            {x}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

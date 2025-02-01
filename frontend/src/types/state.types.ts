@@ -27,8 +27,10 @@ export interface AuthState {
 
 export interface AdminState {
   folowers: UserList[];
-  totalHits: number;
+  totalFolowers: number;
+  totalPosts: number;
   unpublPosts: GetPost[];
-  isLogining: boolean;
+  unpublPost: GetPost | null;
+  isLoading: boolean;
   error: string;
 }

@@ -1,7 +1,6 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
-import OutsideClickHandler from "react-outside-click-handler";
 import cn from "classnames";
 import styles from "./Modal.module.sass";
 import Icon from "../Icon";
@@ -29,6 +28,7 @@ const Modal = ({
     },
     [onClose]
   );
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     document.addEventListener("keydown", escFunction, false);
@@ -36,6 +36,27 @@ const Modal = ({
       document.removeEventListener("keydown", escFunction, false);
     };
   }, [escFunction]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (visible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [visible, onClose]);
 
   useEffect(() => {
     const target = document.querySelector("#modal");
@@ -50,14 +71,15 @@ const Modal = ({
     visible && (
       <div className={styles.modal} id="modal">
         <div className={cn(styles.outer, outerClassName)}>
-          <OutsideClickHandler onOutsideClick={onClose}>
-            <div className={cn(styles.container, containerClassName)}>
-              {children}
-              <button className={styles.close} onClick={onClose}>
-                <Icon title="close" size={14} />
-              </button>
-            </div>
-          </OutsideClickHandler>
+          <div
+            ref={modalRef}
+            className={cn(styles.container, containerClassName)}
+          >
+            {children}
+            <button className={styles.close} onClick={onClose}>
+              <Icon title="close" size={14} />
+            </button>
+          </div>
         </div>
       </div>
     ),

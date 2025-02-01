@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import cn from "classnames";
-import OutsideClickHandler from "react-outside-click-handler";
 import styles from "./Dropdown.module.sass";
 import Icon from "../Icon";
 
@@ -13,6 +12,23 @@ interface DropdownProps {
 
 const Dropdown = ({ className, value, setValue, options }: DropdownProps) => {
   const [visible, setVisible] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleClick = (value: string) => {
     setValue(value);
@@ -20,16 +36,17 @@ const Dropdown = ({ className, value, setValue, options }: DropdownProps) => {
   };
 
   return (
-    <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
-      <div
-        className={cn(styles.dropdown, className, { [styles.active]: visible })}
-      >
-        <div className={styles.head} onClick={() => setVisible(!visible)}>
-          <div className={styles.selection}>{value}</div>
-          <div className={styles.arrow}>
-            <Icon title="arrow-bottom" size={10} />
-          </div>
+    <div
+      ref={dropdownRef}
+      className={cn(styles.dropdown, className, { [styles.active]: visible })}
+    >
+      <div className={styles.head} onClick={() => setVisible(!visible)}>
+        <div className={styles.selection}>{value}</div>
+        <div className={styles.arrow}>
+          <Icon title="arrow-bottom" size={10} />
         </div>
+      </div>
+      {visible && (
         <div className={styles.body}>
           {options.map((x, index) => (
             <div
@@ -43,8 +60,8 @@ const Dropdown = ({ className, value, setValue, options }: DropdownProps) => {
             </div>
           ))}
         </div>
-      </div>
-    </OutsideClickHandler>
+      )}
+    </div>
   );
 };
 

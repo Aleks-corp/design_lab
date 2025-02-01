@@ -1,7 +1,9 @@
 // import { useState } from "react";
 import cn from "classnames";
 import styles from "./Profile.module.sass";
-import User from "./Users";
+import UserMember from "./UsersMember";
+import UserAdmin from "./UsersAdmin";
+import UserFree from "./UsersFree";
 import { useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/selectors";
 
@@ -13,7 +15,15 @@ const Profile = () => {
       <div className={styles.profile}>
         <div className={styles.body}>
           <div className={cn("container", styles.container)}>
-            <User className={styles.user} user={user} />
+            {user.subscription === "free" && (
+              <UserFree className={styles.user} user={user} />
+            )}
+            {user.subscription === "member" && (
+              <UserMember className={styles.user} user={user} />
+            )}
+            {user.subscription === "admin" && (
+              <UserAdmin className={styles.user} user={user} />
+            )}
           </div>
         </div>
       </div>

@@ -13,42 +13,23 @@ interface UserProps {
   user: UserProfile;
 }
 
-const User = ({ className, user }: UserProps) => {
+const UserMember = ({ className, user }: UserProps) => {
   const [visibleModalReport, setVisibleModalReport] = useState(false);
 
   return (
     <>
       <div className={cn(styles.user, className)}>
-        {/* <div className={styles.avatar}>
-          <img src="/images/content/avatar-big.jpg" alt="Avatar" />
-        </div> */}
         <div className={styles.name}>{user.name}</div>
         <div className={styles.code}>
           <div className={styles.number}>{user.email}</div>
-          {/* <button className={styles.copy}>
-            <Icon title="copy" size={16} />
-          </button> */}
         </div>
         <div className={styles.info}>
           <p>Subscription - {user.subscription}</p>
-          {user.subscription === "free" && (
-            <p>Please subscribe for downloading file</p>
-          )}
-          {user.subscription === "member" && (
-            <p>
-              Subscription until{" "}
-              {moment(new Date(user.subend)).format("dd-MM-yyyy")}
-            </p>
-          )}
-          {user.subscription === "admin" && (
-            <Link
-              className={cn("button-stroke button-small", styles.button)}
-              to="/admin/users"
-            >
-              <span>View users subscription</span>
-              <Icon title="image" size={16} />
-            </Link>
-          )}
+
+          <p>
+            Subscription until{" "}
+            {moment(new Date(user.subend)).format("DD-MM-yyyy")}
+          </p>
         </div>
 
         <div className={styles.control}>
@@ -71,7 +52,7 @@ const User = ({ className, user }: UserProps) => {
         </div>
 
         <div className={styles.note}>
-          Member since {moment(new Date(user.createdAt)).format("dd-MM-yyyy")}
+          Member since {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
         </div>
       </div>
       <Modal
@@ -84,4 +65,4 @@ const User = ({ className, user }: UserProps) => {
   );
 };
 
-export default User;
+export default UserMember;
