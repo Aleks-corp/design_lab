@@ -4,8 +4,10 @@ export interface IUser {
   _id: string | ObjectId;
   name: string;
   email: string;
+  phone: string;
   password: string;
   subscription: "free" | "member" | "admin";
+  orderReference: string;
   substart: Date;
   subend: Date;
   token?: string;

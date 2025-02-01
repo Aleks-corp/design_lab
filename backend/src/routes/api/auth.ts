@@ -8,7 +8,6 @@ import { authenticateToken } from "../../middlewares/index";
 const {
   usersRegSchema,
   usersLoginSchema,
-  usersUpdateSubscriptionSchema,
   usersVerifySchema,
   passwordResetSchema,
   changePasswordSchema,
@@ -19,13 +18,14 @@ const {
   login,
   logout,
   getCurrent,
-  updateUserSubscription,
   getVerification,
   resendVerify,
   forgotPassword,
   resetPassword,
   changePassword,
-  generateSignature,
+  createPayment,
+  paymentWebhook,
+  paymentStatus,
 } = authController;
 
 const authRouter = express.Router();
@@ -54,12 +54,8 @@ authRouter.post(
   changePassword
 );
 
-authRouter.patch(
-  "/",
-  authenticateToken,
-  validateBody(usersUpdateSubscriptionSchema),
-  updateUserSubscription
-);
-authRouter.post("/getsignature", authenticateToken, generateSignature);
+authRouter.post("/create-payment", authenticateToken, createPayment);
+authRouter.post("/payment-webhook", paymentWebhook);
+authRouter.get("/payment-status", authenticateToken, paymentStatus);
 
 export default authRouter;

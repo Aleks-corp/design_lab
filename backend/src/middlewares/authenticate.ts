@@ -8,6 +8,7 @@ import User from "../models/user";
 
 import { Document, ObjectId } from "mongoose";
 import { IUser } from "../types/user.type";
+import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 
 export interface UserDocument extends IUser, Document {
   _id: ObjectId;
@@ -31,15 +32,12 @@ const authenticateToken = async (
     if (!user || !user.token) {
       throw ApiError(401);
     }
+    req.user = user;
     const newDate = new Date();
     if (user.subend && newDate.getTime() > user.subend.getTime()) {
-      user.subscription = "free";
-      await User.findByIdAndUpdate(user._id, {
-        subscription: user.subscription,
-      });
+      req.user = await checkSubscriptionStatus(user);
     }
 
-    req.user = user;
     next();
   } catch {
     throw ApiError(401);

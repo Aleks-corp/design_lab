@@ -20,6 +20,7 @@ const userSchema = new Schema<IUser, IUserModelType>(
       match: [emailRegexp, "Please set a valid email address"],
       required: true,
     },
+    phone: { type: String },
     password: {
       type: String,
       required: true,
@@ -42,6 +43,9 @@ const userSchema = new Schema<IUser, IUserModelType>(
       required: function () {
         return this.subscription === "member";
       },
+    },
+    orderReference: {
+      type: String,
     },
     token: {
       type: String,

@@ -4,9 +4,13 @@ import { ApiError } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
 import Post from "../models/post";
+import { nextDate } from "src/helpers/setDate";
+import { ObjectId } from "mongoose";
+import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
+import { IUser } from "src/types/user.type";
 
 const getAllUser = async (req: Request, res: Response) => {
-  const { page = "1", limit = "50", filter = "" } = req.query;
+  const { page = "1", limit = "100", filter = "" } = req.query;
 
   const pageNumber = parseInt(page as string, 10);
   const limitNumber = parseInt(limit as string, 10);
@@ -15,7 +19,7 @@ const getAllUser = async (req: Request, res: Response) => {
 
   const users = await User.find(
     query,
-    "_id name email subscription substart subend",
+    "_id name email phone orderReference subscription substart subend",
     {
       skip,
       limit: limitNumber,
@@ -23,57 +27,102 @@ const getAllUser = async (req: Request, res: Response) => {
   );
   const totalHits = await User.countDocuments(query);
 
+  const updatedUser: IUser[] = [];
   const newDate = new Date();
   users.map(async (user) => {
     if (user.subend && newDate.getTime() > user.subend.getTime()) {
-      user.subscription = "free";
-      await User.findByIdAndUpdate(user._id, {
-        subscription: "free",
-      });
+      updatedUser.push(await checkSubscriptionStatus(user));
     }
   });
 
   res.json({ totalHits, users });
 };
 
-const changeUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+const updateUsersSubscription = async (req: Request, res: Response) => {
+  const { users, subscription } = req.body;
+  const newDate = new Date();
+  if (subscription === "free") {
+    users.map(async (id: ObjectId) => {
+      const user = await User.findOne({ _id: id });
+      await User.findByIdAndUpdate(
+        user._id,
+        {
+          subscription: subscription,
+        },
+        {
+          new: true,
+        }
+      );
+    });
+  }
+  if (subscription === "member") {
+    users.map(async (id: ObjectId) => {
+      const user = await User.findOne({ _id: id });
+      const newSubstart = user.substart ? user.substart : newDate;
+      const newSubend = !user.subend
+        ? nextDate(newDate.getTime())
+        : user.subend.getTime() < newDate.getTime()
+        ? nextDate(newDate.getTime())
+        : nextDate(user.subend.getTime());
+
+      await User.findByIdAndUpdate(
+        user._id,
+        {
+          subscription: subscription,
+          substart: newSubstart,
+          subend: newSubend,
+        },
+        {
+          new: true,
+        }
+      );
+    });
+  }
+
+  const updatedUsers = await User.find(
+    {},
+    "_id name email phone orderReference subscription substart subend",
+    {
+      skip: 0,
+      limit: 100,
+    }
+  );
+  res.json({ updatedUsers });
+};
+
+const updateUserSubscription = async (req: Request, res: Response) => {
   const newUser = req.body;
 
-  const user = await User.findById(userId);
+  const newDate = new Date();
+  const userId = newUser.userId;
+  const newSubscription = newUser.subscription;
+  const user = await User.findOne({ _id: userId });
   if (!user) {
     throw ApiError(400, "Invalid user id");
   }
-
-  const newSubscription = newUser.subscription;
   if (newSubscription === "admin") {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         subscription: newSubscription,
       },
+
       {
         new: true,
       }
+    ).select(
+      "_id name email phone orderReference subscription substart subend"
     );
     res.json({ updatedUser });
     return;
   }
 
-  const newDate = new Date();
   if (newSubscription === "member") {
-    const newSubstart =
-      !user.subend && user.subend.getTime() < newDate.getTime()
-        ? newDate
-        : user.subend;
-    const newSubend =
-      !user.subend && user.subend.getTime() < newDate.getTime()
-        ? newDate.setMonth(newDate.getMonth() + 1)
-        : new Date(
-            new Date(user.subend).setMonth(new Date(user.subend).getMonth() + 1)
-          ).getTime();
+    const newSubstart = user.substart ? user.substart : newDate;
+    const newSubend = newUser.subend;
+
     const updatedUser = await User.findByIdAndUpdate(
-      user._id,
+      userId,
       {
         subscription: newSubscription,
         substart: newSubstart,
@@ -82,25 +131,33 @@ const changeUser = async (req: Request, res: Response) => {
       {
         new: true,
       }
+    ).select(
+      "_id name email phone orderReference subscription substart subend"
     );
     res.json({ updatedUser });
     return;
   }
 
   if (newSubscription === "free") {
+    const newSubstart = null;
+    const newSubend = null;
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         subscription: newSubscription,
+        substart: newSubstart,
+        subend: newSubend,
       },
       {
         new: true,
       }
+    ).select(
+      "_id name email phone orderReference subscription substart subend"
     );
     res.json({ updatedUser });
     return;
   }
-
   res.json({ message: "User not changed" });
 };
 
@@ -135,8 +192,9 @@ const getUnpublishedPostById = async (req: Request, res: Response) => {
 };
 
 export default {
-  changeUser: ctrlWrapper(changeUser),
   getAllUser: ctrlWrapper(getAllUser),
   getUnpublishedPosts: ctrlWrapper(getUnpublishedPosts),
   getUnpublishedPostById: ctrlWrapper(getUnpublishedPostById),
+  updateUserSubscription: ctrlWrapper(updateUserSubscription),
+  updateUsersSubscription: ctrlWrapper(updateUsersSubscription),
 };

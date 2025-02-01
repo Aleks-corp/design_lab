@@ -7,8 +7,16 @@ import { ApiError, sendMail } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
 import crypto from "crypto";
+import { nextDate } from "src/helpers/setDate";
 
-const { JWT_SECRET, WFP_SECRET_KEY } = process.env;
+const {
+  JWT_SECRET,
+  WFP_SECRET_KEY,
+  WFP_MERCHANT_ACCOUNT,
+  WFP_MERCHANT_DOMAIN_NAME,
+  FRONT_SERVER,
+  VITE_BASE_URL,
+} = process.env;
 
 const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -88,34 +96,6 @@ const getCurrent = async (req: Request, res: Response) => {
       createdAt,
     });
   }
-};
-
-const updateUserSubscription = async (req: Request, res: Response) => {
-  const { user, body } = req;
-  if (user.subscription === body.subscription) {
-    res.json({ message: "You already have this subscription." });
-    return;
-  }
-  const newDate = new Date();
-  const newSubscription = body.subscription;
-  const newSubstart =
-    !user.subend && user.subend.getTime() < newDate.getTime()
-      ? newDate
-      : user.subend;
-  const newSubend =
-    !user.subend && user.subend.getTime() < newDate.getTime()
-      ? newDate.setMonth(newDate.getMonth() + 1)
-      : new Date(
-          new Date(user.subend).setMonth(new Date(user.subend).getMonth() + 1)
-        ).getTime();
-  const updatedUser = await User.findByIdAndUpdate(
-    user._id,
-    { subscription: newSubscription, substart: newSubstart, subend: newSubend },
-    {
-      new: true,
-    }
-  );
-  res.json({ updatedUser });
 };
 
 const getVerification = async (req: Request, res: Response) => {
@@ -239,12 +219,18 @@ const changePassword = async (req: Request, res: Response) => {
   res.json({ message: "Password successfully changed" });
 };
 
-const generateSignature = async (req: Request, res: Response) => {
+const createPayment = async (req: Request, res: Response) => {
   const { data } = req.body;
+  const { _id } = req.user;
+  await User.findByIdAndUpdate(_id, {
+    orderReference: data.orderReference,
+  });
   const secretKey = WFP_SECRET_KEY;
+  const merchantAccount = WFP_MERCHANT_ACCOUNT;
+  const merchantDomainName = WFP_MERCHANT_DOMAIN_NAME;
   const string = [
-    data.merchantAccount,
-    data.merchantDomainName,
+    merchantAccount,
+    merchantDomainName,
     data.orderReference,
     data.orderDate,
     data.amount,
@@ -257,8 +243,41 @@ const generateSignature = async (req: Request, res: Response) => {
   hmac.update(string);
 
   const merchantSignature = hmac.digest("hex");
+  const paymentData = {
+    ...data,
+    merchantAccount,
+    merchantDomainName,
+    merchantSignature,
+    returnUrl: `${FRONT_SERVER}/payment-success`,
+    serviceUrl: `${VITE_BASE_URL}/users/payment-webhook`,
+  };
+  res.json(paymentData);
+};
 
-  res.json({ merchantSignature });
+const paymentWebhook = async (req: Request, res: Response) => {
+  const { transactionStatus, orderReference, phone } = req.body;
+  const arr = orderReference.split("-");
+  if (transactionStatus === "Approved") {
+    await User.findOneAndUpdate(
+      { orderReference },
+      {
+        subscription: "member",
+        phone,
+        substart: new Date(parseInt(arr[1])),
+        subend: nextDate(parseInt(arr[1])),
+      }
+    );
+
+    res.json({ status: "OK" });
+    return;
+  }
+
+  res.json({ status: "Pending" });
+};
+
+const paymentStatus = async (req: Request, res: Response) => {
+  const user = await User.findById(req.user._id);
+  res.json({ subscription: user.subscription });
 };
 
 export default {
@@ -266,11 +285,12 @@ export default {
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
   getCurrent: ctrlWrapper(getCurrent),
-  updateUserSubscription: ctrlWrapper(updateUserSubscription),
   getVerification: ctrlWrapper(getVerification),
   resendVerify: ctrlWrapper(resendVerify),
   forgotPassword: ctrlWrapper(forgotPassword),
   resetPassword: ctrlWrapper(resetPassword),
   changePassword: ctrlWrapper(changePassword),
-  generateSignature: ctrlWrapper(generateSignature),
+  createPayment: ctrlWrapper(createPayment),
+  paymentWebhook: ctrlWrapper(paymentWebhook),
+  paymentStatus: ctrlWrapper(paymentStatus),
 };
