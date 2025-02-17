@@ -260,15 +260,18 @@ const paymentWebhook = async (req: Request, res: Response) => {
   console.log("Webhook received:body", req.body); // Додаємо логування
   let data = req.body;
 
-  if (typeof data === "string") {
+  const keys = Object.keys(data);
+  if (keys.length === 1) {
     try {
-      data = JSON.parse(data);
+      data = JSON.parse(keys[0]); // Парсимо вкладений JSON
     } catch (error) {
-      console.error("❌ Помилка парсингу JSON:", error);
-      res.status(400).json({ message: "Invalid JSON" });
+      console.error("❌ Помилка парсингу вкладеного JSON:", error);
+      res.status(400).json({ message: "Invalid nested JSON" });
       return;
     }
   }
+
+  console.log("✅ Розпарсений data:", data);
 
   if (!data || typeof data !== "object" || !data.orderReference) {
     console.error("❌ Помилка: відсутній orderReference", data);
