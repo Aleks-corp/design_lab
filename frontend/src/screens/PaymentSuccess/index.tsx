@@ -7,11 +7,13 @@ import { NavLink } from "react-router-dom";
 
 const PaymentSuccessPage = () => {
   useEffect(() => {
+    console.log("start");
     if (
       window.location.pathname === "/payment-success" &&
       window.history.state === null
     ) {
       window.location.replace("/payment-success");
+      console.log("replace");
     }
   }, []);
 
@@ -25,6 +27,7 @@ const PaymentSuccessPage = () => {
       if (response.payload) {
         setStatus(response.payload.subscription);
       }
+      console.log("response.payload.subscription:", response.payload);
     }, 3000);
 
     return () => clearTimeout(timeout);
