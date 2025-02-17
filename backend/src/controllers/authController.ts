@@ -257,7 +257,13 @@ const createPayment = async (req: Request, res: Response) => {
 };
 
 const paymentWebhook = async (req: Request, res: Response) => {
+  console.log("Webhook received:", req.body); // Додаємо логування
   const { transactionStatus, orderReference, phone } = req.body;
+  if (!orderReference) {
+    console.log("❌ Помилка: відсутній orderReference");
+    res.status(400).json({ error: "Invalid request" });
+    return;
+  }
   const arr = orderReference.split("-");
   if (transactionStatus === "Approved") {
     await User.findOneAndUpdate(
@@ -269,11 +275,11 @@ const paymentWebhook = async (req: Request, res: Response) => {
         subend: nextDate(parseInt(arr[1])),
       }
     );
-
+    console.log("✅ Оплата підтверджена для", orderReference);
     res.json({ status: "OK" });
     return;
   }
-
+  console.log("⚠️ Оплата в статусі Pending");
   res.json({ status: "Pending" });
 };
 

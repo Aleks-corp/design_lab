@@ -2,7 +2,7 @@ import "dotenv/config";
 import axios from "axios";
 import { IUser } from "src/types/user.type";
 import User from "../models/user";
-import { nextDate } from "./setDate";
+import { dateBegin } from "./setDate";
 
 const WFP_MERCHANT_ACCOUNT = process.env.WFP_MERCHANT_ACCOUNT || "";
 const WFP_MERCHANT_PASSWORD = process.env.WFP_MERCHANT_PASSWORD || "";
@@ -24,13 +24,16 @@ export const checkSubscriptionStatus = async (user: IUser) => {
     const { data } = await axios.post(WFP_API_URL, payload, {
       headers: { "Content-Type": "application/json" },
     });
+    console.log("data:", data);
 
     if (data.status === "Active" && data.nextPaymentDate) {
       user.subscription = "member";
-      user.subend = nextDate(user.subend.getTime());
+      user.subend = new Date(parseInt(data.nextPaymentDate + "000"));
+      user.substart = dateBegin(parseInt(data.dateBegin + "000"));
       await User.findByIdAndUpdate(user._id, {
         subscription: user.subscription,
         subend: user.subend,
+        substart: user.substart,
       });
     } else {
       user.subscription = "free";

@@ -266,6 +266,7 @@ const Home = () => {
             <button
               className={cn("button-stroke", styles.button)}
               type="button"
+              disabled
             >
               <Loader />
             </button>

@@ -13,3 +13,13 @@ export const nextDate = (datetime: number) => {
   const dateEnd = new Date(dateEndString);
   return dateEnd;
 };
+
+export const dateBegin = (datetime: number) => {
+  const currentDate = new Date(datetime);
+
+  currentDate.setMonth(
+    currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
+  );
+
+  return new Date(currentDate);
+};

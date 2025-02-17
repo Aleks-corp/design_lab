@@ -32,11 +32,11 @@ const authenticateUser = async (
       if (user && user.token) {
         req.user = user;
       }
-      next();
     } catch {
       throw ApiError(401);
     }
   }
+  next();
 };
 
 export default ctrlWrapper(authenticateUser);
