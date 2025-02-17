@@ -257,7 +257,7 @@ const createPayment = async (req: Request, res: Response) => {
 };
 
 const paymentWebhook = async (req: Request, res: Response) => {
-  console.log("Webhook received:", req.body); // Додаємо логування
+  console.log("Webhook received:", req); // Додаємо логування
   const { transactionStatus, orderReference, phone } = req.body;
   if (!orderReference) {
     console.log("❌ Помилка: відсутній orderReference");
