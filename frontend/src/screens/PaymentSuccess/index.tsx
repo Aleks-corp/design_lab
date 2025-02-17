@@ -6,18 +6,28 @@ import { selectUser } from "../../redux/selectors";
 import { NavLink } from "react-router-dom";
 
 const PaymentSuccessPage = () => {
+  useEffect(() => {
+    if (
+      window.location.pathname === "/payment-success" &&
+      window.history.state === null
+    ) {
+      window.location.replace("/payment-success");
+    }
+  }, []);
+
   const [status, setStatus] = useState("Перевіряємо оплату...");
-
   const dispatch = useAppDispatch();
-
   const user = useAppSelector(selectUser);
 
   useEffect(() => {
-    const checkPayment = async () => {
-      const data = await dispatch(checkPaymentStatus());
-      setStatus(data.payload.subscription);
-    };
-    checkPayment();
+    const timeout = setTimeout(async () => {
+      const response = await dispatch(checkPaymentStatus());
+      if (response.payload) {
+        setStatus(response.payload.subscription);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeout);
   }, [dispatch]);
 
   return (
@@ -30,7 +40,7 @@ const PaymentSuccessPage = () => {
           Payment Successful! Access to files is open.
         </h2>
       )}
-      {status === "free" && (
+      {(status === "free" || status === null) && (
         <h2 className={styles.title}>
           No payment yet. Please wait a few minutes and reload page or contact
           our{" "}
@@ -39,7 +49,7 @@ const PaymentSuccessPage = () => {
           </NavLink>
         </h2>
       )}
-      {user && user.subscription === "member" && (
+      {(status === "member" || user?.subscription === "member") && (
         <NavLink className={styles.titlelink} to="/">
           Go to Posts
         </NavLink>

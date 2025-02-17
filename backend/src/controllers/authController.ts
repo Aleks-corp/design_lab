@@ -263,7 +263,7 @@ const paymentWebhook = async (req: Request, res: Response) => {
   const keys = Object.keys(data);
   if (keys.length === 1) {
     try {
-      data = JSON.parse(keys[0]); // Парсимо вкладений JSON
+      data = JSON.parse(keys[0]);
     } catch (error) {
       console.error("❌ Помилка парсингу вкладеного JSON:", error);
       res.status(400).json({ message: "Invalid nested JSON" });
@@ -271,15 +271,13 @@ const paymentWebhook = async (req: Request, res: Response) => {
     }
   }
 
-  console.log("✅ Розпарсений data:", data);
+  console.log("✅ Розпарсений data:", data); // Парсимо вкладений JSON
 
   if (!data || typeof data !== "object" || !data.orderReference) {
     console.error("❌ Помилка: відсутній orderReference", data);
     res.status(400).json({ message: "Missing orderReference" });
     return;
   }
-
-  console.log("✅ Webhook received:", data);
 
   const merchantSecret = WFP_SECRET_KEY;
   const time = Math.floor(Date.now() / 1000);
@@ -293,7 +291,7 @@ const paymentWebhook = async (req: Request, res: Response) => {
       .digest("hex"),
   };
 
-  console.log("✅ Відповідь мерчанту:", responseData);
+  console.log("✅ Відповідь мерчанту:", responseData); //log
 
   const { transactionStatus, orderReference, phone } = data;
   const arr = orderReference.split("-");
@@ -307,10 +305,9 @@ const paymentWebhook = async (req: Request, res: Response) => {
         subend: nextDate(parseInt(arr[1])),
       }
     );
-    console.log("✅ Оплата підтверджена для", orderReference);
+    console.log("✅ Оплата підтверджена для", orderReference); //Log
   }
-  // res.json(responseData);
-  res.json({ status: "OK" });
+  res.json(responseData);
 };
 
 const paymentStatus = async (req: Request, res: Response) => {
