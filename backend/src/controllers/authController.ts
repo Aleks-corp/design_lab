@@ -265,17 +265,34 @@ const paymentWebhook = async (req: Request, res: Response) => {
       data = JSON.parse(data);
     } catch (error) {
       console.error("❌ Помилка парсингу JSON:", error);
-      res.status(400).send("Invalid JSON");
+      res.status(400).json({ message: "Invalid JSON" });
       return;
     }
   }
-  console.log("data:", data);
-  const { transactionStatus, orderReference, phone } = req.body;
-  if (!orderReference) {
-    console.log("❌ Помилка: відсутній orderReference");
-    res.status(400).json({ error: "Invalid request" });
+
+  if (!data || typeof data !== "object" || !data.orderReference) {
+    console.error("❌ Помилка: відсутній orderReference", data);
+    res.status(400).json({ message: "Missing orderReference" });
     return;
   }
+
+  console.log("✅ Webhook received:", data);
+
+  const merchantSecret = WFP_SECRET_KEY;
+  const time = Math.floor(Date.now() / 1000);
+  const responseData = {
+    orderReference: data.orderReference,
+    status: "accept",
+    time: time,
+    signature: crypto
+      .createHmac("md5", merchantSecret)
+      .update(`${data.orderReference};accept;${time}`)
+      .digest("hex"),
+  };
+
+  console.log("✅ Відповідь мерчанту:", responseData);
+
+  const { transactionStatus, orderReference, phone } = data;
   const arr = orderReference.split("-");
   if (transactionStatus === "Approved") {
     await User.findOneAndUpdate(
@@ -288,11 +305,9 @@ const paymentWebhook = async (req: Request, res: Response) => {
       }
     );
     console.log("✅ Оплата підтверджена для", orderReference);
-    res.json({ status: "OK" });
-    return;
   }
-  console.log("⚠️ Оплата в статусі Pending");
-  res.json({ status: "Pending" });
+  // res.json(responseData);
+  res.json({ status: "OK" });
 };
 
 const paymentStatus = async (req: Request, res: Response) => {
