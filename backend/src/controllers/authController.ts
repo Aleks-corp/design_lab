@@ -265,7 +265,8 @@ const paymentWebhook = async (req: Request, res: Response) => {
       data = JSON.parse(data);
     } catch (error) {
       console.error("❌ Помилка парсингу JSON:", error);
-      return res.status(400).send("Invalid JSON");
+      res.status(400).send("Invalid JSON");
+      return;
     }
   }
   console.log("data:", data);
