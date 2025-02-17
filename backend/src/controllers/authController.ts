@@ -257,8 +257,18 @@ const createPayment = async (req: Request, res: Response) => {
 };
 
 const paymentWebhook = async (req: Request, res: Response) => {
-  console.log("Webhook received:", req);
   console.log("Webhook received:body", req.body); // Додаємо логування
+  let data = req.body;
+
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+    } catch (error) {
+      console.error("❌ Помилка парсингу JSON:", error);
+      return res.status(400).send("Invalid JSON");
+    }
+  }
+  console.log("data:", data);
   const { transactionStatus, orderReference, phone } = req.body;
   if (!orderReference) {
     console.log("❌ Помилка: відсутній orderReference");
