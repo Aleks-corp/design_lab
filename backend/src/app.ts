@@ -33,7 +33,8 @@ app.use(
     allowedHeaders: ["Authorization", "Content-Type"],
   })
 );
-app.use(express.json());
+app.use(express.json()); // для application/json
+app.use(express.urlencoded({ extended: true })); // для application/x-www-form-urlencoded
 app.use(express.static("public"));
 app.use((req, res, next) => {
   console.log("📩 Новий запит:", req.method, req.url);
