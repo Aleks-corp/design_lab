@@ -41,6 +41,10 @@ const handleLogOutFulfilled = (state: AuthState) => {
   state.isLoggedIn = false;
 };
 
+const handleVerifyUserFulfilled = (state: AuthState) => {
+  state.isLogining = false;
+};
+
 const handleCheckPaymentFulfilled = (
   state: AuthState,
   action: PayloadAction<{ subscription: string }>
@@ -87,7 +91,7 @@ const authSlice = createSlice({
       .addCase(signUp.fulfilled, handleSighUpFulfilled)
       .addCase(logIn.fulfilled, handleLoginFulfilled)
       .addCase(logOut.fulfilled, handleLogOutFulfilled)
-      .addCase(verifyUser.fulfilled, handleLoginFulfilled)
+      .addCase(verifyUser.fulfilled, handleVerifyUserFulfilled)
       .addCase(resendVerifyUser.fulfilled, handleFulfilled)
       .addCase(setNewPassword.fulfilled, handleFulfilled)
       .addCase(forgotPassword.fulfilled, handleFulfilled)

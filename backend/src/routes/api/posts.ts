@@ -4,6 +4,7 @@ import {
   isEmptyBodyStatus,
   isValidId,
   authenticateToken,
+  authenticateUser,
 } from "../../middlewares/index";
 import { validateBody } from "../../decorators/index";
 import { postSchemas } from "../../schemas/index";
@@ -25,7 +26,7 @@ const postsRouter = express.Router();
 // postsRouter.use(authenticateToken);
 
 postsRouter.get("/", getAllPosts);
-postsRouter.get("/:postId", isValidId, getPostById);
+postsRouter.get("/:postId", authenticateUser, isValidId, getPostById);
 postsRouter.post(
   "/generate-presigned-url",
   authenticateToken,

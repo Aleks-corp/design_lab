@@ -34,8 +34,8 @@ const VerifyPage = () => {
         <>
           <h3 className={styles.title}>
             Verification success
-            <NavLink className={styles.titlelink} to="/">
-              Go to Main
+            <NavLink className={styles.titlelink} to="/login">
+              Go to Login
             </NavLink>
           </h3>
         </>

@@ -61,6 +61,7 @@ const getAllPosts = async (req: Request, res: Response) => {
 
 const getPostById = async (req: Request, res: Response) => {
   const { postId } = req.params;
+  const user = req.user;
   const post = await Post.findById(postId);
   if (!post) {
     throw ApiError(404);
@@ -71,10 +72,28 @@ const getPostById = async (req: Request, res: Response) => {
       return generateSignedGetUrl(key);
     })
   );
+
   const signedPost = {
-    ...post.toObject(),
+    _id: post._id,
+    title: post.title,
+    description: post.description,
+    kits: post.kits,
+    filesize: post.filesize,
+    favorites: post.favorites,
+    category: post.category,
     images: signedImages,
+    downloadlink: "",
+    upload_at: post.upload_at,
+    createdAt: post.createdAt,
   };
+
+  if (user && user.subscription !== "free") {
+    const signedDownloads = await generateSignedGetUrl(
+      getKeyFromUrl(post.downloadlink)
+    );
+
+    signedPost.downloadlink = signedDownloads;
+  }
 
   res.json(signedPost);
 };

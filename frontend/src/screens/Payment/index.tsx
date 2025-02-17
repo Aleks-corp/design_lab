@@ -13,8 +13,9 @@ const PaymentPage = () => {
   const handlePayment = async () => {
     setLoading(true);
     if (user) {
-      handleWayForPay(user);
+      await handleWayForPay(user);
     }
+    setLoading(false);
   };
 
   return (

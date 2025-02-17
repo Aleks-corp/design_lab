@@ -15,18 +15,30 @@ const PaymentSuccessPage = () => {
   useEffect(() => {
     const checkPayment = async () => {
       const data = await dispatch(checkPaymentStatus());
-      setStatus(
-        data.payload.subscription === "member"
-          ? "Payment Successful! Access to files is open."
-          : "Payment Unsuccessful("
-      );
+      setStatus(data.payload.subscription);
     };
     checkPayment();
   }, [dispatch]);
 
   return (
     <div>
-      <h2 className={styles.title}>{status}</h2>
+      {status === "Перевіряємо оплату..." && (
+        <h2 className={styles.title}>{status}</h2>
+      )}
+      {status === "member" && (
+        <h2 className={styles.title}>
+          Payment Successful! Access to files is open.
+        </h2>
+      )}
+      {status === "free" && (
+        <h2 className={styles.title}>
+          No payment yet. Please wait a few minutes and reload page or contact
+          our{" "}
+          <NavLink className={styles.titlelink} to="/profile">
+            support
+          </NavLink>
+        </h2>
+      )}
       {user && user.subscription === "member" && (
         <NavLink className={styles.titlelink} to="/">
           Go to Posts

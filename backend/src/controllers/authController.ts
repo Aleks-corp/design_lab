@@ -8,6 +8,7 @@ import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
 import crypto from "crypto";
 import { nextDate } from "src/helpers/setDate";
+import { amountData } from "src/constants/amountData";
 
 const {
   JWT_SECRET,
@@ -220,7 +221,7 @@ const changePassword = async (req: Request, res: Response) => {
 };
 
 const createPayment = async (req: Request, res: Response) => {
-  const { data } = req.body;
+  const { data }: PaymemtData = req.body;
   const { _id } = req.user;
   await User.findByIdAndUpdate(_id, {
     orderReference: data.orderReference,
@@ -233,11 +234,11 @@ const createPayment = async (req: Request, res: Response) => {
     merchantDomainName,
     data.orderReference,
     data.orderDate,
-    data.amount,
-    data.currency,
-    ...data.productName,
-    ...data.productCount,
-    ...data.productPrice,
+    amountData.amount,
+    amountData.currency,
+    ...amountData.productName,
+    ...amountData.productCount,
+    ...amountData.productPrice,
   ].join(";");
   const hmac = crypto.createHmac("md5", secretKey);
   hmac.update(string);
@@ -245,6 +246,7 @@ const createPayment = async (req: Request, res: Response) => {
   const merchantSignature = hmac.digest("hex");
   const paymentData = {
     ...data,
+    ...amountData,
     merchantAccount,
     merchantDomainName,
     merchantSignature,

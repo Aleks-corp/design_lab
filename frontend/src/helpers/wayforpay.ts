@@ -23,7 +23,16 @@ interface FormData {
   dateEnd: string;
 }
 
-const generatePaymentData = async (data: FormData) => {
+interface PaymemtData {
+  orderReference: string;
+  orderDate: number;
+  clientAccountId: string;
+  clientEmail: string;
+  dateNext: string;
+  dateEnd: string;
+}
+
+const generatePaymentData = async (data: PaymemtData) => {
   const response = await instance.post("/users/create-payment", { data });
   return response.data;
 };
@@ -39,20 +48,8 @@ export const handleWayForPay = async (user: UserProfile) => {
   const data = {
     orderReference: `ORDER-${currentDate.getTime()}`,
     orderDate: currentDate.getTime(),
-    amount: "5.00",
-    currency: "USD",
-    productName: ["All-Access-Pass"],
-    productCount: [1],
-    productPrice: ["5.00"],
     clientAccountId: `${user.email}`,
     clientEmail: `${user.email}`,
-    merchantAuthType: "SimpleSignature",
-    merchantTransactionSecureType: "AUTO",
-    recurringToken: "auto",
-    regularMode: "monthly",
-    regularAmount: "5.00",
-    regularBehavior: "preset",
-    regularOn: 1,
     dateNext: nextDate(currentDate).nextDate,
     dateEnd: nextDate(currentDate).dateEnd,
   };
@@ -82,8 +79,6 @@ export const handleWayForPay = async (user: UserProfile) => {
   }
 
   document.body.appendChild(form);
-
-  console.log("Submitting form with data:", wayForPayData);
 
   form.submit();
 };
