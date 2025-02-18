@@ -8,7 +8,7 @@ import {
   selectTotalUnpublPosts,
   selectUnpublishedPosts,
   selectUser,
-  selectUserIsLoading,
+  selectAdminLoadingPost,
 } from "../../redux/selectors";
 import Loader from "../../components/Loader";
 import { getUnpublishedPosts } from "../../redux/admin/admin.thunk";
@@ -20,7 +20,7 @@ const UnpublishedPosts = () => {
     dispatch(getUnpublishedPosts({}));
   }, [dispatch]);
 
-  const isLoading = useAppSelector(selectUserIsLoading);
+  const isLoading = useAppSelector(selectAdminLoadingPost);
   const posts = useAppSelector(selectUnpublishedPosts);
   const totalHits = useAppSelector(selectTotalUnpublPosts);
   const user = useAppSelector(selectUser);
