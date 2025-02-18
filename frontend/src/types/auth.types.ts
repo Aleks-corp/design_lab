@@ -16,9 +16,11 @@ export interface UserList {
   email: string;
   phone: string;
   subscription: string;
+  status: string;
   orderReference: string;
   substart: Date;
   subend: Date;
+  regularDateEnd: Date;
   createdAt: string;
 }
 

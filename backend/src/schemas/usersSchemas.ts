@@ -46,15 +46,20 @@ const usersLoginSchema = Joi.object({
     }),
 });
 
-// const usersUpdateSubscriptionSchema = Joi.object({
-//   subscription: Joi.string()
-//     .valid(...userSubscription)
-//     .required()
-//     .messages({
-//       "string.empty": `'subscription' cannot be an empty field`,
-//       "any.required": `missing required 'subscription' field`,
-//     }),
-// });
+const usersUpdateSubscriptionSchema = Joi.object({
+  subscription: Joi.string()
+    .valid(...userSubscription)
+    .required()
+    .messages({
+      "string.empty": `'subscription' cannot be an empty field`,
+      "any.required": `missing required 'subscription' field`,
+    }),
+  usersId: Joi.array().items(Joi.string()),
+});
+
+const usersCheckSubscriptionSchema = Joi.object({
+  usersId: Joi.array().items(Joi.string()),
+});
 
 const usersVerifySchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required().messages({
@@ -103,8 +108,9 @@ const changePasswordSchema = Joi.object({
 export default {
   usersRegSchema,
   usersLoginSchema,
-  // usersUpdateSubscriptionSchema,
+  usersUpdateSubscriptionSchema,
   usersVerifySchema,
   passwordResetSchema,
   changePasswordSchema,
+  usersCheckSubscriptionSchema,
 };

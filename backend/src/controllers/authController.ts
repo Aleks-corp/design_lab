@@ -9,6 +9,7 @@ import { Request, Response } from "express";
 import crypto from "crypto";
 import { nextDate } from "src/helpers/setDate";
 import { amountData } from "src/constants/amountData";
+import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 
 const {
   JWT_SECRET,
@@ -60,19 +61,23 @@ const login = async (req: Request, res: Response) => {
   if (!user.verify) {
     throw ApiError(403, "Non verified user, please check email.");
   }
+  const updatedUser = await checkSubscriptionStatus(user);
 
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "333h" });
   await User.findByIdAndUpdate(user._id, { token });
+
   res.json({
     token,
     user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      subscription: user.subscription,
-      substart: user.substart,
-      subend: user.subend,
-      createdAt: user.createdAt,
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      subscription: updatedUser.subscription,
+      status: updatedUser.status,
+      regularDateEnd: updatedUser.regularDateEnd,
+      substart: updatedUser.substart,
+      subend: updatedUser.subend,
+      createdAt: updatedUser.createdAt,
     },
   });
 };
@@ -84,14 +89,25 @@ const logout = async (req: Request, res: Response) => {
 };
 
 const getCurrent = async (req: Request, res: Response) => {
-  const { _id, name, email, subscription, substart, subend, createdAt } =
-    req.user;
+  const {
+    _id,
+    name,
+    email,
+    subscription,
+    status,
+    substart,
+    regularDateEnd,
+    subend,
+    createdAt,
+  } = req.user;
   if (req.user) {
     res.json({
-      id: _id,
+      _id,
       name,
       email,
       subscription,
+      status,
+      regularDateEnd,
       substart,
       subend,
       createdAt,
@@ -115,10 +131,12 @@ const getVerification = async (req: Request, res: Response) => {
   res.json({
     token,
     user: {
-      id: user.id,
+      _id: user._id,
       name: user.name,
       email: user.email,
       subscription: user.subscription,
+      status: user.status,
+      regularDateEnd: user.regularDateEnd,
       substart: user.substart,
       subend: user.subend,
       createdAt: user.createdAt,
@@ -293,7 +311,7 @@ const paymentWebhook = async (req: Request, res: Response) => {
 
   console.log("✅ Відповідь мерчанту:", responseData); //log
 
-  const { transactionStatus, orderReference, phone } = data;
+  const { transactionStatus, orderReference, phone, regularDateEnd } = data;
   const arr = orderReference.split("-");
   if (transactionStatus === "Approved") {
     await User.findOneAndUpdate(
@@ -301,6 +319,8 @@ const paymentWebhook = async (req: Request, res: Response) => {
       {
         subscription: "member",
         phone,
+        status: "Active",
+        regularDateEnd,
         substart: new Date(parseInt(arr[1])),
         subend: nextDate(parseInt(arr[1])),
       }

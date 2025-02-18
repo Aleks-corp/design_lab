@@ -3,6 +3,7 @@ import { handleUpdateValidator, handlerSaveError } from "./hooks";
 
 import { emailRegexp, userSubscription } from "../constants/usersConstants";
 import { IUser } from "../types/user.type";
+import { userStatus } from "src/constants/statusConstant";
 
 type IUserModelType = Model<IUser>;
 
@@ -30,6 +31,8 @@ const userSchema = new Schema<IUser, IUserModelType>(
       enum: userSubscription,
       default: "free",
     },
+    status: { type: String, enum: userStatus },
+    regularDateEnd: { type: Date },
     substart: {
       type: Date,
       default: null,

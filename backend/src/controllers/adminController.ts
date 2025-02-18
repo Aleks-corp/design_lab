@@ -19,7 +19,7 @@ const getAllUser = async (req: Request, res: Response) => {
 
   const users = await User.find(
     query,
-    "_id name email phone orderReference subscription substart subend",
+    "_id name email phone orderReference subscription status regularDateEnd substart subend",
     {
       skip,
       limit: limitNumber,
@@ -27,82 +27,81 @@ const getAllUser = async (req: Request, res: Response) => {
   );
   const totalHits = await User.countDocuments(query);
 
-  const updatedUser: IUser[] = [];
-  const newDate = new Date();
-  users.map(async (user) => {
-    if (user.subend && newDate.getTime() > user.subend.getTime()) {
-      updatedUser.push(await checkSubscriptionStatus(user));
-    }
-  });
-
   res.json({ totalHits, users });
 };
 
 const updateUsersSubscription = async (req: Request, res: Response) => {
-  const { users, subscription } = req.body;
+  const { usersId, subscription } = req.body;
   const newDate = new Date();
   if (subscription === "free") {
-    users.map(async (id: ObjectId) => {
-      const user = await User.findOne({ _id: id });
-      await User.findByIdAndUpdate(
-        user._id,
-        {
-          subscription: subscription,
-        },
-        {
-          new: true,
-        }
-      );
-    });
+    await Promise.all(
+      usersId.map(async (_id: ObjectId) => {
+        const user = await User.findOne({ _id });
+        await User.findByIdAndUpdate(
+          user._id,
+          {
+            subscription: subscription,
+            subend: null,
+            substart: null,
+          },
+          {
+            new: true,
+          }
+        );
+      })
+    );
   }
   if (subscription === "member") {
-    users.map(async (id: ObjectId) => {
-      const user = await User.findOne({ _id: id });
-      const newSubstart = user.substart ? user.substart : newDate;
-      const newSubend = !user.subend
-        ? nextDate(newDate.getTime())
-        : user.subend.getTime() < newDate.getTime()
-        ? nextDate(newDate.getTime())
-        : nextDate(user.subend.getTime());
+    await Promise.all(
+      usersId.map(async (id: ObjectId) => {
+        const user = await User.findOne({ _id: id });
+        const newSubstart = user.substart ? user.substart : newDate;
+        const newSubend = !user.subend
+          ? nextDate(newDate.getTime())
+          : user.subend.getTime() < newDate.getTime()
+          ? nextDate(newDate.getTime())
+          : nextDate(user.subend.getTime());
 
-      await User.findByIdAndUpdate(
-        user._id,
-        {
-          subscription: subscription,
-          substart: newSubstart,
-          subend: newSubend,
-        },
-        {
-          new: true,
-        }
-      );
-    });
+        await User.findByIdAndUpdate(
+          user._id,
+          {
+            subscription: subscription,
+            substart: newSubstart,
+            subend: newSubend,
+          },
+          {
+            new: true,
+          }
+        );
+      })
+    );
   }
 
   const updatedUsers = await User.find(
     {},
-    "_id name email phone orderReference subscription substart subend",
+    "_id name email phone orderReference subscription status regularDateEnd substart subend",
     {
       skip: 0,
       limit: 100,
     }
   );
-  res.json({ updatedUsers });
+  const totalHits = await User.countDocuments({});
+  res.json({ totalHits, users: updatedUsers });
 };
 
 const updateUserSubscription = async (req: Request, res: Response) => {
   const newUser = req.body;
 
   const newDate = new Date();
-  const userId = newUser.userId;
+  const { _id } = newUser;
   const newSubscription = newUser.subscription;
-  const user = await User.findOne({ _id: userId });
+  const user = await User.findOne({ _id });
   if (!user) {
     throw ApiError(400, "Invalid user id");
   }
   if (newSubscription === "admin") {
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      _id,
       {
         subscription: newSubscription,
       },
@@ -111,9 +110,9 @@ const updateUserSubscription = async (req: Request, res: Response) => {
         new: true,
       }
     ).select(
-      "_id name email phone orderReference subscription substart subend"
+      "_id name email phone orderReference subscription status regularDateEnd substart subend"
     );
-    res.json({ updatedUser });
+    res.json(updatedUser);
     return;
   }
 
@@ -122,7 +121,7 @@ const updateUserSubscription = async (req: Request, res: Response) => {
     const newSubend = newUser.subend;
 
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      _id,
       {
         subscription: newSubscription,
         substart: newSubstart,
@@ -132,9 +131,9 @@ const updateUserSubscription = async (req: Request, res: Response) => {
         new: true,
       }
     ).select(
-      "_id name email phone orderReference subscription substart subend"
+      "_id name email phone orderReference subscription status regularDateEnd substart subend"
     );
-    res.json({ updatedUser });
+    res.json(updatedUser);
     return;
   }
 
@@ -143,7 +142,7 @@ const updateUserSubscription = async (req: Request, res: Response) => {
     const newSubend = null;
 
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      _id,
       {
         subscription: newSubscription,
         substart: newSubstart,
@@ -153,12 +152,34 @@ const updateUserSubscription = async (req: Request, res: Response) => {
         new: true,
       }
     ).select(
-      "_id name email phone orderReference subscription substart subend"
+      "_id name email phone orderReference subscription status regularDateEnd substart subend"
     );
-    res.json({ updatedUser });
+    res.json(updatedUser);
     return;
   }
   res.json({ message: "User not changed" });
+};
+
+const checkUsersSubscription = async (req: Request, res: Response) => {
+  const { usersId } = req.body;
+  await Promise.all(
+    usersId.map(async (_id: ObjectId) => {
+      const user = await User.findOne({ _id });
+      const updatedUser = await checkSubscriptionStatus(user);
+      return updatedUser;
+    })
+  );
+
+  const updatedUsers = await User.find(
+    {},
+    "_id name email phone orderReference subscription status regularDateEnd substart subend",
+    {
+      skip: 0,
+      limit: 100,
+    }
+  );
+  const totalHits = await User.countDocuments({});
+  res.json({ totalHits, users: updatedUsers });
 };
 
 const getUnpublishedPosts = async (req: Request, res: Response) => {
@@ -197,4 +218,5 @@ export default {
   getUnpublishedPostById: ctrlWrapper(getUnpublishedPostById),
   updateUserSubscription: ctrlWrapper(updateUserSubscription),
   updateUsersSubscription: ctrlWrapper(updateUsersSubscription),
+  checkUsersSubscription: ctrlWrapper(checkUsersSubscription),
 };

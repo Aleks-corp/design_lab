@@ -31,6 +31,9 @@ export interface AdminState {
   totalPosts: number;
   unpublPosts: GetPost[];
   unpublPost: GetPost | null;
-  isLoading: boolean;
+  isLoadingPost: boolean;
+  isLoadingUpdate: boolean;
+  isLoadingCheck: boolean;
+  isLoadingMore: boolean;
   error: string;
 }

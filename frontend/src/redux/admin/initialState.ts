@@ -6,6 +6,9 @@ export const initialState: AdminState = {
   totalPosts: 0,
   unpublPost: null,
   unpublPosts: [],
-  isLoading: false,
+  isLoadingPost: false,
+  isLoadingUpdate: false,
+  isLoadingCheck: false,
+  isLoadingMore: false,
   error: "",
 };

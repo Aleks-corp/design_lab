@@ -32,12 +32,8 @@ const authenticateToken = async (
     if (!user || !user.token) {
       throw ApiError(401);
     }
-    req.user = user;
-    const newDate = new Date();
-    if (user.subend && newDate.getTime() > user.subend.getTime()) {
-      req.user = await checkSubscriptionStatus(user);
-    }
-
+    const updatedUser = await checkSubscriptionStatus(user);
+    req.user = updatedUser;
     next();
   } catch {
     throw ApiError(401);

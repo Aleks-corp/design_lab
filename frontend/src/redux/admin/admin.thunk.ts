@@ -39,9 +39,23 @@ export const patchUser = createAsyncThunk(
 
 export const patchUsers = createAsyncThunk(
   "admin/updateusers",
-  async (userData: { users: string[]; subscription: string }, thunkAPI) => {
+  async (userData: { usersId: string[]; subscription: string }, thunkAPI) => {
     try {
       const response = await instance.patch("/admin/users", userData);
+      return response.data;
+    } catch (e) {
+      if (e instanceof Error) {
+        return thunkAPI.rejectWithValue(e.message);
+      }
+    }
+  }
+);
+
+export const patchCheckSub = createAsyncThunk(
+  "admin/checksubusers",
+  async (userData: { usersId: string[] }, thunkAPI) => {
+    try {
+      const response = await instance.patch("/admin/users/status", userData);
       return response.data;
     } catch (e) {
       if (e instanceof Error) {

@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import styles from "./Users.module.sass";
 import cn from "classnames";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { getAllUsers, patchUsers } from "../../redux/admin/admin.thunk";
+import {
+  getAllUsers,
+  patchUsers,
+  patchCheckSub,
+} from "../../redux/admin/admin.thunk";
 import {
   selectAdminUsers,
   selectTotalFolowers,
-  selectUserIsLoading,
+  selectAdminLoadingMore,
+  selectAdminLoadingUpdate,
+  selectAdminLoadingCheck,
 } from "../../redux/selectors";
 import moment from "moment";
 import Loader from "../../components/Loader";
@@ -22,7 +28,9 @@ const Users = () => {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAdminUsers);
   const totalUsers = useAppSelector(selectTotalFolowers);
-  const isLoading = useAppSelector(selectUserIsLoading);
+  const isLoadingMore = useAppSelector(selectAdminLoadingMore);
+  const isLoadingUpdate = useAppSelector(selectAdminLoadingUpdate);
+  const isLoadingCheck = useAppSelector(selectAdminLoadingCheck);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<keyof UserList | "">("");
@@ -89,7 +97,7 @@ const Users = () => {
                   Select
                 </button>
               </th>
-              <th className={styles.tcol} scope="col">
+              <th className={styles.th} scope="col">
                 <button
                   className={styles.selectbtn}
                   type="button"
@@ -103,7 +111,7 @@ const Users = () => {
                     : ""}
                 </button>
               </th>
-              <th className={styles.tcol} scope="col">
+              <th className={styles.th} scope="col">
                 <button
                   className={styles.selectbtn}
                   type="button"
@@ -118,7 +126,7 @@ const Users = () => {
                 </button>
               </th>
 
-              <th className={styles.tcol} scope="col">
+              <th className={styles.th} scope="col">
                 <button
                   className={styles.selectbtn}
                   type="button"
@@ -132,16 +140,22 @@ const Users = () => {
                     : ""}
                 </button>
               </th>
-              <th className={styles.tcol} scope="col">
+              <th className={styles.th} scope="col">
+                Status
+              </th>
+              <th className={styles.th} scope="col">
                 Order Reference
               </th>
-              <th className={styles.tcol} scope="col">
+              <th className={styles.th} scope="col">
                 Subscription start
               </th>
-              <th className={styles.tcol} scope="col">
+              <th className={styles.th} scope="col">
                 Subscription end
               </th>
-              <th className={styles.tcol} scope="col">
+              <th className={styles.th} scope="col">
+                Payment Until
+              </th>
+              <th className={styles.th} scope="col">
                 Phone
               </th>
             </tr>
@@ -170,6 +184,7 @@ const Users = () => {
                 >
                   {user.subscription}
                 </td>
+                <td className={styles.tcol}>{user.status}</td>
                 <td className={styles.tcol}>{user.orderReference}</td>
                 <td className={styles.tcol}>
                   {user.substart &&
@@ -178,6 +193,10 @@ const Users = () => {
                 <td className={styles.tcol}>
                   {user.subend &&
                     moment(new Date(user.subend)).format("DD-MM-YYYY")}
+                </td>
+                <td className={styles.tcol}>
+                  {user.regularDateEnd &&
+                    moment(new Date(user.regularDateEnd)).format("DD-MM-YYYY")}
                 </td>
                 <td className={styles.tcol}>{user.phone}</td>
               </tr>
@@ -190,36 +209,78 @@ const Users = () => {
                   {updateUsers.length}
                 </td>
                 <th className={styles.tcol} scope="row" colSpan={3}>
-                  <button
-                    className={cn("button-stroke", styles.updateBtn)}
-                    type="button"
-                    onClick={() => {
-                      dispatch(
-                        patchUsers({
-                          users: updateUsers,
-                          subscription: "member",
-                        })
-                      );
-                    }}
-                  >
-                    Set membership 1 month
-                  </button>
+                  {isLoadingUpdate ? (
+                    <button
+                      className={cn("button-stroke", styles.button)}
+                      type="button"
+                    >
+                      <Loader />
+                    </button>
+                  ) : (
+                    <button
+                      className={cn("button-stroke", styles.updateBtn)}
+                      type="button"
+                      onClick={() => {
+                        dispatch(
+                          patchUsers({
+                            usersId: updateUsers,
+                            subscription: "member",
+                          })
+                        );
+                      }}
+                    >
+                      Set membership 1 month
+                    </button>
+                  )}
                 </th>
                 <th className={styles.tcol} scope="row" colSpan={3}>
-                  <button
-                    className={cn("button-stroke", styles.updateBtnRed)}
-                    type="button"
-                    onClick={() => {
-                      dispatch(
-                        patchUsers({
-                          users: updateUsers,
-                          subscription: "free",
-                        })
-                      );
-                    }}
-                  >
-                    Delete subscription
-                  </button>
+                  {isLoadingUpdate ? (
+                    <button
+                      className={cn("button-stroke", styles.button)}
+                      type="button"
+                    >
+                      <Loader />
+                    </button>
+                  ) : (
+                    <button
+                      className={cn("button-stroke", styles.updateBtnRed)}
+                      type="button"
+                      onClick={() => {
+                        dispatch(
+                          patchUsers({
+                            usersId: updateUsers,
+                            subscription: "free",
+                          })
+                        );
+                      }}
+                    >
+                      Delete subscription
+                    </button>
+                  )}
+                </th>
+                <th className={styles.tcol} scope="row" colSpan={3}>
+                  {isLoadingCheck ? (
+                    <button
+                      className={cn("button-stroke", styles.button)}
+                      type="button"
+                    >
+                      <Loader />
+                    </button>
+                  ) : (
+                    <button
+                      className={cn("button-stroke", styles.updateBtn)}
+                      type="button"
+                      onClick={() => {
+                        dispatch(
+                          patchCheckSub({
+                            usersId: updateUsers,
+                          })
+                        );
+                      }}
+                    >
+                      Check WayForPay status
+                    </button>
+                  )}
                 </th>
               </tr>
             </tfoot>
@@ -227,7 +288,7 @@ const Users = () => {
         </table>
       )}
       <div className={styles.btns}>
-        {isLoading ? (
+        {isLoadingMore ? (
           <button className={cn("button-stroke", styles.button)} type="button">
             <Loader />
           </button>

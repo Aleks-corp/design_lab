@@ -1,17 +1,19 @@
 import express from "express";
 
-// import { usersSchemas } from "../../schemas/index";
+import { usersSchemas } from "../../schemas/index";
 import { validateBody } from "../../decorators/index";
 import { authenticateToken } from "../../middlewares/index";
 import adminController from "src/controllers/adminController";
 
-// const { usersUpdateSubscriptionSchema } = usersSchemas;
+const { usersUpdateSubscriptionSchema, usersCheckSubscriptionSchema } =
+  usersSchemas;
 const {
   getAllUser,
   updateUsersSubscription,
   updateUserSubscription,
   getUnpublishedPosts,
   getUnpublishedPostById,
+  checkUsersSubscription,
 } = adminController;
 
 const adminRouter = express.Router();
@@ -20,7 +22,7 @@ adminRouter.get("/users", authenticateToken, getAllUser);
 adminRouter.patch(
   "/user",
   authenticateToken,
-  // validateBody(usersUpdateSubscriptionSchema),
+  validateBody(usersUpdateSubscriptionSchema),
   updateUserSubscription
 );
 
@@ -29,6 +31,13 @@ adminRouter.patch(
   authenticateToken,
   // validateBody(usersUpdateSubscriptionSchema),
   updateUsersSubscription
+);
+
+adminRouter.patch(
+  "/users/status",
+  validateBody(usersCheckSubscriptionSchema),
+  authenticateToken,
+  checkUsersSubscription
 );
 
 adminRouter.get("/posts", authenticateToken, getUnpublishedPosts);

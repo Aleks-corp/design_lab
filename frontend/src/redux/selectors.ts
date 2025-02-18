@@ -37,4 +37,14 @@ export const selectTotalUnpublPosts = (state: State) => state.admin.totalPosts;
 
 export const selectAdminError = (state: State) => state.admin.error;
 
-export const selectUserIsLoading = (state: State) => state.admin.isLoading;
+export const selectAdminLoadingPost = (state: State) =>
+  state.admin.isLoadingPost;
+
+export const selectAdminLoadingMore = (state: State) =>
+  state.admin.isLoadingMore;
+
+export const selectAdminLoadingUpdate = (state: State) =>
+  state.admin.isLoadingUpdate;
+
+export const selectAdminLoadingCheck = (state: State) =>
+  state.admin.isLoadingCheck;

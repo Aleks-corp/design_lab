@@ -48,9 +48,24 @@
         background: $neutrals3
 
 
-.tcol 
+.th
     padding: 8px 10px
     text-align: left
+    button
+        +caption-1
+        font-weight: 700
+    &.free 
+        color: $blue
+    &.member 
+        color: $green
+    &.admin 
+        color: $red
+
+.tcol
+    align-content: center
+    padding: 8px 10px
+    text-align: left
+
     &.free 
         color: $blue
     &.member 
@@ -61,6 +76,9 @@
 
 .tsel 
     padding: 8px 10px
+    button
+        +caption-1
+        font-weight: 700
 
 .tselected
     padding: 8px 10px
