@@ -258,7 +258,7 @@ const createPayment = async (req: Request, res: Response) => {
 };
 
 const paymentWebhook = async (req: Request, res: Response) => {
-  console.log("Webhook received:body", req.body); // Додаємо логування
+  console.log("Webhook received:", req.body); // Додаємо логування
   let data = req.body;
 
   const keys = Object.keys(data);
@@ -266,16 +266,12 @@ const paymentWebhook = async (req: Request, res: Response) => {
     try {
       data = JSON.parse(keys[0]);
     } catch (error) {
-      console.error("❌ Помилка парсингу вкладеного JSON:", error);
       res.status(400).json({ message: "Invalid nested JSON" });
       return;
     }
   }
 
-  console.log("✅ Розпарсений data:", data); // Парсимо вкладений JSON
-
   if (!data || typeof data !== "object" || !data.orderReference) {
-    console.error("❌ Помилка: відсутній orderReference", data);
     res.status(400).json({ message: "Missing orderReference" });
     return;
   }
@@ -292,11 +288,14 @@ const paymentWebhook = async (req: Request, res: Response) => {
       .digest("hex"),
   };
 
-  console.log("✅ Відповідь мерчанту:", responseData); //log
+  console.log("✅ Відповідь мерчанту:", responseData);
 
   const { transactionStatus, orderReference, phone, regularDateEnd } = data;
+  console.log("✅ Розпарсений data:", data);
   const arr = orderReference.split("-");
+  console.log(" arr:", arr);
   if (transactionStatus === "Approved") {
+    console.log(" transactionStatus:", transactionStatus);
     await User.findOneAndUpdate(
       { orderReference },
       {

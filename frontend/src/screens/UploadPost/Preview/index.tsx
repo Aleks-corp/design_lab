@@ -86,7 +86,6 @@ const Preview = ({
                 <div className={styles.counter}>
                   {desc ? desc : "Post description"}
                 </div>
-                <div className={styles.status}>Highest bid</div>
               </div>
             </div>
             <div className={styles.foot}>
