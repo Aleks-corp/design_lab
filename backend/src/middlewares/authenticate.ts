@@ -35,10 +35,11 @@ const authenticateToken = async (
     if (user.subscription === "admin") {
       req.user = user;
       next();
+    } else {
+      const updatedUser = await checkSubscriptionStatus(user);
+      req.user = updatedUser;
+      next();
     }
-    const updatedUser = await checkSubscriptionStatus(user);
-    req.user = updatedUser;
-    next();
   } catch {
     throw ApiError(401);
   }

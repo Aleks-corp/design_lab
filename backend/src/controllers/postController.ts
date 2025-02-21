@@ -108,14 +108,14 @@ const getPostById = async (req: Request, res: Response) => {
 const postPresignedUrl = async (req: Request, res: Response) => {
   const { files } = req.body;
   if (!files || !Array.isArray(files) || files.length === 0) {
-    throw ApiError(400, "No files provided.");
+    throw ApiError(400, "No files provided");
   }
   const signedUrls = [];
   for (const file of files) {
     const signedUrl = await generatePresignedUrl(file);
     signedUrls.push(signedUrl);
   }
-  if (signedUrls.length < 0) {
+  if (signedUrls.length === 0) {
     throw ApiError(404, "Failed to generate pre-signed URL");
   }
   res.json({ signedUrls });
