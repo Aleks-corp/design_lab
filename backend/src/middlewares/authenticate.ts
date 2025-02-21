@@ -32,6 +32,10 @@ const authenticateToken = async (
     if (!user || !user.token) {
       throw ApiError(401);
     }
+    if (user.subscription === "admin") {
+      req.user = user;
+      next();
+    }
     const updatedUser = await checkSubscriptionStatus(user);
     req.user = updatedUser;
     next();

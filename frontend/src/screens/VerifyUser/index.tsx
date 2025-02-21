@@ -25,7 +25,7 @@ const VerifyPage = () => {
 
   return (
     <>
-      {token === "0" && !error && (
+      {token === "0" && error !== "Verification has already been passed." && (
         <h3 className={styles.title}>Check Your Email to verify account</h3>
       )}
 
