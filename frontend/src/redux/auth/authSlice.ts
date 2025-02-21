@@ -16,7 +16,6 @@ import { AuthState } from "../../types/state.types";
 import { GetUser, UserProfile } from "../../types/auth.types";
 
 const handleFulfilled = (state: AuthState) => {
-  state.isLoggedIn = true;
   state.isLogining = false;
 };
 
@@ -30,18 +29,10 @@ const handleLoginFulfilled = (
   state.isLogining = false;
 };
 
-const handleSighUpFulfilled = (state: AuthState) => {
-  state.isLogining = false;
-};
-
 const handleLogOutFulfilled = (state: AuthState) => {
   state.isLoggedIn = false;
   state.profile = null;
   state.token = "";
-  state.isLogining = false;
-};
-
-const handleVerifyUserFulfilled = (state: AuthState) => {
   state.isLogining = false;
 };
 
@@ -95,10 +86,10 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) =>
     builder
-      .addCase(signUp.fulfilled, handleSighUpFulfilled)
+      .addCase(signUp.fulfilled, handleFulfilled)
       .addCase(logIn.fulfilled, handleLoginFulfilled)
       .addCase(logOut.fulfilled, handleLogOutFulfilled)
-      .addCase(verifyUser.fulfilled, handleVerifyUserFulfilled)
+      .addCase(verifyUser.fulfilled, handleFulfilled)
       .addCase(resendVerifyUser.fulfilled, handleFulfilled)
       .addCase(setNewPassword.fulfilled, handleFulfilled)
       .addCase(forgotPassword.fulfilled, handleFulfilled)

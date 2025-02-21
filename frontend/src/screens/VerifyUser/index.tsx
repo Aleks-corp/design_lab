@@ -30,16 +30,18 @@ const VerifyPage = () => {
       )}
 
       {isLoggining && !error && <Loader className={styles.loader} />}
-      {!isLoggining && isLoggedIn && (
-        <>
-          <h3 className={styles.title}>
-            Verification success
-            <NavLink className={styles.titlelink} to="/login">
-              Go to Login
-            </NavLink>
-          </h3>
-        </>
-      )}
+      {token !== "0" &&
+        !isLoggining &&
+        error !== "Verification has already been passed." && (
+          <>
+            <h3 className={styles.title}>
+              Verification success
+              <NavLink className={styles.titlelink} to="/login">
+                Go to Login
+              </NavLink>
+            </h3>
+          </>
+        )}
       {error === "Verification has already been passed." &&
         !isLoggining &&
         !isLoggedIn && (

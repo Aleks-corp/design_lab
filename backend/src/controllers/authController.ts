@@ -37,16 +37,12 @@ const register = async (req: Request, res: Response) => {
     email,
     verificationToken,
     path: "verify",
-    text: "Click to verify your Email",
+    text: "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.",
   });
   if (!maildata) {
     throw ApiError(400, "Email not sent");
   }
-  res.status(201).json({
-    user: {
-      email: newUser.email,
-    },
-  });
+  res.status(201).json({ message: "Thank you for signing up" });
 };
 
 const login = async (req: Request, res: Response) => {
@@ -128,20 +124,7 @@ const getVerification = async (req: Request, res: Response) => {
     verify: true,
   });
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "333h" });
-  res.json({
-    token,
-    user: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      subscription: user.subscription,
-      status: user.status,
-      regularDateEnd: user.regularDateEnd,
-      substart: user.substart,
-      subend: user.subend,
-      createdAt: user.createdAt,
-    },
-  });
+  res.json({ message: "Verification has been passed" });
 };
 
 const resendVerify = async (req: Request, res: Response) => {
@@ -157,7 +140,7 @@ const resendVerify = async (req: Request, res: Response) => {
     email,
     path: "verify",
     verificationToken: user.verificationToken,
-    text: "Click to verify your Email",
+    text: "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.",
   });
   if (!maildata) {
     throw ApiError(400, "Email not sent");
@@ -183,7 +166,7 @@ const forgotPassword = async (req: Request, res: Response) => {
     email: user.email,
     path: "reset-password",
     verificationToken: resetToken,
-    text: "You requested a password reset. Click the link to reset your password.",
+    text: "You requested a password reset. Click the link below to set a new password.",
   });
   if (!maildata) {
     throw ApiError(400, "Email not sent");

@@ -8,12 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { signUp } from "../../redux/auth/auth.thunk";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
-import {
-  selectIsLogining,
-  selectUser,
-  selectUserError,
-} from "../../redux/selectors";
+import { useState } from "react";
+import { selectIsLogining, selectUserError } from "../../redux/selectors";
 import Loader from "../../components/Loader";
 import { regSchema } from "../../schema/regSchema";
 
@@ -39,7 +35,6 @@ const SignUp = () => {
   const navigate = useNavigate();
   const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
-  const user = useAppSelector(selectUser);
 
   const [showPass, setShowPass] = useState(false);
   const [showConfPass, setShowConfPass] = useState(false);
@@ -54,18 +49,12 @@ const SignUp = () => {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const { name, email, password } = data;
     await dispatch(signUp({ name, email, password }));
-    if (error) {
+    if (error && error !== "Not authorized") {
       return;
     }
-    reset();
     navigate("/verify/0");
+    reset();
   };
-
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [navigate, user]);
 
   return (
     <div className={styles.page}>
@@ -80,33 +69,6 @@ const SignUp = () => {
             </div>
           </div>
           <div className={styles.row}>
-            {/* <div className={styles.col}>
-              <div className={styles.user}>
-                <div className={styles.avatar}>
-                  <img src="/images/content/avatar-1.jpg" alt="Avatar" />
-                </div>
-                <div className={styles.details}>
-                  <div className={styles.stage}>Profile photo</div>
-                  <div className={styles.text}>
-                    We recommend an image of at least 400x400. Gifs work too{" "}
-                    <span role="img" aria-label="hooray">
-                      🙌
-                    </span>
-                  </div>
-                  <div className={styles.file}>
-                    <button
-                      className={cn(
-                        "button-stroke button-small",
-                        styles.button
-                      )}
-                    >
-                      Upload
-                    </button>
-                    <input className={styles.load} type="file" />
-                  </div>
-                </div>
-              </div>
-            </div> */}
             <div className={styles.col}>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className={styles.list}>
@@ -193,54 +155,9 @@ const SignUp = () => {
                       </div>
                     </div>
                   </div>
-                  {/* <div className={styles.item}>
-                  <div className={styles.category}>Social</div>
-                  <div className={styles.fieldset}>
-                    <TextInput
-                      className={styles.field}
-                      label="portfolio or website"
-                      name="Portfolio"
-                      type="text"
-                      placeholder="Enter URL"
-                      required
-                    />
-                    <div className={styles.box}>
-                      <TextInput
-                        className={styles.field}
-                        label="twitter"
-                        name="Twitter"
-                        type="text"
-                        placeholder="@twitter username"
-                        required
-                      />
-                      <button
-                        className={cn(
-                          "button-stroke button-small",
-                          styles.button
-                        )}
-                      >
-                        Verify account
-                      </button>
-                    </div>
-                  </div>
-                  <button
-                    className={cn("button-stroke button-small", styles.button)}
-                  >
-                    <Icon title="plus-circle" size={16} />
-                    <span>Add more social account</span>
-                  </button>
-                </div> */}
                 </div>
-                {/* <div className={styles.note}>
-                To update your settings you should sign message through your
-                wallet. Click 'Update profile' then sign the message
-              </div> */}
                 <div className={styles.btns}>
-                  <button
-                    type="submit"
-                    onSubmit={handleSubmit(onSubmit)}
-                    className={cn("button", styles.button)}
-                  >
+                  <button type="submit" className={cn("button", styles.button)}>
                     {isLoading ? <Loader className="" /> : "Sign Up"}
                   </button>
                   <button type="reset" className={styles.clear}>
