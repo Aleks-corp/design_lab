@@ -11,13 +11,8 @@ import Modal from "../../components/Modal";
 import Preview from "./Preview";
 import FolowSteps from "./FolowSteps";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { useNavigate } from "react-router-dom";
 
-import {
-  selectIsAdmin,
-  selectIsLogining,
-  selectUserError,
-} from "../../redux/selectors";
+import { selectIsLogining, selectUserError } from "../../redux/selectors";
 import { kitsConstant } from "../../constants/kits.constant";
 import TextArea from "../../components/TextArea";
 import { filterConstant } from "../../constants/filter.constant";
@@ -34,7 +29,6 @@ import { setArrayString } from "../../helpers/categoryKitSetArray";
 
 const Upload = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const [kitState, setKitState] = useState(
     kitsConstant.map((key) => ({ [key]: false }))
@@ -47,7 +41,6 @@ const Upload = () => {
   const [visiblePreview, setVisiblePreview] = useState(false);
   const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
-  const isAdmin = useAppSelector(selectIsAdmin);
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[] | null>(null);
@@ -151,12 +144,6 @@ const Upload = () => {
     setFileUploadProgress({ fileName: "", progress: 0 });
     setImgUploadProgress([]);
   };
-
-  useEffect(() => {
-    if (!isAdmin) {
-      navigate("/");
-    }
-  }, [isAdmin, navigate]);
 
   const inputProps = {
     placeholder: "Select upload Date",

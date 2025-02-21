@@ -1,16 +1,20 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
-import { selectIsRefreshing, selectToken } from "./redux/selectors";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { refreshUser } from "./redux/auth/auth.thunk";
 import "./styles/app.sass";
 import styles from "./styles/App.module.sass";
 import Page from "./components/Page";
 import Loader from "./components/LoaderCircle";
+import { AdminRoute } from "./routes/AdminRoute";
+import { UsersRoute } from "./routes/UsersRoute";
+import { RestrictedRoute } from "./routes/RestrictedRoute";
+import { selectUserError } from "./redux/selectors";
 
 const ErrorPage = lazy(() => import("./screens/Error"));
-const Faq = lazy(() => import("./screens/Faq"));
+const NotFoundPage = lazy(() => import("./screens/NotFound"));
 const Home = lazy(() => import("./screens/Home"));
+const Faq = lazy(() => import("./screens/Faq"));
 const ChangePasswordPage = lazy(() => import("./screens/PassChange"));
 const ForgotPassPage = lazy(() => import("./screens/PassForgot"));
 const ResetPasswordPage = lazy(() => import("./screens/PassReset"));
@@ -29,17 +33,20 @@ const VerifyPageResend = lazy(() => import("./screens/VerifyUserResend"));
 
 function App() {
   const dispatch = useAppDispatch();
-  const isRefreshing = useAppSelector(selectIsRefreshing);
-  const token = useAppSelector(selectToken);
+  const navigate = useNavigate();
+  const error = useAppSelector(selectUserError);
   useEffect(() => {
-    if (token) {
-      dispatch(refreshUser());
+    if (error && error === "Network Error") {
+      navigate("/error");
+      return;
     }
-  }, [dispatch, token]);
+  }, [error, navigate]);
 
-  return isRefreshing ? (
-    <Loader className={styles.mainloader} />
-  ) : (
+  useEffect(() => {
+    dispatch(refreshUser());
+  }, [dispatch]);
+
+  return (
     <Suspense fallback={<Loader className={styles.mainloader} />}>
       <Routes>
         <Route path="/">
@@ -52,91 +59,10 @@ function App() {
             }
           />
           <Route
-            path="register"
+            path="post/:id"
             element={
               <Page>
-                <SignUp />
-              </Page>
-            }
-          />
-          <Route
-            path="login"
-            element={
-              <Page>
-                <SignIn />
-              </Page>
-            }
-          />
-          <Route
-            path="verify/:token"
-            element={
-              <Page>
-                <VerifyPage />
-              </Page>
-            }
-          />
-          <Route
-            path="resendverify"
-            element={
-              <Page>
-                <VerifyPageResend />
-              </Page>
-            }
-          />
-          <Route
-            path="forgot-password"
-            element={
-              <Page>
-                <ForgotPassPage />
-              </Page>
-            }
-          />
-          <Route
-            path="reset-password/:newPassToken"
-            element={
-              <Page>
-                <ResetPasswordPage />
-              </Page>
-            }
-          />
-          <Route
-            path="change-password"
-            element={
-              <Page>
-                <ChangePasswordPage />
-              </Page>
-            }
-          />
-          <Route
-            path="payment"
-            element={
-              <Page>
-                <PaymentPage />
-              </Page>
-            }
-          />
-          <Route
-            path="payment-success"
-            element={
-              <Page>
-                <PaymentSuccessPage />
-              </Page>
-            }
-          />
-
-          <Route
-            path="upload-post"
-            element={
-              <Page>
-                <UploadPost />
-              </Page>
-            }
-          />
-          <Route
-            path="unpublished-post"
-            element={
-              <Page>
-                <UnpublishedPosts />
+                <Post />
               </Page>
             }
           />
@@ -148,41 +74,198 @@ function App() {
               </Page>
             }
           />
-
+          <Route
+            path="register"
+            element={
+              <RestrictedRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <SignUp />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="login"
+            element={
+              <RestrictedRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <SignIn />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="verify/:token"
+            element={
+              <RestrictedRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <VerifyPage />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="resendverify"
+            element={
+              <RestrictedRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <VerifyPageResend />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="forgot-password"
+            element={
+              <RestrictedRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <ForgotPassPage />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="reset-password/:newPassToken"
+            element={
+              <RestrictedRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <ResetPasswordPage />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="payment"
+            element={
+              <UsersRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <PaymentPage />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="payment-success"
+            element={
+              <UsersRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <PaymentSuccessPage />
+                  </Page>
+                }
+              />
+            }
+          />
           <Route
             path="profile"
             element={
-              <Page>
-                <Profile />
-              </Page>
+              <UsersRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <Profile />
+                  </Page>
+                }
+              />
             }
           />
           <Route
             path="profile-edit"
             element={
-              <Page>
-                <ProfileEdit />
-              </Page>
+              <UsersRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <ProfileEdit />
+                  </Page>
+                }
+              />
             }
           />
           <Route
-            path="post/:id"
+            path="change-password"
             element={
-              <Page>
-                <Post />
-              </Page>
+              <UsersRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <ChangePasswordPage />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="upload-post"
+            element={
+              <AdminRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <UploadPost />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="unpublished-post"
+            element={
+              <AdminRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <UnpublishedPosts />
+                  </Page>
+                }
+              />
             }
           />
           <Route
             path="admin/users"
             element={
-              <Page>
-                <Users />
-              </Page>
+              <AdminRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <Users />
+                  </Page>
+                }
+              />
             }
           />
           <Route
             path="*"
+            element={
+              <Page>
+                <NotFoundPage />
+              </Page>
+            }
+          />
+          <Route
+            path="error"
             element={
               <Page>
                 <ErrorPage />

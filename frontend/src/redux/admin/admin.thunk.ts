@@ -94,3 +94,17 @@ export const getUnpublishedPostById = createAsyncThunk(
     }
   }
 );
+
+export const sendMessageSpt = createAsyncThunk(
+  "admin/sendmessagespt",
+  async (userData: { message: string }, thunkAPI) => {
+    try {
+      const response = await instance.post(`/admin/message`, userData);
+      return response.data;
+    } catch (e) {
+      if (e instanceof Error) {
+        return thunkAPI.rejectWithValue(e.message);
+      }
+    }
+  }
+);

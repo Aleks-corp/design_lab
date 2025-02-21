@@ -14,6 +14,7 @@ const {
   getUnpublishedPosts,
   getUnpublishedPostById,
   checkUsersSubscription,
+  getMessageToSprt,
 } = adminController;
 
 const adminRouter = express.Router();
@@ -43,5 +44,5 @@ adminRouter.patch(
 adminRouter.get("/posts", authenticateToken, getUnpublishedPosts);
 
 adminRouter.get("/post/:postId", authenticateToken, getUnpublishedPostById);
-
+adminRouter.post("/message", authenticateToken, getMessageToSprt);
 export default adminRouter;

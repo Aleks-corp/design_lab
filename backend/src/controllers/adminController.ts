@@ -8,6 +8,7 @@ import { nextDate } from "src/helpers/setDate";
 import { ObjectId } from "mongoose";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 import { IUser } from "src/types/user.type";
+import sendMailToSprt from "src/helpers/sendSprtMail";
 
 const getAllUser = async (req: Request, res: Response) => {
   const { page = "1", limit = "100", filter = "" } = req.query;
@@ -212,6 +213,16 @@ const getUnpublishedPostById = async (req: Request, res: Response) => {
   res.json(post);
 };
 
+const getMessageToSprt = async (req: Request, res: Response) => {
+  const { message } = req.body;
+  const { email } = req.user;
+  if (!email || !message) {
+    throw ApiError(404);
+  }
+  await sendMailToSprt({ email, message });
+  res.json("Message sent");
+};
+
 export default {
   getAllUser: ctrlWrapper(getAllUser),
   getUnpublishedPosts: ctrlWrapper(getUnpublishedPosts),
@@ -219,4 +230,5 @@ export default {
   updateUserSubscription: ctrlWrapper(updateUserSubscription),
   updateUsersSubscription: ctrlWrapper(updateUsersSubscription),
   checkUsersSubscription: ctrlWrapper(checkUsersSubscription),
+  getMessageToSprt: ctrlWrapper(getMessageToSprt),
 };

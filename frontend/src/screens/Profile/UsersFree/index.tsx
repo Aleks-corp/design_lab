@@ -64,7 +64,7 @@ const UserFree = ({ className, user }: UserProps) => {
         visible={visibleModalReport}
         onClose={() => setVisibleModalReport(false)}
       >
-        <Report />
+        <Report onClose={() => setVisibleModalReport(false)} />
       </Modal>
     </>
   );

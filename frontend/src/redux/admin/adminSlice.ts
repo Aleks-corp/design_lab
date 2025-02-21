@@ -7,10 +7,12 @@ import {
   getUnpublishedPosts,
   getUnpublishedPostById,
   patchCheckSub,
+  sendMessageSpt,
 } from "./admin.thunk";
 import { AdminState } from "../../types/state.types";
 import { GetPost } from "../../types/posts.types";
 import { UserList } from "../../types/auth.types";
+import toast from "react-hot-toast";
 
 const handleGetAllUsersPending = (state: AdminState) => {
   state.isLoadingMore = true;
@@ -89,6 +91,21 @@ const handleGetUnpublishedPostsByIdFulfilled = (
   state.unpublPost = action.payload;
 };
 
+const handleSendMessageSptPending = (state: AdminState) => {
+  state.error = "";
+};
+const handleSendMessageSptFulfilled = (
+  state: AdminState,
+  action: PayloadAction<string>
+) => {
+  if (action.payload === "Message sent") {
+    toast.success(action.payload);
+  } else {
+    toast.error("Message not sent, please try again");
+  }
+  state.error = "";
+};
+
 const handleRejected = (state: AdminState, action: PayloadAction<string>) => {
   state.isLoadingPost = false;
   state.isLoadingCheck = false;
@@ -121,6 +138,8 @@ const adminSlice = createSlice({
         getUnpublishedPostById.fulfilled,
         handleGetUnpublishedPostsByIdFulfilled
       )
+      .addCase(sendMessageSpt.pending, handleSendMessageSptPending)
+      .addCase(sendMessageSpt.fulfilled, handleSendMessageSptFulfilled)
       .addMatcher(
         ({ type }) => type.endsWith("/rejected") && type.startsWith("admin"),
         handleRejected

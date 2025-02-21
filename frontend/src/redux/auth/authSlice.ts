@@ -16,18 +16,18 @@ import { AuthState } from "../../types/state.types";
 import { GetUser, UserProfile } from "../../types/auth.types";
 
 const handleFulfilled = (state: AuthState) => {
-  state.isLogining = false;
   state.isLoggedIn = true;
+  state.isLogining = false;
 };
 
 const handleLoginFulfilled = (
   state: AuthState,
   action: PayloadAction<GetUser>
 ) => {
-  state.isLogining = false;
+  state.isLoggedIn = true;
   state.token = action.payload.token;
   state.profile = action.payload.user;
-  state.isLoggedIn = true;
+  state.isLogining = false;
 };
 
 const handleSighUpFulfilled = (state: AuthState) => {
@@ -35,10 +35,10 @@ const handleSighUpFulfilled = (state: AuthState) => {
 };
 
 const handleLogOutFulfilled = (state: AuthState) => {
-  state.isLogining = false;
+  state.isLoggedIn = false;
   state.profile = null;
   state.token = "";
-  state.isLoggedIn = false;
+  state.isLogining = false;
 };
 
 const handleVerifyUserFulfilled = (state: AuthState) => {
@@ -55,26 +55,33 @@ const handleCheckPaymentFulfilled = (
   }
 };
 
+const handleRefreshPending = (state: AuthState) => {
+  state.isRefreshing = true;
+};
+
 const handleRefreshFulfilled = (
   state: AuthState,
   action: PayloadAction<UserProfile>
 ) => {
-  state.isLogining = false;
   state.profile = action.payload;
   state.isLoggedIn = true;
+  state.isLogining = false;
   state.isRefreshing = false;
 };
-const handleRefreshPending = (state: AuthState) => {
-  state.isRefreshing = true;
-};
-const handleRefreshRejected = (state: AuthState) => {
+
+const handleRefreshRejected = (
+  state: AuthState,
+  action: PayloadAction<unknown, string>
+) => {
+  if (action.payload !== "Network Error") {
+    state.token = "";
+  }
   state.isRefreshing = false;
-  state.token = "";
 };
 
 const handleRejected = (state: AuthState, action: PayloadAction<string>) => {
-  state.isLogining = false;
   state.error = action.payload;
+  state.isLogining = false;
 };
 
 const handlePending = (state: AuthState) => {

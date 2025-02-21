@@ -21,16 +21,23 @@ interface PostRequest extends Request {
 }
 
 const getAllPosts = async (req: Request, res: Response) => {
-  const { page = "1", limit = "12", filter = "" } = req.query;
-
+  const {
+    page = "1",
+    limit = "12",
+    filter = "",
+    favorites = false,
+  } = req.query;
+  const user = req.user;
   const pageNumber = parseInt(page as string, 10);
   const limitNumber = parseInt(limit as string, 10);
   const skip = (pageNumber - 1) * limitNumber;
   const currentTime = new Date();
+  const favoriritesQuery =
+    favorites && user ? { favorites: { $in: [user._id] } } : {};
   const filterQuery =
     filter && filter !== "All products" ? { category: { $in: [filter] } } : {};
   const uploadQuery = { upload_at: { $lte: currentTime } };
-  const query = { ...filterQuery, ...uploadQuery };
+  const query = { ...filterQuery, ...uploadQuery, ...favoriritesQuery };
   const posts = await Post.find(
     query,
     "-owner -createdAt -updatedAt -downloadlink",

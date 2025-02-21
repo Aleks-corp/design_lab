@@ -1,9 +1,7 @@
-import { useState } from "react";
 import cn from "classnames";
 import styles from "./User.module.sass";
 import Icon from "../../../components/Icon";
-import Report from "../../../components/Report";
-import Modal from "../../../components/Modal";
+
 import { UserProfile } from "../../../types/auth.types";
 import { Link } from "react-router-dom";
 import moment from "moment";
@@ -14,8 +12,6 @@ interface UserProps {
 }
 
 const UserAdmin = ({ className, user }: UserProps) => {
-  const [visibleModalReport, setVisibleModalReport] = useState(false);
-
   return (
     <>
       <div className={cn(styles.user, className)}>
@@ -57,13 +53,6 @@ const UserAdmin = ({ className, user }: UserProps) => {
               <span>Edit profile</span>
               <Icon title="image" size={16} />
             </Link>
-
-            <button
-              className={cn("button-circle-stroke button-small", styles.button)}
-              onClick={() => setVisibleModalReport(true)}
-            >
-              <Icon title="report" size={20} />
-            </button>
           </div>
         </div>
 
@@ -71,12 +60,6 @@ const UserAdmin = ({ className, user }: UserProps) => {
           Member since {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
         </div>
       </div>
-      <Modal
-        visible={visibleModalReport}
-        onClose={() => setVisibleModalReport(false)}
-      >
-        <Report />
-      </Modal>
     </>
   );
 };
