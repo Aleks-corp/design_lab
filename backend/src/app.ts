@@ -28,12 +28,12 @@ app.use(morgan(formatsLogger, { stream: accessLogStream }));
 
 app.use(
   cors({
-    origin: [
-      // process.env.FRONT_SERVER,
-      // "https://secure.wayforpay.com",
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Authorization", "Content-Type"],
+    // origin: [
+    //   process.env.FRONT_SERVER,
+    //   "https://secure.wayforpay.com",
+    // ],
+    // methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    // allowedHeaders: ["Authorization", "Content-Type"],
   })
 );
 app.use(express.json()); // для application/json
