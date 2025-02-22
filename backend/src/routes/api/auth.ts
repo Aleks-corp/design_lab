@@ -26,6 +26,7 @@ const {
   createPayment,
   paymentWebhook,
   paymentStatus,
+  unsubscribeWebhook,
 } = authController;
 
 const authRouter = express.Router();
@@ -57,5 +58,6 @@ authRouter.post(
 authRouter.post("/create-payment", authenticateToken, createPayment);
 authRouter.post("/payment-webhook", paymentWebhook);
 authRouter.get("/payment-status", authenticateToken, paymentStatus);
+authRouter.get("/unsubscribe", authenticateToken, unsubscribeWebhook);
 
 export default authRouter;

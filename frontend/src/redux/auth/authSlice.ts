@@ -11,6 +11,7 @@ import {
   forgotPassword,
   changePassword,
   checkPaymentStatus,
+  unsubscribe,
 } from "./auth.thunk";
 import { AuthState } from "../../types/state.types";
 import { GetUser, UserProfile } from "../../types/auth.types";
@@ -44,6 +45,14 @@ const handleCheckPaymentFulfilled = (
   if (state.profile) {
     state.profile.subscription = action.payload.subscription;
   }
+};
+
+const handleUnsubscribeFulfilled = (
+  state: AuthState,
+  action: PayloadAction<UserProfile>
+) => {
+  state.isLogining = false;
+  state.profile = action.payload;
 };
 
 const handleRefreshPending = (state: AuthState) => {
@@ -98,6 +107,8 @@ const authSlice = createSlice({
       .addCase(refreshUser.fulfilled, handleRefreshFulfilled)
       .addCase(refreshUser.pending, handleRefreshPending)
       .addCase(refreshUser.rejected, handleRefreshRejected)
+      .addCase(unsubscribe.fulfilled, handleUnsubscribeFulfilled)
+
       .addMatcher(
         ({ type }) => type.endsWith("/rejected") && type.startsWith("auth"),
         handleRejected

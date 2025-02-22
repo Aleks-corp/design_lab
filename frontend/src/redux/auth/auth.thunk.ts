@@ -211,3 +211,17 @@ export const checkPaymentStatus = createAsyncThunk(
     }
   }
 );
+
+export const unsubscribe = createAsyncThunk(
+  "users/unsubscribe",
+  async (_, thunkAPI) => {
+    try {
+      const response = await instance.get(`/users/unsubscribe`);
+      return response.data;
+    } catch (e) {
+      if (e instanceof Error) {
+        return thunkAPI.rejectWithValue(e.message);
+      }
+    }
+  }
+);

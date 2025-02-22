@@ -336,14 +336,16 @@ const Upload = () => {
                   className={cn("button", styles.button)}
                   // onClick={() => setVisibleModal(true)}
                   type="submit"
+                  disabled={isLoading || isUploading}
                 >
                   {isLoading || isUploading ? (
                     <Loader className="" />
                   ) : (
-                    <span>Create POST</span>
+                    <>
+                      <span>Create post</span>
+                      <Icon title="arrow-next" size={10} />
+                    </>
                   )}
-
-                  <Icon title="arrow-next" size={10} />
                 </button>
               </div>
             </form>

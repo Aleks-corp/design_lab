@@ -15,7 +15,8 @@ const sendMailToSprt = async ({ email, message }: Mail) => {
       to: EMAIL_REPORT_SEND,
       from: EMAIL_SEND_FROM,
       subject: `Report designualab from ${email}`,
-      text: `Message: ${message}`,
+      text: `Report from ${email}. ${" "}
+              Message: ${message}.`,
     };
     sgMail.setApiKey(SENDGRID_API_KEY);
     return await sgMail.send(msg);

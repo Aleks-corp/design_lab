@@ -27,7 +27,6 @@ const getAllUser = async (req: Request, res: Response) => {
     }
   );
   const totalHits = await User.countDocuments(query);
-
   res.json({ totalHits, users });
 };
 

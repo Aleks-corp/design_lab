@@ -7,6 +7,8 @@ import Modal from "../../../components/Modal";
 import { UserProfile } from "../../../types/auth.types";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import { useAppDispatch } from "../../../redux/hooks";
+import { unsubscribe } from "../../../redux/auth/auth.thunk";
 
 interface UserProps {
   className: string;
@@ -14,22 +16,35 @@ interface UserProps {
 }
 
 const UserMember = ({ className, user }: UserProps) => {
+  const dispatch = useAppDispatch();
   const [visibleModalReport, setVisibleModalReport] = useState(false);
 
   return (
     <>
       <div className={cn(styles.user, className)}>
-        <div className={styles.name}>{user.name}</div>
+        <div className={styles.name}>Name: {user.name}</div>
         <div className={styles.code}>
-          <div className={styles.number}>{user.email}</div>
+          <div className={styles.number}>Email: {user.email}</div>
         </div>
         <div className={styles.info}>
-          <p>Subscription - {user.subscription}</p>
-
           <p>
-            Subscription until{" "}
+            <span>Subscription</span> - All Access Pass
+          </p>
+          <p>
+            <span>Subscription status</span> - {user.status}
+          </p>
+          <p>
+            <span>Next payment</span> -{" "}
             {moment(new Date(user.subend)).format("DD-MM-yyyy")}
           </p>
+          {user.status === "Active" && (
+            <button
+              className={cn("button-stroke button-small", styles.button)}
+              onClick={() => dispatch(unsubscribe())}
+            >
+              Unsubscribe
+            </button>
+          )}
         </div>
 
         <div className={styles.control}>

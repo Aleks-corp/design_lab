@@ -47,16 +47,20 @@
             fill: color.adjust($blue, $lightness: -10%) 
 
 .info
-    margin-bottom: 20px
-    
+    margin-bottom: 32px
+    +body-2
     color: $neutrals4
     p
         margin-bottom: 10px
+        span 
+            color: $neutrals2
+            +dark
+                color: $neutrals7
 
 .site
     display: inline-flex
     align-items: center
-    margin-bottom: 48px
+    margin-bottom: 32px
     +button-2
     color: $neutrals2
     +dark
@@ -68,7 +72,7 @@
 .control
     display: inline-block
     position: relative
-    margin-bottom: 48px
+    margin-bottom: 32px
 
 .box
     position: absolute
@@ -168,8 +172,7 @@
         margin-right: 24px
     
 .note
-    margin-top: 48px
-    padding-top: 48px
+    padding-top: 32px
     border-top: 1px solid $neutrals6
     +caption-2
     color: $neutrals4

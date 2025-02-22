@@ -10,6 +10,7 @@ import crypto from "crypto";
 import { nextDate } from "src/helpers/setDate";
 import { amountData } from "src/constants/amountData";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
+import { unsubscribeUser } from "src/helpers/unsubscribeUser";
 
 const {
   JWT_SECRET,
@@ -28,7 +29,7 @@ const register = async (req: Request, res: Response) => {
   }
   const hashPassword = await bcrypt.hash(password, 10);
   const verificationToken = nanoid();
-  const newUser = await User.create({
+  await User.create({
     ...req.body,
     password: hashPassword,
     verificationToken,
@@ -49,13 +50,13 @@ const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    throw ApiError(401, "Email or password not valid.");
+    throw ApiError(401, "Email or password not valid");
   }
   if (!(await bcrypt.compare(password, user.password))) {
-    throw ApiError(401, "Email or password not valid.");
+    throw ApiError(401, "Email or password not valid");
   }
   if (!user.verify) {
-    throw ApiError(403, "Non verified user, please check email.");
+    throw ApiError(403, "Non verified user, please check email");
   }
   const updatedUser = await checkSubscriptionStatus(user);
 
@@ -118,12 +119,11 @@ const getVerification = async (req: Request, res: Response) => {
     throw ApiError(404, "User not found");
   }
   if (user.verify) {
-    throw ApiError(400, "Verification has already been passed.");
+    throw ApiError(400, "Verification has already been passed");
   }
   await User.findByIdAndUpdate(user._id, {
     verify: true,
   });
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "333h" });
   res.json({ message: "Verification has been passed" });
 };
 
@@ -131,10 +131,10 @@ const resendVerify = async (req: Request, res: Response) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    throw ApiError(404, "User Not Found.");
+    throw ApiError(404, "User Not Found");
   }
   if (user.verify) {
-    throw ApiError(400, "Verification has already been passed.");
+    throw ApiError(400, "Verification has already been passed");
   }
   const maildata = await sendMail({
     email,
@@ -145,7 +145,7 @@ const resendVerify = async (req: Request, res: Response) => {
   if (!maildata) {
     throw ApiError(400, "Email not sent");
   }
-  res.json({ message: "Verification email sent." });
+  res.json({ message: "Verification email sent" });
 };
 
 const forgotPassword = async (req: Request, res: Response) => {
@@ -258,7 +258,6 @@ const createPayment = async (req: Request, res: Response) => {
 };
 
 const paymentWebhook = async (req: Request, res: Response) => {
-  console.log("Webhook received:", req.body); // Додаємо логування
   let data = req.body;
 
   const keys = Object.keys(data);
@@ -266,14 +265,12 @@ const paymentWebhook = async (req: Request, res: Response) => {
     try {
       data = JSON.parse(keys[0]);
     } catch (error) {
-      res.status(400).json({ message: "Invalid nested JSON" });
-      return;
+      throw ApiError(400, "Invalid nested JSON");
     }
   }
 
   if (!data || typeof data !== "object" || !data.orderReference) {
-    res.status(400).json({ message: "Missing orderReference" });
-    return;
+    throw ApiError(400, "Missing orderReference");
   }
 
   const merchantSecret = WFP_SECRET_KEY;
@@ -288,21 +285,18 @@ const paymentWebhook = async (req: Request, res: Response) => {
       .digest("hex"),
   };
 
-  console.log("✅ Відповідь мерчанту:", responseData);
-
   const { transactionStatus, orderReference, phone, regularDateEnd } = data;
-  console.log("✅ Розпарсений data:", data);
   const arr = orderReference.split("-");
-  console.log(" arr:", arr);
   if (transactionStatus === "Approved") {
-    console.log(" transactionStatus:", transactionStatus);
     await User.findOneAndUpdate(
       { orderReference },
       {
         subscription: "member",
         phone,
         status: "Active",
-        regularDateEnd,
+        regularDateEnd: new Date(
+          regularDateEnd.split(".").reverse().join(", ")
+        ),
         substart: new Date(parseInt(arr[1])),
         subend: nextDate(parseInt(arr[1])),
       }
@@ -315,6 +309,27 @@ const paymentWebhook = async (req: Request, res: Response) => {
 const paymentStatus = async (req: Request, res: Response) => {
   const user = await User.findById(req.user._id);
   res.json({ subscription: user.subscription });
+};
+
+const unsubscribeWebhook = async (req: Request, res: Response) => {
+  const user = req.user;
+  const data = await unsubscribeUser(user);
+  if (data instanceof Error) {
+    throw ApiError(400, data.message);
+  }
+  if (data.reasonCode === 4100) {
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        status: "Removed",
+        regularDateEnd: null,
+      },
+      { new: true }
+    );
+    res.json(updatedUser);
+    return;
+  }
+  res.json(user);
 };
 
 export default {
@@ -330,4 +345,5 @@ export default {
   createPayment: ctrlWrapper(createPayment),
   paymentWebhook: ctrlWrapper(paymentWebhook),
   paymentStatus: ctrlWrapper(paymentStatus),
+  unsubscribeWebhook: ctrlWrapper(unsubscribeWebhook),
 };

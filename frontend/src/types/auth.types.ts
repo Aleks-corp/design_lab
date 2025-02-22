@@ -5,6 +5,8 @@ export interface UserProfile {
   phone: string;
   subscription: string;
   orderReference: string;
+  status: string;
+  regularDateEnd: Date;
   substart: Date;
   subend: Date;
   createdAt: string;
