@@ -48,7 +48,7 @@ const UnpublishedPosts = () => {
                   post={i}
                   key={index}
                   like={like}
-                  userId={user.id}
+                  userId={user._id}
                 />
               ) : (
                 <Card className={styles.card} post={i} key={index} />

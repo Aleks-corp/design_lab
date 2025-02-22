@@ -86,7 +86,7 @@ const Post = () => {
                   className={styles.like}
                 >
                   <p className={styles.liketext}>{post.favorites.length}</p>
-                  {post.favorites.some((i) => user?.id === i) ? (
+                  {post.favorites.some((i) => user?._id === i) ? (
                     <Icon title={"heart-fill"} size={28} />
                   ) : (
                     <Icon title={"heart"} size={28} />
