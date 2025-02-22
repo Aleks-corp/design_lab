@@ -7,14 +7,18 @@ interface Query {
   page?: number;
   limit?: number;
   filter?: string;
+  favorites?: boolean;
 }
 
 export const fetchPosts = createAsyncThunk(
   "posts/fetchPosts",
-  async ({ page = 1, limit = 12, filter = "" }: Query, thunkAPI) => {
+  async (
+    { page = 1, limit = 12, filter = "", favorites = false }: Query,
+    thunkAPI
+  ) => {
     try {
       const response = await instance.get(
-        `/posts?page=${page}&limit=${limit}&filter=${filter}`
+        `/posts?page=${page}&limit=${limit}&filter=${filter}&favorites=${favorites}`
       );
       return response.data;
     } catch (e) {

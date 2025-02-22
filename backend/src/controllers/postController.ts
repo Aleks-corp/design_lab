@@ -5,19 +5,10 @@ import { Request, Response } from "express";
 import { generatePresignedUrl } from "../helpers/generatePresignedUrl";
 import { generateSignedGetUrl } from "src/helpers/getSignedUrl";
 import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
+import { GetPost } from "src/types/post.type";
 
-interface Post {
-  title: string;
-  description: string;
-  images: string[];
-  downloadlink: string;
-  filesize: string;
-  category: string[];
-  kits: string[];
-  upload_at: string;
-}
 interface PostRequest extends Request {
-  body: Post;
+  body: GetPost;
 }
 
 const getAllPosts = async (req: Request, res: Response) => {
@@ -32,12 +23,12 @@ const getAllPosts = async (req: Request, res: Response) => {
   const limitNumber = parseInt(limit as string, 10);
   const skip = (pageNumber - 1) * limitNumber;
   const currentTime = new Date();
-  const favoriritesQuery =
-    favorites && user ? { favorites: { $in: [user._id] } } : {};
+  const favoritesQuery =
+    user && favorites === "true" ? { favorites: { $in: [user._id] } } : {};
   const filterQuery =
     filter && filter !== "All products" ? { category: { $in: [filter] } } : {};
   const uploadQuery = { upload_at: { $lte: currentTime } };
-  const query = { ...filterQuery, ...uploadQuery, ...favoriritesQuery };
+  const query = { ...filterQuery, ...uploadQuery, ...favoritesQuery };
   const posts = await Post.find(
     query,
     "-owner -createdAt -updatedAt -downloadlink",
@@ -190,7 +181,7 @@ const updateStatusPost = async (req: Request, res: Response) => {
     (favoriteId) => favoriteId.toString() === userId.toString()
   );
 
-  let updatedPost;
+  let updatedPost: GetPost;
 
   if (isFavorite) {
     updatedPost = await Post.findByIdAndUpdate(

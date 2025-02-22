@@ -15,7 +15,11 @@ import {
   selectPostsError,
 } from "../../redux/selectors";
 import Loader from "../../components/Loader";
-import { clearPosts, setFilter } from "../../redux/posts/postSlice";
+import {
+  clearPosts,
+  setFilter,
+  deletePostFavorites,
+} from "../../redux/posts/postSlice";
 // import Icon from "../../components/Icon";
 
 const navLinks = [
@@ -34,8 +38,11 @@ const Home = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    dispatch(clearPosts());
     dispatch(
-      fetchPosts(prodList === "All products" ? { filter: prodList } : {})
+      fetchPosts(
+        prodList === "All products" ? { favorites: false } : { favorites: true }
+      )
     );
   }, [dispatch, prodList]);
 
@@ -61,6 +68,9 @@ const Home = () => {
   const like = (postId: string) => {
     if (user) {
       dispatch(addRemoveFavorites(postId));
+      if (prodList === "Favorites") {
+        dispatch(deletePostFavorites(postId));
+      }
     }
   };
 
@@ -129,7 +139,7 @@ const Home = () => {
                   post={i}
                   key={index}
                   like={like}
-                  userId={user.id}
+                  userId={user._id}
                 />
               ) : (
                 <Card className={styles.card} post={i} key={index} />

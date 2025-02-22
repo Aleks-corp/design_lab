@@ -44,6 +44,9 @@ app.use((req, res, next) => {
 app.use("/users", authRouter);
 app.use("/posts", postsRouter);
 app.use("/admin", adminRouter);
+app.get("/ping", (req, res) => {
+  res.send("POST /pong");
+});
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });

@@ -25,7 +25,7 @@ const postsRouter = express.Router();
 
 // postsRouter.use(authenticateToken);
 
-postsRouter.get("/", getAllPosts);
+postsRouter.get("/", authenticateUser, getAllPosts);
 postsRouter.get("/:postId", authenticateUser, isValidId, getPostById);
 postsRouter.post(
   "/generate-presigned-url",

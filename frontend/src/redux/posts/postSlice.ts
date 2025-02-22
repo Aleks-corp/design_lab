@@ -58,7 +58,7 @@ export const handleFulfilledAddFavorites = (
   const updatedPost = action.payload;
   const index = state.posts.findIndex((i) => i._id === updatedPost._id);
   if (index !== -1) {
-    state.posts.splice(index, 1, updatedPost);
+    state.posts[index].favorites = updatedPost.favorites;
   }
   if (state.selectedPost) {
     state.selectedPost.favorites = updatedPost.favorites;
@@ -92,6 +92,13 @@ const postsSlice = createSlice({
     clearPost(state: PostsState) {
       state.selectedPost = null;
     },
+    deletePostFavorites(state: PostsState, action: PayloadAction<string>) {
+      const index = state.posts.findIndex((i) => i._id === action.payload);
+      if (index !== -1) {
+        state.posts.splice(index, 1);
+        state.totalHits = state.totalHits - 1;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -115,5 +122,6 @@ const postsSlice = createSlice({
   },
 });
 
-export const { clearPosts, setFilter, clearPost } = postsSlice.actions;
+export const { clearPosts, setFilter, clearPost, deletePostFavorites } =
+  postsSlice.actions;
 export const postsReducer = postsSlice.reducer;
