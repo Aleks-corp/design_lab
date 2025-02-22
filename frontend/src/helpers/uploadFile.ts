@@ -1,5 +1,6 @@
 import axios from "axios";
 import { FileUploadProgress } from "../types/upload.types";
+import toast from "react-hot-toast";
 
 export const uploadImgFiles = async (
   imageFiles: File[],
@@ -45,6 +46,7 @@ export const uploadImgFiles = async (
         uploadedImageUrls.push(url.split("?")[0]);
       })
       .catch((error) => {
+        toast.error(`Failed to upload image ${file.name}`);
         console.error(`Failed to upload image ${file.name}:`, error);
       });
 
@@ -88,9 +90,9 @@ export const uploadDownLoadFile = async (
       })
       .then(() => {
         uploadedFileUrl = url.split("?")[0];
-        console.log("uploadedFileUrl1:", uploadedFileUrl);
       })
       .catch((error) => {
+        toast.error(`Failed to upload image ${downloadFile.name}`);
         console.error(`Failed to upload file ${downloadFile.name}:`, error);
       });
 
