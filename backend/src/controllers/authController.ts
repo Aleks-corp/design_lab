@@ -251,7 +251,7 @@ const createPayment = async (req: Request, res: Response) => {
     merchantAccount,
     merchantDomainName,
     merchantSignature,
-    returnUrl: `${FRONT_SERVER}/payment-success`,
+    returnUrl: `${VITE_BASE_URL}/users/payment-return`,
     serviceUrl: `${VITE_BASE_URL}/users/payment-webhook`,
   };
   res.json(paymentData);
@@ -331,6 +331,29 @@ const unsubscribeWebhook = async (req: Request, res: Response) => {
   }
   res.json(user);
 };
+const paymentReturn = async (req: Request, res: Response) => {
+  console.log(" req:", req.body);
+  console.log(" req:", req);
+
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Processing Payment</title>
+    </head>
+    <body>
+        <h2>Processing your payment...</h2>
+        <script>
+            setTimeout(() => {
+                window.location.href = "${FRONT_SERVER}/payment-success";
+            }, 500);
+        </script>
+    </body>
+    </html>
+  `);
+};
 
 export default {
   register: ctrlWrapper(register),
@@ -346,4 +369,5 @@ export default {
   paymentWebhook: ctrlWrapper(paymentWebhook),
   paymentStatus: ctrlWrapper(paymentStatus),
   unsubscribeWebhook: ctrlWrapper(unsubscribeWebhook),
+  paymentReturn: ctrlWrapper(paymentReturn),
 };

@@ -6,17 +6,6 @@ import { selectUser } from "../../redux/selectors";
 import { NavLink } from "react-router-dom";
 
 const PaymentSuccessPage = () => {
-  useEffect(() => {
-    console.log("start");
-    if (
-      window.location.pathname === "/payment-success" &&
-      window.history.state === null
-    ) {
-      window.location.replace("/payment-success");
-      console.log("replace");
-    }
-  }, []);
-
   const [status, setStatus] = useState("Перевіряємо оплату...");
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);

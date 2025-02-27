@@ -16,10 +16,12 @@ export const unsubscribeUser = async (user: IUser) => {
     orderReference: user.orderReference,
   };
   try {
-    const { data } = await axios.post(WFP_API_URL, payload, {
+    const response = await axios.post(WFP_API_URL, payload, {
       headers: { "Content-Type": "application/json" },
     });
-    return data;
+    console.log(" response.data:", response.data);
+    console.log(" response:", response);
+    return response.data;
   } catch (error) {
     console.error("Error unsubscribe from WayForPay subscription:", error);
     return error;
