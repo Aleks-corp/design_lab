@@ -107,12 +107,14 @@ const Home = () => {
         </div> */}
         <div className={styles.sorting}>
           <div className={styles.dropdown}>
-            <Dropdown
-              className={styles.dropdown}
-              value={prodList}
-              setValue={setProdList}
-              options={prodListOptions}
-            />
+            {user && (
+              <Dropdown
+                className={styles.dropdown}
+                value={prodList}
+                setValue={setProdList}
+                options={prodListOptions}
+              />
+            )}
           </div>
           <div className={styles.nav}>
             {navLinks.map((filter) => (
