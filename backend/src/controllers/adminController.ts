@@ -164,7 +164,7 @@ const checkUsersSubscription = async (req: Request, res: Response) => {
   const { usersId } = req.body;
   await Promise.all(
     usersId.map(async (_id: ObjectId) => {
-      const user = await User.findOne({ _id });
+      const user = await User.findById(_id);
       const updatedUser = await checkSubscriptionStatus(user);
       return updatedUser;
     })

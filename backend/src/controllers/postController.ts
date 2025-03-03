@@ -17,6 +17,7 @@ const getAllPosts = async (req: Request, res: Response) => {
     limit = "12",
     filter = "",
     favorites = false,
+    search = "",
   } = req.query;
   const user = req.user;
   const pageNumber = parseInt(page as string, 10);
@@ -27,8 +28,16 @@ const getAllPosts = async (req: Request, res: Response) => {
     user && favorites === "true" ? { favorites: { $in: [user._id] } } : {};
   const filterQuery =
     filter && filter !== "All products" ? { category: { $in: [filter] } } : {};
+  const searchQuery = search
+    ? { title: { $regex: search, $options: "i" } }
+    : {};
   const uploadQuery = { upload_at: { $lte: currentTime } };
-  const query = { ...filterQuery, ...uploadQuery, ...favoritesQuery };
+  const query = {
+    ...filterQuery,
+    ...uploadQuery,
+    ...favoritesQuery,
+    ...searchQuery,
+  };
   const posts = await Post.find(
     query,
     "-owner -createdAt -updatedAt -downloadlink",

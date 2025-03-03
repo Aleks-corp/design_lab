@@ -78,7 +78,6 @@ export const checkSubscriptionStatus = async (user: IUser) => {
       const { data } = await axios.post(WFP_API_URL, payload, {
         headers: { "Content-Type": "application/json" },
       });
-      console.log("data:", data); //Log
 
       if (data.status === "Active") {
         user.subscription = "member";
