@@ -332,9 +332,6 @@ const unsubscribeWebhook = async (req: Request, res: Response) => {
   res.json(user);
 };
 const paymentReturn = async (req: Request, res: Response) => {
-  console.log(" req:", req.body);
-  console.log(" req:", req);
-
   res.send(`
     <!DOCTYPE html>
     <html lang="en">

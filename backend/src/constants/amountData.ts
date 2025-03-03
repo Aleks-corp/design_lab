@@ -23,7 +23,7 @@ export const amountData = {
   merchantTransactionSecureType: "AUTO",
   recurringToken: "auto",
   regularMode: "monthly",
-  regularAmount: "0.25",
+  regularAmount: "5",
   regularBehavior: "preset",
   regularOn: 1,
 };

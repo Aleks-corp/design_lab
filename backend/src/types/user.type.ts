@@ -6,6 +6,8 @@ export interface IUser {
   email: string;
   phone?: string;
   status?: string;
+  amount?: number;
+  mode?: string;
   password: string;
   subscription: "free" | "member" | "admin";
   orderReference: string;

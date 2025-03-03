@@ -32,6 +32,8 @@ const userSchema = new Schema<IUser, IUserModelType>(
       default: "free",
     },
     status: { type: String, enum: userStatus },
+    amount: { type: Number },
+    mode: { type: String },
     regularDateEnd: { type: Date, default: null },
     substart: {
       type: Date,

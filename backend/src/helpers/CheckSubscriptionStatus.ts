@@ -11,6 +11,9 @@ const WFP_API_URL =
   process.env.WFP_API_URL || "https://api.wayforpay.com/regularApi";
 
 export const checkSubscriptionStatus = async (user: IUser) => {
+  if (user.subscription === "admin") {
+    return user;
+  }
   if (!user.orderReference) {
     return user;
   }
@@ -27,7 +30,9 @@ export const checkSubscriptionStatus = async (user: IUser) => {
       });
       if (data.status === "Active") {
         user.subscription = "member";
-        user.status = "Active";
+        user.status = data.status;
+        user.amount = data.amount;
+        user.mode = data.mode;
         if (data.nextPaymentDate) {
           user.subend = new Date(parseInt(data.nextPaymentDate + "000"));
         } else {
@@ -41,12 +46,14 @@ export const checkSubscriptionStatus = async (user: IUser) => {
           status: user.status,
           subend: user.subend,
           substart: user.substart,
+          amount: user.amount,
+          mode: user.mode,
         });
         return user;
       }
       if (data.status === "Created") {
         user.subscription = "free";
-        user.status = "Created";
+        user.status = data.status;
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
           status: user.status,
@@ -81,7 +88,9 @@ export const checkSubscriptionStatus = async (user: IUser) => {
 
       if (data.status === "Active") {
         user.subscription = "member";
-        user.status = "Active";
+        user.status = data.status;
+        user.amount = data.amount;
+        user.mode = data.mode;
         if (data.nextPaymentDate) {
           user.subend = new Date(parseInt(data.nextPaymentDate + "000"));
         } else {
@@ -95,6 +104,8 @@ export const checkSubscriptionStatus = async (user: IUser) => {
           status: user.status,
           subend: user.subend,
           substart: user.substart,
+          amount: user.amount,
+          mode: user.mode,
         });
         return user;
       }
