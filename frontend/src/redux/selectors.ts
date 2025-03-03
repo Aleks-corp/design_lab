@@ -2,6 +2,9 @@ import { State } from "../types/state.types";
 
 export const selectUser = (state: State) => state.auth.profile;
 
+export const selectSubscription = (state: State) =>
+  state.auth.profile?.subscription;
+
 export const selectIsAdmin = (state: State) =>
   state.auth.profile?.subscription === "admin" ? true : false;
 

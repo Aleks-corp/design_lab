@@ -20,7 +20,7 @@ import {
   setFilter,
   deletePostFavorites,
 } from "../../redux/posts/postSlice";
-// import Icon from "../../components/Icon";
+import Icon from "../../components/Icon";
 
 const navLinks = [
   "All products",
@@ -37,22 +37,23 @@ const Home = () => {
   const [prodList, setProdList] = useState(prodListOptions[0]);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    dispatch(clearPosts());
-    dispatch(
-      fetchPosts(
-        prodList === "All products" ? { favorites: false } : { favorites: true }
-      )
-    );
-  }, [dispatch, prodList]);
-
   const isLoading = useAppSelector(selectIsLoading);
   const posts = useAppSelector(selectPosts);
   const totalHits = useAppSelector(selectTotalHits);
   const currentFilter = useAppSelector(selectCurrentFilter);
-  const postsPrew = posts;
   const user = useAppSelector(selectUser);
   const errorPost = useAppSelector(selectPostsError);
+
+  useEffect(() => {
+    dispatch(clearPosts());
+    dispatch(
+      fetchPosts(
+        prodList === prodListOptions[0]
+          ? { favorites: false }
+          : { favorites: true }
+      )
+    );
+  }, [dispatch, prodList]);
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -60,7 +61,14 @@ const Home = () => {
     if (filter !== currentFilter) {
       dispatch(clearPosts());
       dispatch(setFilter(filter));
-      dispatch(fetchPosts({ page: 1, filter }));
+      dispatch(
+        fetchPosts({
+          page: 1,
+          filter,
+          favorites: prodList === prodListOptions[0] ? false : true,
+          search,
+        })
+      );
       setCurrentPage(1);
     }
   };
@@ -68,29 +76,39 @@ const Home = () => {
   const like = (postId: string) => {
     if (user) {
       dispatch(addRemoveFavorites(postId));
-      if (prodList === "Favorites") {
+      if (prodList === prodListOptions[1]) {
         dispatch(deletePostFavorites(postId));
       }
     }
   };
 
-  // const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
 
-  // const handleSubmit = () => {
-  //   alert();
-  // };
+  const handleSearchClear = () => {
+    setSearch("");
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timerId = setTimeout(() => {
+      setProdList(prodListOptions[0]);
+      dispatch(clearPosts());
+      dispatch(setFilter(""));
+      dispatch(fetchPosts({ search }));
+      setCurrentPage(1);
+    }, 1000);
+    return () => {
+      clearTimeout(timerId);
+      controller.abort();
+    };
+  }, [dispatch, search]);
 
   return (
     <div className={cn("section-pt80", styles.section)}>
       <div className={cn("container", styles.container)}>
-        {/* SEARCH */}
-        {/* <div className={styles.top}>
-          <div className={styles.title}>Type your keywords</div>
-          <form
-            className={styles.search}
-            action=""
-            onSubmit={() => handleSubmit()}
-          >
+        <div className={styles.top}>
+          <div className={styles.title}>Type keywords for search</div>
+          <form className={styles.search}>
             <input
               className={styles.input}
               type="text"
@@ -98,13 +116,22 @@ const Home = () => {
               onChange={(e) => setSearch(e.target.value)}
               name="search"
               placeholder="Search ..."
-              required
             />
-            <button className={styles.result}>
+            {search && (
+              <button
+                className={styles.searchclear}
+                type="reset"
+                onClick={handleSearchClear}
+              >
+                <Icon title="close" size={12} />
+              </button>
+            )}
+
+            <button className={styles.result} type="submit" disabled>
               <Icon title="search" size={16} />
             </button>
           </form>
-        </div> */}
+        </div>
         <div className={styles.sorting}>
           <div className={styles.dropdown}>
             {user && (
@@ -133,8 +160,8 @@ const Home = () => {
           </div>
         </div>
         <div className={styles.list}>
-          {postsPrew.length > 0 &&
-            postsPrew.map((i, index) =>
+          {posts.length > 0 &&
+            posts.map((i, index) =>
               user ? (
                 <Card
                   className={styles.card}
@@ -150,6 +177,7 @@ const Home = () => {
         </div>
         <div className={styles.btns}>
           {errorPost && typeof errorPost === "string" && <p>{errorPost}</p>}
+          {!isLoading && posts.length === 0 && <p>No match found</p>}
           {isLoading ? (
             <button
               className={cn("button-stroke", styles.button)}
@@ -172,6 +200,7 @@ const Home = () => {
                         page: nextPage,
                         limit: 1,
                         filter: currentFilter,
+                        search,
                       })
                     );
                   }}

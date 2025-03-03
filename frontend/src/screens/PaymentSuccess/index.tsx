@@ -16,7 +16,6 @@ const PaymentSuccessPage = () => {
       if (response.payload) {
         setStatus(response.payload.subscription);
       }
-      console.log("response.payload.subscription:", response.payload);
     }, 3000);
 
     return () => clearTimeout(timeout);

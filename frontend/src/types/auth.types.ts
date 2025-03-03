@@ -4,25 +4,13 @@ export interface UserProfile {
   email: string;
   phone: string;
   subscription: string;
-  orderReference: string;
   status: string;
+  amount: number;
+  mode: string;
+  orderReference: string;
   regularDateEnd: Date;
   substart: Date;
   subend: Date;
-  createdAt: string;
-}
-
-export interface UserList {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  subscription: string;
-  status: string;
-  orderReference: string;
-  substart: Date;
-  subend: Date;
-  regularDateEnd: Date;
   createdAt: string;
 }
 

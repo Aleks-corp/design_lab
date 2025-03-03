@@ -5,7 +5,7 @@ import { useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/selectors";
 import { handleWayForPay } from "../../helpers/wayforpay";
 
-const PaymentPage = () => {
+const PaymentPage = ({ date }: { date: Date }) => {
   const [loading, setLoading] = useState(false);
 
   const user = useAppSelector(selectUser);
@@ -13,7 +13,7 @@ const PaymentPage = () => {
   const handlePayment = async () => {
     setLoading(true);
     if (user) {
-      await handleWayForPay(user);
+      await handleWayForPay(user, date);
     }
     setLoading(false);
   };

@@ -6,8 +6,13 @@ import UserAdmin from "./UsersAdmin";
 import UserFree from "./UsersFree";
 import { useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/selectors";
+import { SetStateAction } from "react";
 
-const Profile = () => {
+const Profile = ({
+  setDate,
+}: {
+  setDate: React.Dispatch<SetStateAction<Date>>;
+}) => {
   const user = useAppSelector(selectUser);
 
   return (
@@ -19,7 +24,11 @@ const Profile = () => {
               <UserFree className={styles.user} user={user} />
             )}
             {user.subscription === "member" && (
-              <UserMember className={styles.user} user={user} />
+              <UserMember
+                className={styles.user}
+                user={user}
+                setDate={setDate}
+              />
             )}
             {user.subscription === "admin" && (
               <UserAdmin className={styles.user} user={user} />

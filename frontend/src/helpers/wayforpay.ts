@@ -37,13 +37,12 @@ const generatePaymentData = async (data: PaymemtData) => {
   return response.data;
 };
 
-export const handleWayForPay = async (user: UserProfile) => {
+export const handleWayForPay = async (user: UserProfile, date: Date) => {
+  const currentDate = new Date(date);
   const form = document.createElement("form");
   form.action = "https://secure.wayforpay.com/pay";
   form.method = "POST";
   form.style.display = "none";
-
-  const currentDate = new Date();
 
   const data = {
     orderReference: `ORDER-${currentDate.getTime()}`,

@@ -7,7 +7,6 @@ import Post from "../models/post";
 import { nextDate } from "src/helpers/setDate";
 import { ObjectId } from "mongoose";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
-import { IUser } from "src/types/user.type";
 import sendMailToSprt from "src/helpers/sendSprtMail";
 
 const getAllUser = async (req: Request, res: Response) => {
@@ -20,7 +19,7 @@ const getAllUser = async (req: Request, res: Response) => {
 
   const users = await User.find(
     query,
-    "_id name email phone orderReference subscription status regularDateEnd substart subend",
+    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt",
     {
       skip,
       limit: limitNumber,
@@ -79,7 +78,7 @@ const updateUsersSubscription = async (req: Request, res: Response) => {
 
   const updatedUsers = await User.find(
     {},
-    "_id name email phone orderReference subscription status regularDateEnd substart subend",
+    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt",
     {
       skip: 0,
       limit: 100,
@@ -110,7 +109,7 @@ const updateUserSubscription = async (req: Request, res: Response) => {
         new: true,
       }
     ).select(
-      "_id name email phone orderReference subscription status regularDateEnd substart subend"
+      "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt"
     );
     res.json(updatedUser);
     return;
@@ -131,7 +130,7 @@ const updateUserSubscription = async (req: Request, res: Response) => {
         new: true,
       }
     ).select(
-      "_id name email phone orderReference subscription status regularDateEnd substart subend"
+      "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt"
     );
     res.json(updatedUser);
     return;
@@ -152,7 +151,7 @@ const updateUserSubscription = async (req: Request, res: Response) => {
         new: true,
       }
     ).select(
-      "_id name email phone orderReference subscription status regularDateEnd substart subend"
+      "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt"
     );
     res.json(updatedUser);
     return;
@@ -172,7 +171,7 @@ const checkUsersSubscription = async (req: Request, res: Response) => {
 
   const updatedUsers = await User.find(
     {},
-    "_id name email phone orderReference subscription status regularDateEnd substart subend",
+    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt",
     {
       skip: 0,
       limit: 100,

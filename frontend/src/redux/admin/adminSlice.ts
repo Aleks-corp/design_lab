@@ -11,7 +11,7 @@ import {
 } from "./admin.thunk";
 import { AdminState } from "../../types/state.types";
 import { GetPost } from "../../types/posts.types";
-import { UserList } from "../../types/auth.types";
+import { UserProfile } from "../../types/auth.types";
 import toast from "react-hot-toast";
 
 const handleGetAllUsersPending = (state: AdminState) => {
@@ -36,7 +36,7 @@ const handlePostsPending = (state: AdminState) => {
 
 const handleGetAllUsersFulfilled = (
   state: AdminState,
-  action: PayloadAction<{ users: UserList[]; totalHits: number }>
+  action: PayloadAction<{ users: UserProfile[]; totalHits: number }>
 ) => {
   state.isLoadingMore = false;
   const newUsers = action.payload.users.filter(
@@ -49,7 +49,7 @@ const handleGetAllUsersFulfilled = (
 
 const handlePatchUserFulfilled = (
   state: AdminState,
-  action: PayloadAction<UserList>
+  action: PayloadAction<UserProfile>
 ) => {
   state.isLoadingUpdate = false;
   const index = state.folowers.findIndex((i) => action.payload._id === i._id);
@@ -58,7 +58,7 @@ const handlePatchUserFulfilled = (
 
 const handlePatchUsersFulfilled = (
   state: AdminState,
-  action: PayloadAction<{ users: UserList[]; totalHits: number }>
+  action: PayloadAction<{ users: UserProfile[]; totalHits: number }>
 ) => {
   state.isLoadingUpdate = false;
   state.folowers = action.payload.users;
@@ -67,7 +67,7 @@ const handlePatchUsersFulfilled = (
 
 const handlePatchCheckSubFulfilled = (
   state: AdminState,
-  action: PayloadAction<{ users: UserList[]; totalHits: number }>
+  action: PayloadAction<{ users: UserProfile[]; totalHits: number }>
 ) => {
   state.isLoadingCheck = false;
   state.folowers = action.payload.users;

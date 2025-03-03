@@ -1,6 +1,10 @@
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { selectIsLoggedIn, selectIsRefreshing } from "../redux/selectors";
+import {
+  selectIsLoggedIn,
+  selectIsRefreshing,
+  selectUser,
+} from "../redux/selectors";
 import Loader from "../components/LoaderCircle";
 import styles from "../styles/App.module.sass";
 
@@ -25,4 +29,21 @@ export const UsersRoute = ({
   }
 
   return isLoggedIn ? Component : <Navigate to={redirectTo} />;
+};
+
+export const MemberRoute = ({
+  component: Component,
+  redirectTo = "/payment-success",
+}: RouteProps) => {
+  const user = useSelector(selectUser);
+  const isRefreshing = useSelector(selectIsRefreshing);
+  if (isRefreshing) {
+    return <Loader className={styles.mainloader} />;
+  }
+
+  return user?.subscription === "free" || user?.status !== "Active" ? (
+    Component
+  ) : (
+    <Navigate to={redirectTo} />
+  );
 };

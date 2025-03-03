@@ -8,17 +8,28 @@ interface Query {
   limit?: number;
   filter?: string;
   favorites?: boolean;
+  search?: string;
 }
 
 export const fetchPosts = createAsyncThunk(
   "posts/fetchPosts",
   async (
-    { page = 1, limit = 12, filter = "", favorites = false }: Query,
+    {
+      page = 1,
+      limit = 12,
+      filter = "",
+      favorites = false,
+      search = "",
+    }: Query,
     thunkAPI
   ) => {
     try {
       const response = await instance.get(
-        `/posts?page=${page}&limit=${limit}&filter=${filter}&favorites=${favorites}`
+        `/posts?page=${page}&limit=${limit}${
+          filter ? `&filter=${filter}` : ``
+        }${favorites ? `&favorites=${favorites}` : ``}${
+          search ? `&search=${search}` : ``
+        }`
       );
       return response.data;
     } catch (e) {

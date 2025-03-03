@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, useState } from "react";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { refreshUser } from "./redux/auth/auth.thunk";
 import "./styles/app.sass";
@@ -7,7 +7,7 @@ import styles from "./styles/App.module.sass";
 import Page from "./components/Page";
 import Loader from "./components/LoaderCircle";
 import { AdminRoute } from "./routes/AdminRoute";
-import { UsersRoute } from "./routes/UsersRoute";
+import { MemberRoute, UsersRoute } from "./routes/UsersRoute";
 import { RestrictedRoute } from "./routes/RestrictedRoute";
 import { selectUserError } from "./redux/selectors";
 
@@ -32,6 +32,7 @@ const VerifyPage = lazy(() => import("./screens/VerifyUser"));
 const VerifyPageResend = lazy(() => import("./screens/VerifyUserResend"));
 
 function App() {
+  const [date, setDate] = useState(new Date());
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const error = useAppSelector(selectUserError);
@@ -155,11 +156,11 @@ function App() {
           <Route
             path="payment"
             element={
-              <UsersRoute
+              <MemberRoute
                 redirectTo="/"
                 component={
                   <Page>
-                    <PaymentPage />
+                    <PaymentPage date={date} />
                   </Page>
                 }
               />
@@ -185,7 +186,7 @@ function App() {
                 redirectTo="/"
                 component={
                   <Page>
-                    <Profile />
+                    <Profile setDate={setDate} />
                   </Page>
                 }
               />

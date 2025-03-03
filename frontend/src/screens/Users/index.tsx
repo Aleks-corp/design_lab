@@ -144,6 +144,12 @@ const Users = () => {
                 Status
               </th>
               <th className={styles.th} scope="col">
+                Amount
+              </th>
+              <th className={styles.th} scope="col">
+                Payment period
+              </th>
+              <th className={styles.th} scope="col">
                 Order Reference
               </th>
               <th className={styles.th} scope="col">
@@ -185,6 +191,8 @@ const Users = () => {
                   {user.subscription}
                 </td>
                 <td className={styles.tcol}>{user.status}</td>
+                <td className={styles.tcol}>{user.amount}</td>
+                <td className={styles.tcol}>{user.mode}</td>
                 <td className={styles.tcol}>{user.orderReference}</td>
                 <td className={styles.tcol}>
                   {user.substart &&

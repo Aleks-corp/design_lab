@@ -1,4 +1,4 @@
-import { UserList, UserProfile } from "./auth.types";
+import { UserProfile } from "./auth.types";
 import { GetPost } from "./posts.types";
 
 export interface State {
@@ -26,7 +26,7 @@ export interface AuthState {
 }
 
 export interface AdminState {
-  folowers: UserList[];
+  folowers: UserProfile[];
   totalFolowers: number;
   totalPosts: number;
   unpublPosts: GetPost[];
