@@ -7,37 +7,12 @@ import Image from "../Image";
 import Form from "../Form";
 import Theme from "../Theme";
 import toast from "react-hot-toast";
-
-const items = [
-  {
-    title: "Design",
-    menu: [
-      {
-        title: "Discover",
-        url: "/",
-      },
-      {
-        title: "Registration",
-        url: "/register",
-      },
-    ],
-  },
-  {
-    title: "Info",
-    menu: [
-      {
-        title: "FAQ",
-        url: "/faq",
-      },
-      {
-        title: "Profile",
-        url: "/profile",
-      },
-    ],
-  },
-];
+import { useAppSelector } from "../../redux/hooks";
+import { selectIsLoggedIn } from "../../redux/selectors";
+import { footerGroupLink } from "../../constants/footerGroup";
 
 const Footers = () => {
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const [email, setEmail] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -66,9 +41,13 @@ const Footers = () => {
             </div>
           </div>
           <div className={styles.col}>
-            {items.map((x, index) => (
-              <Group className={styles.group} item={x} key={index} />
-            ))}
+            {isLoggedIn
+              ? footerGroupLink.loggedIn.map((x, index) => (
+                  <Group className={styles.group} item={x} key={index} />
+                ))
+              : footerGroupLink.notLoggedIn.map((x, index) => (
+                  <Group className={styles.group} item={x} key={index} />
+                ))}
           </div>
           <div className={styles.col}>
             <div className={styles.category}>Join Newsletter</div>

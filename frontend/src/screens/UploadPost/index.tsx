@@ -7,9 +7,7 @@ import Icon from "../../components/Icon";
 import TextInput from "../../components/TextInput";
 import Switch from "../../components/Switch";
 import Loader from "../../components/Loader";
-import Modal from "../../components/Modal";
 import Preview from "./Preview";
-import FolowSteps from "./FolowSteps";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 
 import { selectIsLogining, selectUserError } from "../../redux/selectors";
@@ -37,7 +35,6 @@ const Upload = () => {
     filterConstant.map((key) => ({ [key]: false }))
   );
 
-  const [visibleModal, setVisibleModal] = useState(false);
   const [visiblePreview, setVisiblePreview] = useState(false);
   const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
@@ -364,9 +361,6 @@ const Upload = () => {
           />
         </div>
       </div>
-      <Modal visible={visibleModal} onClose={() => setVisibleModal(false)}>
-        <FolowSteps className={styles.steps} />
-      </Modal>
     </>
   );
 };
