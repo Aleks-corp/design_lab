@@ -80,7 +80,7 @@ export const refreshUser = createAsyncThunk<
   const state: RootState = thunkAPI.getState();
   const persistedToken = state.auth.token;
 
-  if (persistedToken === null) {
+  if (!persistedToken) {
     return thunkAPI.rejectWithValue("Unable to Login");
   }
 

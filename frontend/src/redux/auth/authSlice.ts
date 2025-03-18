@@ -77,6 +77,8 @@ const handleRefreshRejected = (
     state.token = "";
   }
   state.isRefreshing = false;
+  state.isLogining = false;
+  state.isLoggedIn = false;
 };
 
 const handleRejected = (state: AuthState, action: PayloadAction<string>) => {
