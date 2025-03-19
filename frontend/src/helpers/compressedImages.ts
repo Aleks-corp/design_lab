@@ -7,9 +7,13 @@ const сompressImage = async (file: File) => {
   const format = "webp";
 
   const resizedBlob = await fromBlob(file, quality, width, height, format);
-  const resizedFile = new File([resizedBlob], file.name, {
-    type: resizedBlob.type,
-  });
+  const resizedFile = new File(
+    [resizedBlob],
+    file.name.replace(/\.\w+$/, ".webp"),
+    {
+      type: "image/webp",
+    }
+  );
   return resizedFile;
 };
 
