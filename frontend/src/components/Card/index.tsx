@@ -26,11 +26,27 @@ const Card = ({ className, post, like, userId }: CardProps) => {
               {images.slice(0, 4).map((i, index) => {
                 return index === 0 ? (
                   <div key={index} className={styles.firstRows}>
-                    <img src={i} srcSet={i} alt="Post Image" />
+                    <img
+                      src={i}
+                      srcSet={i}
+                      alt="Post Image"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "/images/content/postsimg/post-template.jpg";
+                      }}
+                    />
                   </div>
                 ) : (
                   <div key={index} className={styles.imgwrapper}>
-                    <img src={i} srcSet={i} alt="Post Image" />
+                    <img
+                      src={i}
+                      srcSet={i}
+                      alt="Post Image"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "/images/content/postsimg/post-template.jpg";
+                      }}
+                    />
                   </div>
                 );
               })}
@@ -41,7 +57,11 @@ const Card = ({ className, post, like, userId }: CardProps) => {
               <img
                 src={images[0]}
                 srcSet={images[0]}
-                alt="Post Template Image"
+                alt="Post Image"
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "/images/content/postsimg/post-template.jpg";
+                }}
               />
             </div>
           )}

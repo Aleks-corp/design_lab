@@ -146,7 +146,14 @@ const Post = () => {
           <div className={cn("container", styles.imgcontainer)}>
             {post.images.map((img, index) => (
               <div key={index} className={styles.preview}>
-                <img src={img} alt="Item" />
+                <img
+                  src={img}
+                  alt="Item"
+                  onError={(e) => {
+                    e.currentTarget.src =
+                      "/images/content/postsimg/post-template.jpg";
+                  }}
+                />
               </div>
             ))}
           </div>
