@@ -71,7 +71,7 @@ const Users = () => {
       <div className={styles.about}>
         <p className={styles.category}>About subscription: </p>
         <p className={styles.text}>
-          Free: <span>(without payment, cant download file)</span>
+          Free: <span>(without payment, can not download file)</span>
         </p>
         <p className={styles.text}>
           Member:{" "}

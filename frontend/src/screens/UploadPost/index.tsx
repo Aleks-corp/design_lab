@@ -43,7 +43,7 @@ const Upload = () => {
   const [previews, setPreviews] = useState<string[] | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
   const [downloadLink, setDownloadLink] = useState<string>("");
-  const [titleValue, seTitleValue] = useState<string>("");
+  const [titleValue, setTitleValue] = useState<string>("");
   const [descriptionValue, setDescriptionValue] = useState<string>("");
   const [fileUploadProgress, setFileUploadProgress] =
     useState<FileUploadProgress>({ fileName: "", progress: 0 });
@@ -98,7 +98,7 @@ const Upload = () => {
     const kits = setArrayString(kitState);
 
     if (!uploadAt) {
-      toast.error("Upload set date is fail");
+      toast.error("Upload set date is required");
       return;
     }
 
@@ -132,7 +132,7 @@ const Upload = () => {
     setImageFiles([]);
     setPreviews(null);
     setDownloadFile(null);
-    seTitleValue("");
+    setTitleValue("");
     setDescriptionValue("");
     setKitState(kitsConstant.map((key) => ({ [key]: false })));
     setCategoryState(filterConstant.map((key) => ({ [key]: false })));
@@ -190,7 +190,7 @@ const Upload = () => {
                         type="text"
                         placeholder="Please enter Post title"
                         value={titleValue}
-                        onChange={(e) => seTitleValue(e.target.value)}
+                        onChange={(e) => setTitleValue(e.target.value)}
                         required
                       />
                     </div>
@@ -221,7 +221,7 @@ const Upload = () => {
                     Upload File (or insert download link)
                   </div>
                   <div className={styles.note}>
-                    Drag or choose your File to upload or incert link below
+                    Drag or choose your File to upload or insert link below
                   </div>
                   <div className={styles.filedw}>
                     <input
@@ -241,7 +241,7 @@ const Upload = () => {
                       label="Download link"
                       name="downloadlink"
                       type="text"
-                      placeholder="Please incert download link for file"
+                      placeholder="Please insert download link for file"
                       value={downloadLink}
                       onChange={(e) => setDownloadLink(e.target.value)}
                     />
@@ -331,7 +331,6 @@ const Upload = () => {
                 </button>
                 <button
                   className={cn("button", styles.button)}
-                  // onClick={() => setVisibleModal(true)}
                   type="submit"
                   disabled={isLoading || isUploading}
                 >
