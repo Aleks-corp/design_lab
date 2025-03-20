@@ -1,6 +1,7 @@
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import "dotenv/config";
 import ApiError from "./ApiError";
+import { getObjectVersions } from "./getVersions";
 
 const {
   S3_BUCKET_NAME,
@@ -31,14 +32,16 @@ const deleteFromS3 = async (fileUrl: string) => {
       console.log("Failed to extract the file key from URL");
       throw new Error("Failed to extract the file key from URL");
     }
-
+    const versionId = await getObjectVersions(key);
+    console.log(" versionId:", versionId);
     const params = {
       Bucket: S3_BUCKET_NAME,
       Key: key,
     };
 
     const command = new DeleteObjectCommand(params);
-    await s3.send(command);
+    const result = await s3.send(command);
+    console.log("result:", result);
   } catch (err) {
     console.error("Error deleting file from S3:", err);
     throw ApiError(404, "Error deleting file from S3");
