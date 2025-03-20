@@ -97,33 +97,33 @@ const Upload = () => {
     const category = setArrayString(categoryState);
     const kits = setArrayString(kitState);
 
-    if (!titleValue) {
-      toast.error("Title is required");
-      return;
-    }
-    if (!descriptionValue) {
-      toast.error("Description is required");
-      return;
-    }
-    if (category.length === 0) {
-      toast.error("Filter category is required");
-      return;
-    }
-    if (kits.length === 0) {
-      toast.error("Kit is required");
-      return;
-    }
-    if (!uploadAt) {
-      toast.error("Upload set date is required");
-      return;
-    }
-    if (imageFiles.length === 0) {
-      toast.error("Images is required");
-      return;
-    }
-    if (!downloadLink || !downloadFile) {
-      toast.error("Download File is required");
-      return;
+    try {
+      switch (true) {
+        case !titleValue:
+          toast.error("Title is required");
+          break;
+        case !descriptionValue:
+          toast.error("Description is required");
+          break;
+        case category.length === 0:
+          toast.error("Filter category is required");
+          break;
+        case kits.length === 0:
+          toast.error("Kit is required");
+          break;
+        case !uploadAt:
+          toast.error("Upload set date is required");
+          break;
+        case imageFiles.length === 0:
+          toast.error("Images are required");
+          break;
+        case !downloadLink || !downloadFile:
+          toast.error("Download File is required");
+          break;
+        default:
+      }
+    } finally {
+      setIsUploading(false);
     }
 
     try {
@@ -183,6 +183,17 @@ const Upload = () => {
       }
       toast.success("Files uploaded successfully!");
 
+      if (!uploadedFileUrl) {
+        toast.error("Failed to upload file. Try again.");
+        setIsUploading(false);
+        return;
+      }
+      if (uploadedImageUrls.length === 0) {
+        toast.error("Failed to upload images. Try again.");
+        setIsUploading(false);
+        return;
+      }
+
       const data = {
         title: titleValue,
         description: descriptionValue,
@@ -191,16 +202,16 @@ const Upload = () => {
         upload_at: uploadAt,
         filesize: downloadFile ? downloadFile.size.toString() : "0",
         images: uploadedImageUrls,
-        downloadlink: downloadLink ? downloadLink : uploadedFileUrl,
+        downloadlink: uploadedFileUrl ? uploadedFileUrl : downloadLink,
       };
 
       const resultAction = await dispatch(addPost(data));
 
       if (addPost.fulfilled.match(resultAction)) {
-        toast.success("Post successfully uploaded!");
+        toast.success("Post created!");
         reset();
       } else if (addPost.rejected.match(resultAction)) {
-        toast.error("Upload failed");
+        toast.error("Create post failed");
         setIsUploading(false);
       }
 
@@ -415,12 +426,12 @@ const Upload = () => {
                       <Icon title="arrow-next" size={10} />
                     </>
                   )}
-                  {uploadError && (
-                    <div className={cn("status-red", styles.note)}>
-                      {uploadError}
-                    </div>
-                  )}
                 </button>
+                {uploadError && (
+                  <div className={cn("status-red", styles.note)}>
+                    {uploadError}
+                  </div>
+                )}
               </div>
             </form>
           </div>
