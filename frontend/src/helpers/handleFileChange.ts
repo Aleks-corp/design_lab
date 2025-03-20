@@ -13,8 +13,6 @@ export const handleImageFileChange = async (
   }
   const totalSize = files.reduce((acc, file) => acc + file.size, 0);
 
-  files.map((i) => console.log(" type:", i.type));
-
   if (totalSize > maxSize) {
     alert(`Total file size exceeds the limit of 8MB.`);
     return;

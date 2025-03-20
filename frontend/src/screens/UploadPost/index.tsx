@@ -101,25 +101,25 @@ const Upload = () => {
       switch (true) {
         case !titleValue:
           toast.error("Title is required");
-          break;
+          return;
         case !descriptionValue:
           toast.error("Description is required");
-          break;
-        case category.length === 0:
-          toast.error("Filter category is required");
-          break;
-        case kits.length === 0:
-          toast.error("Kit is required");
-          break;
-        case !uploadAt:
-          toast.error("Upload set date is required");
-          break;
+          return;
         case imageFiles.length === 0:
           toast.error("Images are required");
-          break;
-        case !downloadLink || !downloadFile:
+          return;
+        case !(downloadLink || downloadFile):
           toast.error("Download File is required");
-          break;
+          return;
+        case !uploadAt:
+          toast.error("Upload set date is required");
+          return;
+        case kits.length === 0:
+          toast.error("Kit is required");
+          return;
+        case category.length === 0:
+          toast.error("Filter category is required");
+          return;
         default:
       }
     } finally {
