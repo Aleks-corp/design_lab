@@ -6,4 +6,5 @@ export const kits = [
   "illustrator",
   "framer",
   "blender",
+  "other",
 ];

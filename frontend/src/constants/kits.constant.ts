@@ -6,4 +6,5 @@ export const kitsConstant = [
   "illustrator",
   "framer",
   "blender",
+  "other",
 ];
