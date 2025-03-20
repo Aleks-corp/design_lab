@@ -12,7 +12,7 @@ export const handleImageFileChange = async (
     return;
   }
   const totalSize = files.reduce((acc, file) => acc + file.size, 0);
-  console.log(" totalSize1:", totalSize);
+
   files.map((i) => console.log(" type:", i.type));
 
   if (totalSize > maxSize) {
@@ -23,9 +23,6 @@ export const handleImageFileChange = async (
     const resizedFiles = await Promise.all(
       files.map((file) => CompressImage(file))
     );
-    const totalSize2 = resizedFiles.reduce((acc, file) => acc + file.size, 0);
-    console.log(" totalSize2:", totalSize2);
-    resizedFiles.map((i) => console.log(" type:", i.type));
     setImageFiles(resizedFiles);
   } catch (error) {
     console.error("Error compressing images:", error);

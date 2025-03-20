@@ -43,11 +43,9 @@ const Preview = ({
   useEffect(() => {
     return monitorForElements({
       canMonitor({ source }) {
-        console.log(" source:", source);
         return source.data.instanceId === instanceId;
       },
       onDrop({ source, location }) {
-        console.log(" location:", location);
         const destination = location.current.dropTargets[0];
         if (!destination) return;
 
