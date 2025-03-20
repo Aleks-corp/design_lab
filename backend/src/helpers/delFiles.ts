@@ -19,26 +19,28 @@ const s3 = new S3Client({
 
 const deleteFromS3 = async (fileUrl: string) => {
   try {
-    const bucketName = S3_BUCKET_NAME;
-    const baseUrl = `https://${bucketName}.s3.eu-central-003.backblazeb2.com/`;
+    const baseUrl = `https://${S3_BUCKET_NAME}.s3.eu-central-003.backblazeb2.com/`;
     if (!fileUrl.startsWith(baseUrl)) {
+      console.log("Invalid S3 URL");
       throw new Error("Invalid S3 URL");
     }
 
     const key = fileUrl.replace(baseUrl, "");
+    console.log(" key:", key);
     if (!key) {
+      console.log("Failed to extract the file key from URL");
       throw new Error("Failed to extract the file key from URL");
     }
 
     const params = {
-      Bucket: bucketName!,
+      Bucket: S3_BUCKET_NAME,
       Key: key,
     };
 
     const command = new DeleteObjectCommand(params);
     await s3.send(command);
   } catch (err) {
-    console.error("Помилка при видаленні файлу з S3:", err);
+    console.error("Error deleting file from S3:", err);
     throw ApiError(404, "Error deleting file from S3");
   }
 };
