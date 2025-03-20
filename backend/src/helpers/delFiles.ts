@@ -32,11 +32,13 @@ const deleteFromS3 = async (fileUrl: string) => {
       console.log("Failed to extract the file key from URL");
       throw new Error("Failed to extract the file key from URL");
     }
-    const versionId = await getObjectVersions(key);
+    const versions = await getObjectVersions(key);
+    const versionId = versions.length > 0 ? versions[0].VersionId : undefined;
     console.log(" versionId:", versionId);
     const params = {
       Bucket: S3_BUCKET_NAME,
       Key: key,
+      ...(versionId && { VersionId: versionId }),
     };
 
     const command = new DeleteObjectCommand(params);
