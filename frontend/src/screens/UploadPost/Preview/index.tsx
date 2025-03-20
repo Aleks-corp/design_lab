@@ -2,6 +2,9 @@ import cn from "classnames";
 import styles from "./Preview.module.sass";
 import Icon from "../../../components/Icon";
 import moment from "moment";
+import { useEffect, useState } from "react";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import ImagePreview from "./Card";
 
 interface PreviewProp {
   className?: string;
@@ -14,6 +17,7 @@ interface PreviewProp {
   category?: { [x: string]: boolean }[];
   fileSize?: number;
   uploadAt?: string;
+  moveImagePreview: (indexStart: number, indexEnd: number) => void;
 }
 
 const Preview = ({
@@ -27,11 +31,44 @@ const Preview = ({
   category,
   fileSize,
   uploadAt,
+  moveImagePreview,
 }: PreviewProp) => {
   const categoryString = category?.reduce((acc, i) => {
     const [key, value] = Object.entries(i)[0];
     return value ? (acc ? acc + ", " + key : key) : acc;
   }, "");
+
+  const [instanceId] = useState(Symbol("instance-id"));
+
+  useEffect(() => {
+    return monitorForElements({
+      canMonitor({ source }) {
+        console.log(" source:", source);
+        return source.data.instanceId === instanceId;
+      },
+      onDrop({ source, location }) {
+        console.log(" location:", location);
+        const destination = location.current.dropTargets[0];
+        if (!destination) return;
+
+        const destinationSrc = destination.data.src;
+        const startSrc = source.data.src;
+
+        if (
+          previews &&
+          destinationSrc &&
+          typeof startSrc === "string" &&
+          typeof destinationSrc === "string" &&
+          destinationSrc !== startSrc
+        ) {
+          const startIdx = previews.indexOf(startSrc);
+          const endIdx = previews.indexOf(destinationSrc);
+          moveImagePreview(startIdx, endIdx);
+        }
+      },
+    });
+  }, [instanceId, moveImagePreview, previews]);
+
   return (
     <div className={cn(className, styles.wrap)}>
       <div className={styles.inner}>
@@ -40,33 +77,16 @@ const Preview = ({
         </button>
         <div className={styles.info}>Preview</div>
         <div className={styles.card}>
-          {previews && previews.length >= 4 && (
+          {previews && previews.length > 0 && (
             <div className={styles.preview4x}>
               {previews.map((i, index) => {
-                if (index >= 4) {
-                  return;
-                }
-                return index === 0 ? (
-                  <div key={index} className={styles.firstRows}>
-                    <img src={i} srcSet={i} alt="Post Image" />
-                  </div>
-                ) : (
-                  <div key={index} className={styles.imgwrapper}>
-                    <img src={i} srcSet={i} alt="Post Image" />
-                  </div>
+                return (
+                  <ImagePreview src={i} key={index} instanceId={instanceId} />
                 );
               })}
             </div>
           )}
-          {previews && previews.length < 4 && (
-            <div className={styles.preview}>
-              <img
-                src={previews[0]}
-                srcSet={previews[0]}
-                alt="Post Template Image"
-              />
-            </div>
-          )}
+
           {(!previews || previews.length < 0) && (
             <div className={styles.preview}>
               <img
@@ -115,7 +135,7 @@ const Preview = ({
                 <p>Category:</p>
                 <p className={styles.category}>{categoryString}</p>
               </>
-            )}{" "}
+            )}
             {uploadAt && (
               <p className={styles.upload}>
                 Upload date:{" "}

@@ -24,6 +24,7 @@ import { FileUploadProgress } from "../../types/upload.types";
 import { uploadDownLoadFile, uploadImgFiles } from "../../helpers/uploadFile";
 import { generatePresignedUrl } from "../../helpers/genSignedUrl";
 import { setArrayString } from "../../helpers/categoryKitSetArray";
+import { imageIndexChanger } from "../../helpers/imageIndexChanger";
 
 const Upload = () => {
   const dispatch = useAppDispatch();
@@ -53,6 +54,13 @@ const Upload = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const [uploadAt, setUploadAt] = useState<string>("");
+  const [uploadError, setUploadError] = useState<string>("");
+
+  const moveImagePreview = (indexStart: number, indexEnd: number) => {
+    if (previews) {
+      imageIndexChanger(indexStart, indexEnd, setImageFiles, setPreviews);
+    }
+  };
 
   useEffect(() => {
     if (imageFiles.length > 0) {
@@ -67,67 +75,6 @@ const Upload = () => {
     }
   }, [imageFiles]);
 
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsUploading(true);
-
-    const signedUrls = await generatePresignedUrl(imageFiles, downloadFile);
-
-    const { uploadedImageUrls, uploadImgPromises } = await uploadImgFiles(
-      imageFiles,
-      signedUrls,
-      setImgUploadProgress
-    );
-
-    const { uploadedFileUrl, uploadFilePromises } = await uploadDownLoadFile(
-      downloadFile,
-      signedUrls,
-      imageFiles,
-      setFileUploadProgress
-    );
-    const uploadPromises: Promise<void>[] = [
-      ...uploadImgPromises,
-      ...uploadFilePromises,
-    ];
-
-    await Promise.all(uploadPromises);
-
-    toast.success("Files uploaded successfully!");
-    const category = setArrayString(categoryState);
-
-    const kits = setArrayString(kitState);
-
-    if (!uploadAt) {
-      toast.error("Upload set date is required");
-      return;
-    }
-
-    const data = {
-      title: titleValue,
-      description: descriptionValue,
-      category,
-      kits,
-      upload_at: uploadAt,
-      filesize: downloadFile ? downloadFile.size.toString() : "0",
-      images: uploadedImageUrls,
-      downloadlink: downloadLink ? downloadLink : uploadedFileUrl,
-    };
-
-    const resultAction = await dispatch(addPost(data));
-
-    if (addPost.fulfilled.match(resultAction)) {
-      toast.success("Post successfully uploaded!");
-      reset();
-    } else if (addPost.rejected.match(resultAction)) {
-      toast.error("Upload failed");
-      setIsUploading(false);
-    }
-
-    if (error) {
-      toast.error(error);
-      console.error(error);
-    }
-  };
   const reset = () => {
     setImageFiles([]);
     setPreviews(null);
@@ -140,6 +87,132 @@ const Upload = () => {
     setIsUploading(false);
     setFileUploadProgress({ fileName: "", progress: 0 });
     setImgUploadProgress([]);
+  };
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsUploading(true);
+    setUploadError("");
+
+    const category = setArrayString(categoryState);
+    const kits = setArrayString(kitState);
+
+    if (!titleValue) {
+      toast.error("Title is required");
+      return;
+    }
+    if (!descriptionValue) {
+      toast.error("Description is required");
+      return;
+    }
+    if (category.length === 0) {
+      toast.error("Filter category is required");
+      return;
+    }
+    if (kits.length === 0) {
+      toast.error("Kit is required");
+      return;
+    }
+    if (!uploadAt) {
+      toast.error("Upload set date is required");
+      return;
+    }
+    if (imageFiles.length === 0) {
+      toast.error("Images is required");
+      return;
+    }
+    if (!downloadLink || !downloadFile) {
+      toast.error("Download File is required");
+      return;
+    }
+
+    try {
+      let signedUrls: string[];
+      try {
+        signedUrls = await generatePresignedUrl(imageFiles, downloadFile);
+      } catch (err) {
+        setUploadError("Failed to generate signed URLs.");
+        console.error("Error generating signed URLs:", err);
+        toast.error("Failed to generate signed URLs.");
+        toast.error("Please try signout and singin again.");
+        setIsUploading(false);
+        return;
+      }
+
+      let uploadedImageUrls: string[] = [];
+      let uploadImgPromises: Promise<void>[] = [];
+      try {
+        ({ uploadedImageUrls, uploadImgPromises } = await uploadImgFiles(
+          imageFiles,
+          signedUrls,
+          setImgUploadProgress
+        ));
+      } catch (err) {
+        setUploadError("Failed to upload images. Try again.");
+        console.error("Image upload error:", err);
+        toast.error("Failed to upload images. Try again.");
+        setIsUploading(false);
+        return;
+      }
+
+      let uploadedFileUrl = "";
+      let uploadFilePromises: Promise<void>[] = [];
+      try {
+        ({ uploadedFileUrl, uploadFilePromises } = await uploadDownLoadFile(
+          downloadFile,
+          signedUrls,
+          imageFiles,
+          setFileUploadProgress
+        ));
+      } catch (err) {
+        setUploadError("Failed to upload file. Try again.");
+        console.error("File upload error:", err);
+        toast.error("Failed to upload file.");
+        setIsUploading(false);
+        return;
+      }
+
+      try {
+        await Promise.all([...uploadImgPromises, ...uploadFilePromises]);
+      } catch (err) {
+        setUploadError("An error occurred while uploading files.");
+        console.error("Error during file uploads:", err);
+        toast.error("An error occurred while uploading files.");
+        setIsUploading(false);
+        return;
+      }
+      toast.success("Files uploaded successfully!");
+
+      const data = {
+        title: titleValue,
+        description: descriptionValue,
+        category,
+        kits,
+        upload_at: uploadAt,
+        filesize: downloadFile ? downloadFile.size.toString() : "0",
+        images: uploadedImageUrls,
+        downloadlink: downloadLink ? downloadLink : uploadedFileUrl,
+      };
+
+      const resultAction = await dispatch(addPost(data));
+
+      if (addPost.fulfilled.match(resultAction)) {
+        toast.success("Post successfully uploaded!");
+        reset();
+      } else if (addPost.rejected.match(resultAction)) {
+        toast.error("Upload failed");
+        setIsUploading(false);
+      }
+
+      if (error) {
+        toast.error(error);
+        console.error(error);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast.error("Something went wrong. Please try again.");
+      setIsUploading(false);
+    }
   };
 
   const inputProps = {
@@ -177,7 +250,7 @@ const Upload = () => {
                       <Icon title="upload-file" size={24} />
                     </div>
                     <div className={styles.format}>
-                      JPG, PNG, WEBP. Max 4 files up to 4Mb.
+                      JPG, PNG, WEBP. Max 8 files up to 4Mb.
                     </div>
                   </div>
                 </div>
@@ -234,7 +307,7 @@ const Upload = () => {
                     <div className={styles.icon}>
                       <Icon title="upload-file" size={24} />
                     </div>
-                    <div className={styles.format}>ZIP. Max 100Mb.</div>
+                    <div className={styles.format}>ZIP. Max 2Gb.</div>
                   </div>
                   <div className={styles.field}>
                     <TextInput
@@ -342,6 +415,11 @@ const Upload = () => {
                       <Icon title="arrow-next" size={10} />
                     </>
                   )}
+                  {uploadError && (
+                    <div className={cn("status-red", styles.note)}>
+                      {uploadError}
+                    </div>
+                  )}
                 </button>
               </div>
             </form>
@@ -349,6 +427,7 @@ const Upload = () => {
           <Preview
             className={cn(styles.preview, { [styles.active]: visiblePreview })}
             onClose={() => setVisiblePreview(false)}
+            moveImagePreview={moveImagePreview}
             previews={previews}
             reset={reset}
             title={titleValue}
