@@ -8,6 +8,8 @@ import { nextDate } from "src/helpers/setDate";
 import { ObjectId } from "mongoose";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 import sendMailToSprt from "src/helpers/sendSprtMail";
+import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
+import { generateSignedGetUrl } from "src/helpers/getSignedUrl";
 
 const getAllUser = async (req: Request, res: Response) => {
   const { page = "1", limit = "100", filter = "" } = req.query;
@@ -198,8 +200,22 @@ const getUnpublishedPosts = async (req: Request, res: Response) => {
     }
   );
   const totalHits = await Post.countDocuments(query);
+  const signedPosts = await Promise.all(
+    posts.map(async (post) => {
+      const signedImages = await Promise.all(
+        post.images.map((image: string) => {
+          const key = getKeyFromUrl(image);
+          return generateSignedGetUrl(key);
+        })
+      );
+      return {
+        ...post.toObject(),
+        images: signedImages,
+      };
+    })
+  );
 
-  res.json({ totalHits, posts });
+  res.json({ totalHits, posts: signedPosts });
 };
 
 const getUnpublishedPostById = async (req: Request, res: Response) => {
@@ -208,7 +224,13 @@ const getUnpublishedPostById = async (req: Request, res: Response) => {
   if (!post) {
     throw ApiError(404);
   }
-  res.json(post);
+  const signedImages = await Promise.all(
+    post.images.map((image: string) => {
+      const key = getKeyFromUrl(image);
+      return generateSignedGetUrl(key);
+    })
+  );
+  res.json({ ...post, images: signedImages });
 };
 
 const getMessageToSprt = async (req: Request, res: Response) => {
