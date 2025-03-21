@@ -1,4 +1,4 @@
-import cleanFileName from "./cleanFileName";
+import { cleanDownloadFileName, cleanImageFileName } from "./cleanFileName";
 import CompressImage from "./compressedImages";
 
 export const handleImageFileChange = async (
@@ -21,7 +21,7 @@ export const handleImageFileChange = async (
   try {
     const resizedFiles = await Promise.all(
       files.map(async (file) => {
-        const cleanedFileName = cleanFileName(file.name);
+        const cleanedFileName = cleanImageFileName(file.name);
         const compressedFile = await CompressImage(file);
         return new File([compressedFile], cleanedFileName, { type: file.type });
       })
@@ -44,6 +44,8 @@ export const handleFileChange = (
       alert("File size exceeds the maximum limit of 2GB.");
       return;
     }
-    setDownloadFile(file);
+    const cleanedFileName = cleanDownloadFileName(file.name);
+    const updatedFile = new File([file], cleanedFileName, { type: file.type });
+    setDownloadFile(updatedFile);
   }
 };
