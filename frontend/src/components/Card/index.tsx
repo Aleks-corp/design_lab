@@ -60,7 +60,6 @@ const Card = ({ className, post, like, userId }: CardProps) => {
                     "/images/content/postsimg/post-template.jpg";
                 }}
               />
-              <div className={styles.placeholder}></div>
             </div>
           )}
           {(!images || images.length < 0) && (

@@ -33,8 +33,7 @@
     position: relative
     width: 100%
     height: 0
-    padding-top: 76%
-    margin-bottom: 25%
+    padding-top: calc(100% + 4px)
     border-radius: 4px
 
     & > img
@@ -44,18 +43,8 @@
         width: 100%
         height: 100%
         object-fit: cover
+        object-position: left
         z-index: 1
-
-.placeholder
-    position: absolute
-    top: calc(100% + 2px)
-    left: 0
-    right: 0
-    height: 100px
-    background-color: $neutrals6
-    z-index: 2
-    +dark
-        background-color: $neutrals3    
 
 .imgwrapper 
     overflow: hidden
