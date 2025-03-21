@@ -6,7 +6,7 @@ export const handleImageFileChange = async (
   setImageFiles: React.Dispatch<React.SetStateAction<File[]>>
 ) => {
   const maxFiles = 8;
-  const maxSize = 8 * 1024 * 1024;
+  const maxSize = 12 * 1024 * 1024;
   const files = e.target.files ? Array.from(e.target.files) : [];
   if (files.length > maxFiles) {
     alert(`Maximum number of files is ${maxFiles}`);
