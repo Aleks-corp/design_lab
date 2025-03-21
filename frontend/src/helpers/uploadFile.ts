@@ -43,7 +43,7 @@ export const uploadImgFiles = async (
         },
       })
       .then(() => {
-        uploadedImageUrls.push(url.split("?")[0]);
+        uploadedImageUrls[index] = url.split("?")[0];
       })
       .catch((error) => {
         toast.error(`Failed to upload image ${file.name}`);
