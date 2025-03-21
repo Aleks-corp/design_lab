@@ -19,9 +19,8 @@ const s3 = new S3Client({
 
 export const generatePresignedUrl = async (file: string) => {
   const fileExtension = file.substring(file.lastIndexOf("."));
-  const newFileName = `${file.substring(
-    0,
-    file.lastIndexOf(".")
+  const newFileName = `${encodeURIComponent(
+    file.substring(0, file.lastIndexOf("."))
   )}-${nanoid()}${fileExtension}`;
 
   const command = new PutObjectCommand({
