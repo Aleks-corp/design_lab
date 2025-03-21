@@ -60,9 +60,7 @@ const Preview = ({
           destinationSrc !== startSrc
         ) {
           const startIdx = previews.indexOf(startSrc);
-          console.log(" startIdx:", startIdx);
           const endIdx = previews.indexOf(destinationSrc);
-          console.log(" endIdx:", endIdx);
           moveImagePreview(startIdx, endIdx);
         }
       },

@@ -41,7 +41,6 @@ const Upload = () => {
   const isLoading = useAppSelector(selectIsLogining);
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  console.log(" imageFiles:", imageFiles);
   const [previews, setPreviews] = useState<string[] | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
   const [downloadLink, setDownloadLink] = useState<string>("");
