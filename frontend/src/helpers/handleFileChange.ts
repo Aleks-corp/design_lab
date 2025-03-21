@@ -1,5 +1,5 @@
 import { cleanDownloadFileName, cleanImageFileName } from "./cleanFileName";
-import CompressImage from "./compressedImages";
+import сompressImage from "./compressedImages";
 
 export const handleImageFileChange = async (
   e: React.ChangeEvent<HTMLInputElement>,
@@ -22,8 +22,12 @@ export const handleImageFileChange = async (
     const resizedFiles = await Promise.all(
       files.map(async (file) => {
         const cleanedFileName = cleanImageFileName(file.name);
-        const compressedFile = await CompressImage(file);
-        return new File([compressedFile], cleanedFileName, { type: file.type });
+        const compressedFile = await сompressImage(file);
+        return new File(
+          [compressedFile],
+          cleanedFileName.replace(/\.\w+$/, ".webp"),
+          { type: "image/webp" }
+        );
       })
     );
     setImageFiles(resizedFiles);

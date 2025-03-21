@@ -2,9 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import cn from "classnames";
 import styles from "./Header.module.sass";
-// import Icon from "../Icon";
 import Image from "../Image";
-// import Notification from "./Notification";
 import User from "./User";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectIsAdmin, selectIsLoggedIn } from "../../redux/selectors";
@@ -18,12 +16,6 @@ const Headers = () => {
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
-  // const [search, setSearch] = useState("");
-
-  // const handleSubmit = () => {
-  //   alert();
-  // };
 
   return (
     <header className={styles.header}>
@@ -45,15 +37,7 @@ const Headers = () => {
             alt="Fitness Pro"
           />
         </button>
-        <div className={styles.wrapper}>
-          {/* <nav className={styles.nav}>
-            <Link className={styles.link} to={user ? "/profile" : ""}>
-              Profile
-            </Link>
-          </nav> */}
-        </div>
-
-        {/* <Notification className={styles.notification} /> */}
+        <div className={styles.wrapper}></div>
 
         {isAdmin && (
           <Link className={cn("button-small", styles.button)} to="/upload-post">

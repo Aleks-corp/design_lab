@@ -1,7 +1,7 @@
 import { fromBlob } from "image-resize-compress";
 
 const сompressImage = async (file: File) => {
-  const quality = 80; // For webp and jpeg formats
+  const quality = 70; // For webp and jpeg formats
   const width = 1800; // Original width
   const height = "auto"; // Original height
   const format = "webp";
