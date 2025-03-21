@@ -7,12 +7,6 @@ import {
 import { CSSProperties } from "react";
 
 const itemStyle: CSSProperties = {
-  objectFit: "cover",
-  width: "100%",
-  background: "#fff",
-  padding: "4px",
-  borderRadius: "4px",
-  boxShadow: "none",
   transition: "all 150ms ease-in-out",
 };
 

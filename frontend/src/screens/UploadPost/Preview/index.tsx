@@ -81,7 +81,15 @@ const Preview = ({
             <div className={styles.preview4x}>
               {previews.map((i, index) => {
                 return (
-                  <ImagePreview src={i} key={index} instanceId={instanceId} />
+                  <div
+                    key={index}
+                    className={
+                      index === 0 ? styles.firstRows : styles.imgwrapper
+                    }
+                    style={{ cursor: "move" }}
+                  >
+                    <ImagePreview src={i} key={index} instanceId={instanceId} />
+                  </div>
                 );
               })}
             </div>
