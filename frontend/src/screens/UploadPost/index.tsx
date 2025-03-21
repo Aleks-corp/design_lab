@@ -43,7 +43,6 @@ const Upload = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[] | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
-  const [downloadLink, setDownloadLink] = useState<string>("");
   const [titleValue, setTitleValue] = useState<string>("");
   const [descriptionValue, setDescriptionValue] = useState<string>("");
   const [fileUploadProgress, setFileUploadProgress] =
@@ -108,7 +107,7 @@ const Upload = () => {
         case imageFiles.length === 0:
           toast.error("Images are required");
           return;
-        case !(downloadLink || downloadFile):
+        case !downloadFile:
           toast.error("Download File is required");
           return;
         case !uploadAt:
@@ -123,7 +122,17 @@ const Upload = () => {
         default:
       }
     } finally {
-      setIsUploading(false);
+      if (
+        !titleValue ||
+        !descriptionValue ||
+        imageFiles.length === 0 ||
+        !downloadFile ||
+        !uploadAt ||
+        kits.length === 0 ||
+        category.length === 0
+      ) {
+        setIsUploading(false);
+      }
     }
 
     try {
@@ -202,7 +211,7 @@ const Upload = () => {
         upload_at: uploadAt,
         filesize: downloadFile ? downloadFile.size.toString() : "0",
         images: uploadedImageUrls,
-        downloadlink: uploadedFileUrl ? uploadedFileUrl : downloadLink,
+        downloadlink: uploadedFileUrl,
       };
 
       const resultAction = await dispatch(addPost(data));
@@ -239,15 +248,15 @@ const Upload = () => {
         <div className={cn("container", styles.container)}>
           <div className={styles.wrapper}>
             <div className={styles.head}>
-              <div className={cn("h2", styles.title)}>Create new post</div>
+              <h1 className={cn("h2", styles.title)}>Create new post</h1>
             </div>
             <form className={styles.form} onSubmit={onSubmit}>
               <div className={styles.list}>
                 <div className={styles.item}>
-                  <div className={styles.category}>Upload Image</div>
-                  <div className={styles.note}>
+                  <h2 className={styles.category}>Upload Image</h2>
+                  <p className={styles.note}>
                     Drag or choose your Image to upload
-                  </div>
+                  </p>
                   <div className={styles.file}>
                     <input
                       className={styles.load}
@@ -260,9 +269,9 @@ const Upload = () => {
                     <div className={styles.icon}>
                       <Icon title="upload-file" size={24} />
                     </div>
-                    <div className={styles.format}>
+                    <p className={styles.format}>
                       JPG, PNG, WEBP. Max 8 files up to 4Mb.
-                    </div>
+                    </p>
                   </div>
                 </div>
                 <div className={styles.item}>
@@ -289,7 +298,7 @@ const Upload = () => {
                       />
                     </div>
                     <div className={styles.field}>
-                      <div className={styles.label}>Datetime to upload</div>
+                      <p className={styles.label}>Datetime to upload</p>
                       <div className={styles.wrap}>
                         <Datetime
                           inputProps={inputProps}
@@ -301,12 +310,10 @@ const Upload = () => {
                   </div>
                 </div>
                 <div className={styles.item}>
-                  <div className={styles.category}>
-                    Upload File (or insert download link)
-                  </div>
-                  <div className={styles.note}>
+                  <p className={styles.label}>Upload File</p>
+                  <p className={styles.note}>
                     Drag or choose your File to upload or insert link below
-                  </div>
+                  </p>
                   <div className={styles.filedw}>
                     <input
                       className={styles.load}
@@ -318,18 +325,11 @@ const Upload = () => {
                     <div className={styles.icon}>
                       <Icon title="upload-file" size={24} />
                     </div>
-                    <div className={styles.format}>ZIP. Max 2Gb.</div>
+                    <p className={styles.format}>ZIP. Max 2Gb.</p>
                   </div>
-                  <div className={styles.field}>
-                    <TextInput
-                      label="Download link"
-                      name="downloadlink"
-                      type="text"
-                      placeholder="Please insert download link for file"
-                      value={downloadLink}
-                      onChange={(e) => setDownloadLink(e.target.value)}
-                    />
-                  </div>
+                  <p className={styles.note}>
+                    {downloadFile?.name || "No file selected"}
+                  </p>
                 </div>
                 <p className={styles.text}>Kits</p>
                 <div className={styles.options}>

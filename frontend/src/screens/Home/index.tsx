@@ -56,6 +56,7 @@ const Home = () => {
   }, [dispatch, prodList]);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const limit = 12;
 
   const handleFilterClick = (filter: string) => {
     if (filter !== currentFilter) {
@@ -198,7 +199,7 @@ const Home = () => {
                     dispatch(
                       fetchPosts({
                         page: nextPage,
-                        limit: 1,
+                        limit,
                         filter: currentFilter,
                         search,
                       })

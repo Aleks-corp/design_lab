@@ -28,7 +28,6 @@ const Card = ({ className, post, like, userId }: CardProps) => {
                   <div key={index} className={styles.firstRows}>
                     <img
                       src={i}
-                      srcSet={i}
                       alt="Post Image"
                       onError={(e) => {
                         e.currentTarget.src =
@@ -40,7 +39,6 @@ const Card = ({ className, post, like, userId }: CardProps) => {
                   <div key={index} className={styles.imgwrapper}>
                     <img
                       src={i}
-                      srcSet={i}
                       alt="Post Image"
                       onError={(e) => {
                         e.currentTarget.src =
@@ -53,16 +51,16 @@ const Card = ({ className, post, like, userId }: CardProps) => {
             </div>
           )}
           {images && images.length < 4 && (
-            <div className={styles.preview}>
+            <div className={styles.preview1x}>
               <img
                 src={images[0]}
-                srcSet={images[0]}
                 alt="Post Image"
                 onError={(e) => {
                   e.currentTarget.src =
                     "/images/content/postsimg/post-template.jpg";
                 }}
               />
+              <div className={styles.placeholder}></div>
             </div>
           )}
           {(!images || images.length < 0) && (

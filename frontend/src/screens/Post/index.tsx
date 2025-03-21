@@ -148,7 +148,7 @@ const Post = () => {
               <div key={index} className={styles.preview}>
                 <img
                   src={img}
-                  alt="Item"
+                  alt="Post Image"
                   onError={(e) => {
                     e.currentTarget.src =
                       "/images/content/postsimg/post-template.jpg";
