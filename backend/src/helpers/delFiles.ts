@@ -27,14 +27,12 @@ const deleteFromS3 = async (fileUrl: string) => {
     }
 
     const key = fileUrl.replace(baseUrl, "");
-    console.log(" key:", key);
     if (!key) {
       console.log("Failed to extract the file key from URL");
       throw new Error("Failed to extract the file key from URL");
     }
     const versions = await getObjectVersions(key);
     const versionId = versions.length > 0 ? versions[0].VersionId : undefined;
-    console.log(" versionId:", versionId);
     const params = {
       Bucket: S3_BUCKET_NAME,
       Key: key,
@@ -42,8 +40,7 @@ const deleteFromS3 = async (fileUrl: string) => {
     };
 
     const command = new DeleteObjectCommand(params);
-    const result = await s3.send(command);
-    console.log("result:", result);
+    await s3.send(command);
   } catch (err) {
     console.error("Error deleting file from S3:", err);
     throw ApiError(404, "Error deleting file from S3");
