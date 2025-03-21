@@ -1,3 +1,4 @@
+import cleanFileName from "./cleanFileName";
 import CompressImage from "./compressedImages";
 
 export const handleImageFileChange = async (
@@ -19,7 +20,11 @@ export const handleImageFileChange = async (
   }
   try {
     const resizedFiles = await Promise.all(
-      files.map((file) => CompressImage(file))
+      files.map(async (file) => {
+        const cleanedFileName = cleanFileName(file.name);
+        const compressedFile = await CompressImage(file);
+        return new File([compressedFile], cleanedFileName, { type: file.type });
+      })
     );
     setImageFiles(resizedFiles);
   } catch (error) {
