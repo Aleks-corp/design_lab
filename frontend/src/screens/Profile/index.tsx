@@ -21,7 +21,7 @@ const Profile = ({
         <div className={styles.body}>
           <div className={cn("container", styles.container)}>
             {user.subscription === "free" && (
-              <UserFree className={styles.user} user={user} />
+              <UserFree className={styles.user} user={user} setDate={setDate} />
             )}
             {user.subscription === "member" && (
               <UserMember

@@ -63,7 +63,7 @@ function App() {
             path="post/:id"
             element={
               <Page>
-                <Post />
+                <Post setDate={setDate} />
               </Page>
             }
           />

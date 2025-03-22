@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { SetStateAction, useEffect } from "react";
 import cn from "classnames";
 import styles from "./Post.module.sass";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
@@ -31,10 +31,20 @@ const breadcrumbs = [
   },
 ];
 
-const Post = () => {
+const Post = ({
+  setDate,
+}: {
+  setDate: React.Dispatch<SetStateAction<Date>>;
+}) => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const SubmitPayment = () => {
+    const currentDate = new Date();
+    setDate(currentDate);
+    navigate("/payment");
+  };
 
   useEffect(() => {
     if (id) {
@@ -135,7 +145,7 @@ const Post = () => {
                   className={cn("button", styles.button)}
                   type="button"
                   onClick={() =>
-                    user ? navigate("/payment") : toast.error("sign in first")
+                    user ? SubmitPayment() : toast.error("sign in first")
                   }
                 >
                   Get All-Access
