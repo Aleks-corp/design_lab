@@ -1,11 +1,21 @@
 import * as yup from "yup";
-import { emailRegexp, passRegexp } from "../constants/user.constants";
+import {
+  emailRegexp,
+  passRegexp,
+  phoneRegexp,
+} from "../constants/user.constants";
 
 export const regSchema = yup.object().shape({
   name: yup.string().min(3).max(18).required(),
   email: yup
     .string()
     .matches(emailRegexp, "Oops! That email doesn't seem right")
+    .required(),
+  phone: yup
+    .string()
+    .matches(phoneRegexp, "Oops! That phone doesn't seem right")
+    .min(12)
+    .max(16)
     .required(),
   password: yup
     .string()

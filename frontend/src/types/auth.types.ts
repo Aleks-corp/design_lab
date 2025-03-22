@@ -22,6 +22,7 @@ export interface GetUser {
 export interface UserRegProfile {
   name: string;
   email: string;
+  phone: string;
   password: string;
 }
 

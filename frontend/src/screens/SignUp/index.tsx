@@ -1,3 +1,4 @@
+import "react-phone-number-input/style.css";
 import cn from "classnames";
 import styles from "./SignUp.module.sass";
 import Control from "../../components/Control";
@@ -12,6 +13,8 @@ import { useState } from "react";
 import { selectIsLogining, selectUserError } from "../../redux/selectors";
 import Loader from "../../components/Loader";
 import { regSchema } from "../../schema/regSchema";
+import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
+import PhoneInput from "../../components/PhoneInput";
 
 const breadcrumbs = [
   {
@@ -26,6 +29,7 @@ const breadcrumbs = [
 type FormValues = {
   name: string;
   email: string;
+  phone: string;
   password: string;
   confpass: string;
 };
@@ -40,6 +44,7 @@ const SignUp = () => {
   const [showConfPass, setShowConfPass] = useState(false);
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
@@ -47,8 +52,9 @@ const SignUp = () => {
     resolver: yupResolver(regSchema),
   });
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const { name, email, password } = data;
-    await dispatch(signUp({ name, email, password }));
+    const { name, email, phone, password } = data;
+    const cleanedPhone = phone.replace("+", "");
+    await dispatch(signUp({ name, email, phone: cleanedPhone, password }));
     if (error && error !== "Not authorized") {
       return;
     }
@@ -99,6 +105,21 @@ const SignUp = () => {
                         />
                         {errors?.email && (
                           <p className={styles.error}>{errors.email.message}</p>
+                        )}
+                      </div>
+                      <div className={styles.field}>
+                        <PhoneInputWithCountry
+                          inputComponent={PhoneInput}
+                          name="phone"
+                          control={control}
+                          rules={{ required: true }}
+                          className={styles.phoneInput}
+                          international
+                          defaultCountry="UA"
+                          maxLength={16}
+                        />
+                        {errors?.phone && (
+                          <p className={styles.error}>{errors.phone.message}</p>
                         )}
                       </div>
                       <div className={styles.field}>

@@ -37,6 +37,7 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
         <div className={styles.name}>Name: {user.name}</div>
         <div className={styles.code}>
           <div className={styles.number}>Email: {user.email}</div>
+          <div className={styles.number}>Phone: {user.phone}</div>
         </div>
         <div className={styles.info}>
           <p>

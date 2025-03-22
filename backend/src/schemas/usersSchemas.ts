@@ -16,6 +16,10 @@ const usersRegSchema = Joi.object({
     "string.empty": `'email' cannot be an empty field`,
     "any.required": `missing required 'email' field`,
   }),
+  phone: Joi.string().required().min(11).max(13).messages({
+    "string.empty": `'email' cannot be an empty field`,
+    "any.required": `missing required 'name' field`,
+  }),
   password: Joi.string()
     .min(8)
     .max(18)
