@@ -1,6 +1,6 @@
 export const amountData = {
   amount: "5.00",
-  currency: "USD",
+  currency: "EUR",
   productName: ["All-Access-Pass"],
   productCount: [1],
   productPrice: ["5.00"],
