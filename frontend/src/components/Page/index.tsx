@@ -25,7 +25,9 @@ const Page = ({ children }: PageProps) => {
   return (
     <div className={styles.page}>
       <Header />
-      {user && user.subscription === "free" && <SubscriptionBanner />}
+      {user && user.subscription === "free" && !user.lastPayedStatus && (
+        <SubscriptionBanner />
+      )}
       <div className={styles.inner}>{children}</div>
       <Footer />
       <Toaster position="top-center" reverseOrder={false} />

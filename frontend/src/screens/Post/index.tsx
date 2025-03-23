@@ -1,7 +1,7 @@
 import { SetStateAction, useEffect } from "react";
 import cn from "classnames";
 import styles from "./Post.module.sass";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   addRemoveFavorites,
@@ -138,7 +138,9 @@ const Post = ({
                 </p>
               ))}
             </div>
-            {(!user || user.subscription === "free") && (
+            {(!user ||
+              (user.subscription === "free" &&
+                user.lastPayedStatus !== "Declined")) && (
               <div className={styles.info}>
                 You can download this product with the All-Access Pass.
                 <button
@@ -152,6 +154,16 @@ const Post = ({
                 </button>
               </div>
             )}
+            {user &&
+              user.subscription === "free" &&
+              user.lastPayedStatus === "Declined" && (
+                <div className={styles.infoprofile}>
+                  Unfortunately, your last payment was declined. More info in{" "}
+                  <Link className={styles.linkprofile} to={"/profile"}>
+                    Profile
+                  </Link>
+                </div>
+              )}
           </div>
           <div className={cn("container", styles.imgcontainer)}>
             {post.images.map((img, index) => (

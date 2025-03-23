@@ -34,53 +34,60 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
   return (
     <>
       <div className={cn(styles.user, className)}>
-        <div className={styles.name}>Name: {user.name}</div>
-        <div className={styles.code}>
-          <div className={styles.number}>Email: {user.email}</div>
-        </div>
-        <div className={styles.code}>
-          <div className={styles.number}>Phone: {user.phone}</div>
-        </div>
-        <div className={styles.info}>
-          <p>
-            <span>Subscription</span> - All Access Pass
-          </p>
-          <p>
-            <span>Subscription status</span> - {user.status}
-          </p>
-          {user.status !== "Active" && (
-            <>
-              <p>
-                <span>Subscription until</span> -{" "}
-                {moment(new Date(user.subend)).format("DD-MM-yyyy")}
-              </p>
-              <button
-                className={cn("button", styles.button)}
-                type="button"
-                onClick={SubmitPayment}
-              >
-                Resubscribe
-              </button>
-            </>
-          )}
-          {user.status === "Active" && (
-            <p>
-              <span>Next payment</span> -{" "}
-              {moment(new Date(user.subend)).format("DD-MM-yyyy")}
+        <p className={styles.name}>Profile</p>
+        <div className={styles.container}>
+          <div className={styles.info}>
+            <p className={styles.info__text}>
+              Name: <span>{user.name}</span>
             </p>
-          )}
+            <p className={styles.info__text}>
+              Email: <span>{user.email}</span>
+            </p>
+            <p className={styles.info__text}>
+              Phone: <span>{user.phone}</span>
+            </p>
+            <p className={styles.info__text}>
+              Subscription - <span>{user.subscription}</span>
+            </p>
+            <p className={styles.info__text}>
+              Subscription status - <span>{user.status}</span>
+            </p>
+            {user.lastPayedStatus && user.lastPayedDate && (
+              <>
+                <p
+                  className={cn(styles.info__text, {
+                    [styles.aproved]: user.lastPayedStatus === "Approved",
+                    [styles.declined]: user.lastPayedStatus === "Declined",
+                  })}
+                >
+                  Last payed status - <span>{user.lastPayedStatus}</span>
+                </p>
+                <p className={styles.info__text}>
+                  Last payed date -{" "}
+                  <span>
+                    {moment(new Date(user.lastPayedDate)).format("DD-MM-yyyy")}
+                  </span>
+                </p>
+              </>
+            )}
+            {user.status !== "Active" && (
+              <p className={styles.info__text}>
+                Subscription until -{" "}
+                <span>
+                  {moment(new Date(user.subend)).format("DD-MM-yyyy")}
+                </span>
+              </p>
+            )}
+            {user.status === "Active" && (
+              <p className={styles.info__text}>
+                Next payment -{" "}
+                <span>
+                  {moment(new Date(user.subend)).format("DD-MM-yyyy")}
+                </span>
+              </p>
+            )}
+          </div>
 
-          {user.status === "Active" && (
-            <button
-              className={cn("button-stroke button-small", styles.button)}
-              onClick={() => dispatch(unsubscribe())}
-            >
-              Unsubscribe
-            </button>
-          )}
-        </div>
-
-        <div className={styles.control}>
           <div className={styles.btns}>
             <Link
               className={cn("button-stroke button-small", styles.button)}
@@ -97,6 +104,23 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
               <span>Report</span>
               <Icon title="report" size={18} />
             </button>
+            {user.status === "Active" && (
+              <button
+                className={cn("button-stroke button-small", styles.button)}
+                onClick={() => dispatch(unsubscribe())}
+              >
+                Unsubscribe
+              </button>
+            )}
+            {user.status !== "Active" && (
+              <button
+                className={cn("button", styles.button)}
+                type="button"
+                onClick={SubmitPayment}
+              >
+                Resubscribe
+              </button>
+            )}
           </div>
         </div>
 

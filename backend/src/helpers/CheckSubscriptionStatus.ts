@@ -29,7 +29,14 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         headers: { "Content-Type": "application/json" },
       });
       if (data.status === "Active") {
-        user.subscription = "member";
+        if (data.lastPayedStatus === "Declined") {
+          user.subscription = "free";
+        }
+        if (data.lastPayedStatus === "Approved") {
+          user.subscription = "member";
+        }
+        user.lastPayedStatus = data.lastPayedStatus;
+        user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
         user.status = data.status;
         user.amount = data.amount;
         user.mode = data.mode;
@@ -48,6 +55,8 @@ export const checkSubscriptionStatus = async (user: IUser) => {
           substart: user.substart,
           amount: user.amount,
           mode: user.mode,
+          lastPayedStatus: user.lastPayedStatus,
+          lastPayedDate: user.lastPayedDate,
         });
         return user;
       }
@@ -87,7 +96,14 @@ export const checkSubscriptionStatus = async (user: IUser) => {
       });
 
       if (data.status === "Active") {
-        user.subscription = "member";
+        if (data.lastPayedStatus === "Declined") {
+          user.subscription = "free";
+        }
+        if (data.lastPayedStatus === "Approved") {
+          user.subscription = "member";
+        }
+        user.lastPayedStatus = data.lastPayedStatus;
+        user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
         user.status = data.status;
         user.amount = data.amount;
         user.mode = data.mode;
@@ -106,6 +122,8 @@ export const checkSubscriptionStatus = async (user: IUser) => {
           substart: user.substart,
           amount: user.amount,
           mode: user.mode,
+          lastPayedStatus: user.lastPayedStatus,
+          lastPayedDate: user.lastPayedDate,
         });
         return user;
       }
@@ -148,6 +166,55 @@ export const checkSubscriptionStatus = async (user: IUser) => {
     } catch (error) {
       console.error("Error checking WayForPay subscription:", error);
     }
+  }
+  if (user.lastPayedStatus === "Declined") {
+    const payload = {
+      requestType,
+      merchantAccount,
+      merchantPassword,
+      orderReference: user.orderReference,
+    };
+    try {
+      const { data } = await axios.post(WFP_API_URL, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+      if (data.status === "Active") {
+        if (data.lastPayedStatus === "Declined") {
+          user.subscription = "free";
+        }
+        if (data.lastPayedStatus === "Approved") {
+          user.subscription = "member";
+        }
+        user.lastPayedStatus = data.lastPayedStatus;
+        user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
+        user.status = data.status;
+        user.amount = data.amount;
+        user.mode = data.mode;
+
+        if (data.nextPaymentDate) {
+          user.subend = new Date(parseInt(data.nextPaymentDate + "000"));
+        } else {
+          user.subend = new Date(
+            user.subend.setMonth(user.subend.getMonth() + 1)
+          );
+        }
+        user.substart = dateBegin(parseInt(data.dateBegin + "000"));
+        await User.findByIdAndUpdate(user._id, {
+          subscription: user.subscription,
+          status: user.status,
+          subend: user.subend,
+          substart: user.substart,
+          amount: user.amount,
+          mode: user.mode,
+          lastPayedStatus: user.lastPayedStatus,
+          lastPayedDate: user.lastPayedDate,
+        });
+        return user;
+      }
+    } catch (error) {
+      console.error("Error checking WayForPay subscription:", error);
+    }
+    return user;
   }
   return user;
 };
