@@ -106,7 +106,7 @@ export const verifyUser = createAsyncThunk(
     try {
       const response = await instance.get(`/users/verify/${verificationToken}`);
       setToken(response.data.token);
-      toast.success("You are successfully logged in!");
+      toast.success("You are verified!");
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -146,7 +146,7 @@ export const setNewPassword = createAsyncThunk(
         `/users/reset-password/${userData.newPassToken}`,
         { newPassword: userData.password }
       );
-      toast.success("You are successfully change password!");
+      toast.success("Your password is successfully changed!");
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {

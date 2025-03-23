@@ -1,4 +1,4 @@
-interface PaymemtData {
+interface PaymentData {
   data: {
     orderReference: string;
     orderDate: number;

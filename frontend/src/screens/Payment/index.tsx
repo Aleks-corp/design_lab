@@ -23,7 +23,7 @@ const PaymentPage = ({ date }: { date: Date }) => {
       <h2 className={styles.title}>Subscription Registration</h2>
       <p className={styles.subtitle}>Recurring Payment Details</p>
       <p className={styles.text}>
-        Amount: <span> $5 USD</span>
+        Amount: <span>€5 EURO</span>
       </p>
       <p className={styles.text}>
         Frequency: <span> Monthly</span>

@@ -69,6 +69,7 @@ const login = async (req: Request, res: Response) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      phone: updatedUser.phone,
       subscription: updatedUser.subscription,
       status: updatedUser.status,
       regularDateEnd: updatedUser.regularDateEnd,
@@ -90,6 +91,7 @@ const getCurrent = async (req: Request, res: Response) => {
     _id,
     name,
     email,
+    phone,
     subscription,
     status,
     substart,
@@ -102,6 +104,7 @@ const getCurrent = async (req: Request, res: Response) => {
       _id,
       name,
       email,
+      phone,
       subscription,
       status,
       regularDateEnd,
@@ -222,8 +225,11 @@ const changePassword = async (req: Request, res: Response) => {
 };
 
 const createPayment = async (req: Request, res: Response) => {
-  const { data }: PaymemtData = req.body;
+  const { data }: PaymentData = req.body;
   const { _id } = req.user;
+  if (!_id) {
+    throw ApiError(401, "Please login first");
+  }
   await User.findByIdAndUpdate(_id, {
     orderReference: data.orderReference,
   });
