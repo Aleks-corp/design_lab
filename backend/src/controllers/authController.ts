@@ -11,6 +11,7 @@ import { nextDate } from "src/helpers/setDate";
 import { amountData } from "src/constants/amountData";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 import { unsubscribeUser } from "src/helpers/unsubscribeUser";
+import { migrateFromOldBase } from "src/helpers/migrateFromOldBase";
 
 const {
   JWT_SECRET,
@@ -22,17 +23,25 @@ const {
 } = process.env;
 
 const register = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, phone } = req.body;
   const user = await User.findOne({ email });
   if (user) {
     throw ApiError(409, "Email in use. Please Sign In.");
   }
   const hashPassword = await bcrypt.hash(password, 10);
   const verificationToken = nanoid();
+  const migrateUserData = await migrateFromOldBase({ email, phone });
+  const orderReference = migrateUserData ? migrateUserData.PaymentOrder : "";
+  const regularDateEnd =
+    migrateUserData && migrateUserData.Status === "ACTIVE"
+      ? migrateUserData.ExpirationDate
+      : null;
   await User.create({
     ...req.body,
     password: hashPassword,
     verificationToken,
+    orderReference,
+    regularDateEnd,
   });
   const maildata = await sendMail({
     email,
@@ -73,6 +82,8 @@ const login = async (req: Request, res: Response) => {
       subscription: updatedUser.subscription,
       status: updatedUser.status,
       regularDateEnd: updatedUser.regularDateEnd,
+      lastPayedDate: updatedUser.lastPayedDate,
+      lastPayedStatus: updatedUser.lastPayedStatus,
       substart: updatedUser.substart,
       subend: updatedUser.subend,
       createdAt: updatedUser.createdAt,
@@ -96,6 +107,8 @@ const getCurrent = async (req: Request, res: Response) => {
     status,
     substart,
     regularDateEnd,
+    lastPayedDate,
+    lastPayedStatus,
     subend,
     createdAt,
   } = req.user;
@@ -108,6 +121,8 @@ const getCurrent = async (req: Request, res: Response) => {
       subscription,
       status,
       regularDateEnd,
+      lastPayedDate,
+      lastPayedStatus,
       substart,
       subend,
       createdAt,

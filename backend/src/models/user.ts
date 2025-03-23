@@ -35,6 +35,8 @@ const userSchema = new Schema<IUser, IUserModelType>(
     amount: { type: Number },
     mode: { type: String },
     regularDateEnd: { type: Date, default: null },
+    lastPayedStatus: { type: String },
+    lastPayedDate: { type: Date, default: null },
     substart: {
       type: Date,
       default: null,

@@ -5,13 +5,15 @@ export interface IUser {
   name: string;
   email: string;
   phone?: string;
+  subscription: "free" | "member" | "admin";
   status?: string;
   amount?: number;
   mode?: string;
   password: string;
-  subscription: "free" | "member" | "admin";
   orderReference: string;
   regularDateEnd?: Date;
+  lastPayedStatus?: string;
+  lastPayedDate?: Date;
   substart: Date;
   subend: Date;
   token?: string;

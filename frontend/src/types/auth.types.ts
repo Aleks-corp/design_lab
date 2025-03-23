@@ -8,7 +8,9 @@ export interface UserProfile {
   amount: number;
   mode: string;
   orderReference: string;
-  regularDateEnd: Date;
+  regularDateEnd?: Date;
+  lastPayedStatus?: string;
+  lastPayedDate?: Date;
   substart: Date;
   subend: Date;
   createdAt: string;
