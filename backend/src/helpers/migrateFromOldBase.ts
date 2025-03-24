@@ -10,9 +10,9 @@ const migrateFromOldBase = async ({
 }) => {
   let userFromOldBase: IWFPUser;
   try {
-    userFromOldBase = await WFPUser.findOne({ email });
+    userFromOldBase = await WFPUser.findOne({ Email: email });
     if (!userFromOldBase) {
-      userFromOldBase = await WFPUser.findOne({ phone });
+      userFromOldBase = await WFPUser.findOne({ Phone: phone });
     }
     if (!userFromOldBase) {
       return null;
