@@ -139,18 +139,26 @@ export const checkSubscriptionStatus = async (user: IUser) => {
       if (data.status === "Removed") {
         user.subscription = "free";
         user.status = "Removed";
+        user.lastPayedStatus = "";
+        user.lastPayedDate = null;
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
           status: user.status,
+          lastPayedDate: user.lastPayedDate,
+          lastPayedStatus: user.lastPayedStatus,
         });
         return user;
       }
       if (data.status === "Completed") {
         user.subscription = "free";
         user.status = "Completed";
+        user.lastPayedStatus = "";
+        user.lastPayedDate = null;
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
           status: user.status,
+          lastPayedDate: user.lastPayedDate,
+          lastPayedStatus: user.lastPayedStatus,
         });
         return user;
       }
