@@ -139,10 +139,6 @@ yarn start
 
 See our [FAQ section](https://design-lab.onrender.com/faq) for common questions and troubleshooting.
 
-## 📝 License
-
-This project is open-source and available under the MIT License.
-
 ## 📬 Contact
 
 For inquiries or support, email us at [**aleks.haran.dev@gmail.com**](mailto:aleks.haran.dev@gmail.com).

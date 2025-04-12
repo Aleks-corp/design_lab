@@ -5,12 +5,12 @@ import Control from "../../components/Control";
 import TextInput from "../../components/TextInput";
 import Icon from "../../components/Icon";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signUp } from "../../redux/auth/auth.thunk";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
-import { selectIsLogining, selectUserError } from "../../redux/selectors";
+import { selectIsLogining } from "../../redux/selectors";
 import Loader from "../../components/Loader";
 import { regSchema } from "../../schema/regSchema";
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
@@ -37,7 +37,6 @@ type FormValues = {
 const SignUp = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
 
   const [showPass, setShowPass] = useState(false);
@@ -54,12 +53,17 @@ const SignUp = () => {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const { name, email, phone, password } = data;
     const cleanedPhone = phone.replace("+", "");
-    await dispatch(signUp({ name, email, phone: cleanedPhone, password }));
-    if (error && error !== "Not authorized") {
-      return;
+    try {
+      await dispatch(
+        signUp({ name, email, phone: cleanedPhone, password })
+      ).unwrap();
+      setTimeout(() => {
+        navigate("/verify/0");
+        reset();
+      }, 0);
+    } catch (err) {
+      console.error("Registration failed", err);
     }
-    navigate("/verify/0");
-    reset();
   };
 
   return (
@@ -70,8 +74,17 @@ const SignUp = () => {
           <div className={styles.top}>
             <h1 className={cn("h2", styles.title)}>Registration</h1>
             <div className={styles.info}>
-              You can set preferred display name and create{" "}
-              <strong>your personal profile</strong>.
+              <p>
+                You can set preferred display name and create your personal
+                profile.
+              </p>
+              <p>
+                Already have an account?{" "}
+                <Link className={styles.link} to="/login">
+                  Sign In here
+                </Link>
+                .
+              </p>
             </div>
           </div>
           <div className={styles.row}>
@@ -84,10 +97,10 @@ const SignUp = () => {
                       <div className={styles.field}>
                         <TextInput
                           hookformprop={register("name")}
-                          label="display name"
+                          label="nickname"
                           name="Name"
                           type="text"
-                          placeholder="Enter your display Name"
+                          placeholder="Enter your nickname"
                           required
                         />
                         {errors?.name && (

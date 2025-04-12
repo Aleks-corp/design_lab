@@ -1,0 +1,31 @@
+@use "../../styles/helpers" as * 
+
+.info
+    width: 100%
+    display: flex
+    justify-content: space-between
+    align-items: center
+    padding: 24px
+    background-color: $neutrals6
+    border-radius: 48px
+    margin-bottom: 40px
+    +body-2
+    color: $neutrals4
+    +dark
+        background-color: $neutrals2
+    +m
+        flex-direction: column
+        gap: 16px
+        justify-content: center
+        padding: 16px 16px
+        border-radius: 64px
+    +a
+        border-radius: 36px
+
+
+
+.button
+    +m
+        padding: 0 64px
+    +a
+        width: 100%

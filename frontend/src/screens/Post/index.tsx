@@ -19,7 +19,7 @@ import Icon from "../../components/Icon";
 import { clearPost } from "../../redux/posts/postSlice";
 import Control from "../../components/Control";
 import moment from "moment";
-import toast from "react-hot-toast";
+import AccessPass from "../../components/AccessPass";
 
 const breadcrumbs = [
   {
@@ -39,12 +39,6 @@ const Post = ({
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  const SubmitPayment = () => {
-    const currentDate = new Date();
-    setDate(currentDate);
-    navigate("/payment");
-  };
 
   useEffect(() => {
     if (id) {
@@ -141,18 +135,7 @@ const Post = ({
             {(!user ||
               (user.subscription === "free" &&
                 user.lastPayedStatus !== "Declined")) && (
-              <div className={styles.info}>
-                You can download this product with the All-Access Pass.
-                <button
-                  className={cn("button", styles.button)}
-                  type="button"
-                  onClick={() =>
-                    user ? SubmitPayment() : toast.error("sign in first")
-                  }
-                >
-                  Get All-Access
-                </button>
-              </div>
+              <AccessPass user={user} setDate={setDate} />
             )}
             {user &&
               user.subscription === "free" &&
