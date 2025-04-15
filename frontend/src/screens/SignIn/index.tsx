@@ -61,7 +61,8 @@ const SignIn = () => {
   });
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const ans = await dispatch(logIn(data));
+    const { email, password } = data;
+    const ans = await dispatch(logIn({ email: email.toLowerCase(), password }));
     if (ans?.type === "auth/login/rejected") {
       if (ans.payload.status === 403) {
         setIsntVerify(true);

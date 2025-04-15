@@ -55,7 +55,12 @@ const SignUp = () => {
     const cleanedPhone = phone.replace("+", "");
     try {
       await dispatch(
-        signUp({ name, email, phone: cleanedPhone, password })
+        signUp({
+          name,
+          email: email.toLowerCase(),
+          phone: cleanedPhone,
+          password,
+        })
       ).unwrap();
       setTimeout(() => {
         navigate("/verify/0");
