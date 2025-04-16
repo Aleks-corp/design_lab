@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "target": "ESNext",
-    "sourceMap": true,
+    "sourceMap": false,
     "esModuleInterop": true,
     "strictPropertyInitialization": false,
     "emitDecoratorMetadata": true,
