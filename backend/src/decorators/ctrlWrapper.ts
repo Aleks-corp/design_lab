@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 
-export type CtrlFunction = (
+export type CtrlFunction<T> = (
   req: Request,
   res: Response,
   next: NextFunction
-) => Promise<void>;
+) => Promise<T>;
 
-const ctrlWrapper = (ctrl: CtrlFunction) => {
+const ctrlWrapper = <T>(ctrl: CtrlFunction<T>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await ctrl(req, res, next);

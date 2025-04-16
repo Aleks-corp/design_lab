@@ -34,11 +34,6 @@ export interface IUserReg {
   email: string;
   password: string;
   phone: string;
-  orderReference: string;
-  regularDateEnd: Date;
-  substart: Date;
-  subend: Date;
-  subscription: UserSubscription;
 }
 
 export interface IUserLog {

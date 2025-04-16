@@ -41,7 +41,7 @@ const updateUsersSubscription = async (req: Request, res: Response) => {
         await User.findByIdAndUpdate(
           user._id,
           {
-            subscription: subscription,
+            subscription,
             subend: null,
             substart: null,
           },
@@ -66,7 +66,7 @@ const updateUsersSubscription = async (req: Request, res: Response) => {
         await User.findByIdAndUpdate(
           user._id,
           {
-            subscription: subscription,
+            subscription,
             substart: newSubstart,
             subend: newSubend,
           },

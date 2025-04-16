@@ -1,18 +1,15 @@
 import "dotenv/config";
-import User from "../models/user";
 import { ApiError } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
-
-import { migrateFromOldBase } from "src/helpers/migrateFromOldBase";
-import { registrationSale } from "src/helpers/registrationSale";
-import { userSubscriptionConst } from "src/constants/usersConstants";
+import { ObjectId } from "mongoose";
 import {
   changePasswordService,
   createPaymentService,
   forgotPasswordService,
   loginService,
   logoutService,
+  paymentStatusService,
   paymentWebhookService,
   registerService,
   resendVerifyService,
@@ -20,37 +17,18 @@ import {
   unsubscribeWebhookService,
   verificationService,
 } from "src/services/authService";
-import { ObjectId } from "mongoose";
-import { IUser } from "src/types/user.type";
+
 
 const { FRONT_SERVER } = process.env;
 
 const register = async (req: Request, res: Response) => {
   const { name, email, password, phone } = req.body;
-  const user = await User.findOne({ email });
-  if (user) {
-    throw ApiError(409, "Email in use. Please Sign In.");
-  }
-  const migrateUserData = await migrateFromOldBase({ email, phone });
-  const registerSale = registrationSale();
 
   await registerService({
     name,
     email,
     password,
     phone,
-    orderReference: migrateUserData
-      ? migrateUserData.PaymentOrder
-      : registerSale.orderReference,
-    regularDateEnd:
-      migrateUserData && migrateUserData.Status === "ACTIVE"
-        ? migrateUserData.ExpirationDate
-        : null,
-    substart: migrateUserData ? null : registerSale.substart,
-    subend: migrateUserData ? null : registerSale.subend,
-    subscription: migrateUserData
-      ? userSubscriptionConst.FREE
-      : userSubscriptionConst.SALE,
   });
 
   res.status(201).json({ message: "Thank you for signing up" });
@@ -166,7 +144,6 @@ const createPayment = async (req: Request, res: Response) => {
 
 const paymentWebhook = async (req: Request, res: Response) => {
   let data = req.body;
-
   const keys = Object.keys(data);
   if (keys.length === 1) {
     try {
@@ -183,8 +160,8 @@ const paymentWebhook = async (req: Request, res: Response) => {
 };
 
 const paymentStatus = async (req: Request, res: Response) => {
-  const user = await User.findById(req.user._id);
-  res.json({ subscription: user.subscription });
+  const subscription = await paymentStatusService(req.user._id as ObjectId);
+  res.json({ subscription });
 };
 
 const unsubscribeWebhook = async (req: Request, res: Response) => {
