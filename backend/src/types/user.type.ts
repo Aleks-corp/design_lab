@@ -1,11 +1,13 @@
 import { ObjectId } from "mongoose";
 
+export type UserSubscription = "free" | "sale" | "member" | "admin";
+
 export interface IUser {
   _id: string | ObjectId;
   name: string;
   email: string;
   phone?: string;
-  subscription: "free" | "member" | "admin";
+  subscription: UserSubscription;
   status?: string;
   amount?: number;
   mode?: string;
@@ -31,7 +33,12 @@ export interface IUserReg {
   name: string;
   email: string;
   password: string;
-  verify_token: string;
+  phone: string;
+  orderReference: string;
+  regularDateEnd: Date;
+  substart: Date;
+  subend: Date;
+  subscription: UserSubscription;
 }
 
 export interface IUserLog {

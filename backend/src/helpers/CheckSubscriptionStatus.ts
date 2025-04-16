@@ -3,6 +3,7 @@ import axios from "axios";
 import { IUser } from "src/types/user.type";
 import User from "../models/user";
 import { dateBegin } from "./setDate";
+import { userSubscriptionConst } from "src/constants/usersConstants";
 
 const requestType = "STATUS";
 const merchantAccount = process.env.WFP_MERCHANT_ACCOUNT || "";
@@ -11,7 +12,7 @@ const WFP_API_URL =
   process.env.WFP_API_URL || "https://api.wayforpay.com/regularApi";
 
 export const checkSubscriptionStatus = async (user: IUser) => {
-  if (user.subscription === "admin") {
+  if (user.subscription === userSubscriptionConst.ADMIN) {
     return user;
   }
   if (!user.orderReference) {
@@ -19,15 +20,20 @@ export const checkSubscriptionStatus = async (user: IUser) => {
   }
   const newDateTime = new Date().getTime();
   if (
+    user.subscription === userSubscriptionConst.SALE &&
     user.orderReference === "registrationSale" &&
     user.subend &&
     newDateTime > user.subend.getTime()
   ) {
-    user.subscription = "free";
+    user.subscription = userSubscriptionConst.FREE;
     user.orderReference = "";
+    user.substart = null;
+    user.subend = null;
     await User.findByIdAndUpdate(user._id, {
       subscription: user.subscription,
       orderReference: user.orderReference,
+      subend: user.subend,
+      substart: user.substart,
     });
     return user;
   }
@@ -44,10 +50,10 @@ export const checkSubscriptionStatus = async (user: IUser) => {
       });
       if (data.status === "Active") {
         if (data.lastPayedStatus === "Declined") {
-          user.subscription = "free";
+          user.subscription = userSubscriptionConst.FREE;
         }
         if (data.lastPayedStatus === "Approved") {
-          user.subscription = "member";
+          user.subscription = userSubscriptionConst.MEMBER;
         }
         user.lastPayedStatus = data.lastPayedStatus;
         user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
@@ -75,7 +81,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         return user;
       }
       if (data.status === "Created") {
-        user.subscription = "free";
+        user.subscription = userSubscriptionConst.FREE;
         user.status = data.status;
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
@@ -83,7 +89,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         });
         return user;
       } else {
-        user.subscription = "free";
+        user.subscription = userSubscriptionConst.FREE;
         user.orderReference = "";
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
@@ -110,10 +116,10 @@ export const checkSubscriptionStatus = async (user: IUser) => {
 
       if (data.status === "Active") {
         if (data.lastPayedStatus === "Declined") {
-          user.subscription = "free";
+          user.subscription = userSubscriptionConst.FREE;
         }
         if (data.lastPayedStatus === "Approved") {
-          user.subscription = "member";
+          user.subscription = userSubscriptionConst.MEMBER;
         }
         user.lastPayedStatus = data.lastPayedStatus;
         user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
@@ -141,7 +147,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         return user;
       }
       if (data.status === "Suspended") {
-        user.subscription = "free";
+        user.subscription = userSubscriptionConst.FREE;
         user.status = "Suspended";
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
@@ -150,7 +156,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         return user;
       }
       if (data.status === "Removed") {
-        user.subscription = "free";
+        user.subscription = userSubscriptionConst.FREE;
         user.status = "Removed";
         user.lastPayedStatus = "";
         user.lastPayedDate = null;
@@ -163,7 +169,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         return user;
       }
       if (data.status === "Completed") {
-        user.subscription = "free";
+        user.subscription = userSubscriptionConst.FREE;
         user.status = "Completed";
         user.lastPayedStatus = "";
         user.lastPayedDate = null;
@@ -176,7 +182,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         return user;
       }
       if (data.status === "Created") {
-        user.subscription = "free";
+        user.subscription = userSubscriptionConst.FREE;
         user.status = "Created";
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
@@ -185,7 +191,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         return user;
       }
       if (!data.status) {
-        user.subscription = "free";
+        user.subscription = userSubscriptionConst.FREE;
         user.orderReference = "";
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
@@ -210,10 +216,10 @@ export const checkSubscriptionStatus = async (user: IUser) => {
       });
       if (data.status === "Active") {
         if (data.lastPayedStatus === "Declined") {
-          user.subscription = "free";
+          user.subscription = userSubscriptionConst.FREE;
         }
         if (data.lastPayedStatus === "Approved") {
-          user.subscription = "member";
+          user.subscription = userSubscriptionConst.MEMBER;
         }
         user.lastPayedStatus = data.lastPayedStatus;
         user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));

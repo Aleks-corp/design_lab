@@ -78,6 +78,16 @@ const SignUp = () => {
         <div className={cn("container", styles.container)}>
           <div className={styles.top}>
             <h1 className={cn("h2", styles.title)}>Registration</h1>
+            <div className={styles.trialBanner}>
+              <h3 className={styles.trialTitle}>Trial Premium Access</h3>
+              <p>
+                You'll receive a <span>3-day</span> trial of{" "}
+                <span>Premium Access</span> after email verification. This
+                includes access to premium content with a daily download limit
+                of <span>2 files</span>.
+              </p>
+            </div>
+
             <div className={styles.info}>
               <p>
                 You can set preferred display name and create your personal

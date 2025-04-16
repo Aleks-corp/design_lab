@@ -1,7 +1,11 @@
 import { Schema, model, Model } from "mongoose";
 import { handleUpdateValidator, handlerSaveError } from "./hooks";
 
-import { emailRegexp, userSubscription } from "../constants/usersConstants";
+import {
+  emailRegexp,
+  userSubscription,
+  userSubscriptionConst,
+} from "../constants/usersConstants";
 import { IUser } from "../types/user.type";
 import { userStatus } from "src/constants/statusConstant";
 
@@ -29,7 +33,7 @@ const userSchema = new Schema<IUser, IUserModelType>(
     subscription: {
       type: String,
       enum: userSubscription,
-      default: "free",
+      default: userSubscriptionConst.FREE,
     },
     status: { type: String, enum: userStatus },
     amount: { type: Number },

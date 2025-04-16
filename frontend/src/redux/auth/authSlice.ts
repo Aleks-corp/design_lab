@@ -94,7 +94,13 @@ const handlePending = (state: AuthState) => {
 const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    setDailyDownloadCount(state: AuthState, action: PayloadAction<number>) {
+      if (state.profile) {
+        state.profile.dailyDownloadCount = action.payload;
+      }
+    },
+  },
   extraReducers: (builder) =>
     builder
       .addCase(signUp.fulfilled, handleFulfilled)
@@ -121,4 +127,5 @@ const authSlice = createSlice({
       ),
 });
 
+export const { setDailyDownloadCount } = authSlice.actions;
 export const authReducer = authSlice.reducer;

@@ -1,4 +1,20 @@
-export const userSubscription = ["free", "member", "admin"];
+import { UserSubscription } from "src/types/user.type";
+
+export const userSubscription: UserSubscription[] = [
+  "free",
+  "sale",
+  "member",
+  "admin",
+];
+export const userSubscriptionConst: Record<
+  Uppercase<UserSubscription>,
+  UserSubscription
+> = {
+  FREE: "free",
+  SALE: "sale",
+  MEMBER: "member",
+  ADMIN: "admin",
+};
 
 export const emailRegexp = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/;
 

@@ -1,21 +1,12 @@
 import styles from "./SubscriptionBanner.module.sass";
 
-const SubscriptionBanner = () => {
+const SubscriptionBanner = ({ text }: { text: string }) => {
   return (
     <div className={styles.subscriptionbanner}>
       <div className={styles.marquee}>
-        <p>
-          Get <span>full access</span> to download files and enjoy all features
-          by <span>purchasing a subscription</span> today!
-        </p>
-        <p>
-          Get <span>full access</span> to download files and enjoy all features
-          by <span>purchasing a subscription</span> today!
-        </p>
-        <p>
-          Get <span>full access</span> to download files and enjoy all features
-          by <span>purchasing a subscription</span> today!
-        </p>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <p key={i} dangerouslySetInnerHTML={{ __html: text }} />
+        ))}
       </div>
     </div>
   );

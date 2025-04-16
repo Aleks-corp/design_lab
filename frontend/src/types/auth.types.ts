@@ -13,6 +13,7 @@ export interface UserProfile {
   lastPayedDate?: Date;
   substart: Date;
   subend: Date;
+  dailyDownloadCount: number;
   createdAt: string;
 }
 

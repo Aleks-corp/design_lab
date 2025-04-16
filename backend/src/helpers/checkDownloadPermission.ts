@@ -1,5 +1,6 @@
 import { IUser } from "src/types/user.type";
 import User from "../models/user";
+import { userSubscriptionConst } from "src/constants/usersConstants";
 
 export const checkDownloadPermission = async (user: IUser) => {
   const now = new Date();
@@ -9,7 +10,7 @@ export const checkDownloadPermission = async (user: IUser) => {
     reason: "Not allowed to download",
   };
 
-  if (!user || user.subscription === "free") {
+  if (!user || user.subscription === userSubscriptionConst.FREE) {
     return permission;
   }
 

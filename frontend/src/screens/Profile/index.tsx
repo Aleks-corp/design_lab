@@ -7,6 +7,7 @@ import UserFree from "./UsersFree";
 import { useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/selectors";
 import { SetStateAction } from "react";
+import UserSale from "./UsersSale";
 
 const Profile = ({
   setDate,
@@ -32,6 +33,9 @@ const Profile = ({
             )}
             {user.subscription === "admin" && (
               <UserAdmin className={styles.user} user={user} />
+            )}
+            {user.subscription === "sale" && (
+              <UserSale className={styles.user} user={user} setDate={setDate} />
             )}
           </div>
         </div>

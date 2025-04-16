@@ -8,6 +8,10 @@ import { Toaster } from "react-hot-toast";
 import { useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/selectors";
 import SubscriptionBanner from "../SubscriptionBanner";
+import {
+  bannerSaleContent,
+  bannerSubscriptionContent,
+} from "../../constants/banner-content.constant";
 
 interface PageProps {
   children: React.ReactNode;
@@ -26,7 +30,10 @@ const Page = ({ children }: PageProps) => {
     <div className={styles.page}>
       <Header />
       {user && user.subscription === "free" && !user.lastPayedStatus && (
-        <SubscriptionBanner />
+        <SubscriptionBanner text={bannerSubscriptionContent} />
+      )}
+      {user && user.subscription === "sale" && !user.lastPayedStatus && (
+        <SubscriptionBanner text={bannerSaleContent} />
       )}
       <div className={styles.inner}>{children}</div>
       <Footer />

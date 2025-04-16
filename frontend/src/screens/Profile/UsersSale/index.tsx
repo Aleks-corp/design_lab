@@ -7,8 +7,6 @@ import Modal from "../../../components/Modal";
 import { UserProfile } from "../../../types/auth.types";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
-import { useAppDispatch } from "../../../redux/hooks";
-import { unsubscribe } from "../../../redux/auth/auth.thunk";
 
 interface UserProps {
   className: string;
@@ -16,8 +14,7 @@ interface UserProps {
   setDate: React.Dispatch<SetStateAction<Date>>;
 }
 
-const UserMember = ({ className, user, setDate }: UserProps) => {
-  const dispatch = useAppDispatch();
+const UserSale = ({ className, user, setDate }: UserProps) => {
   const [visibleModalReport, setVisibleModalReport] = useState(false);
   const navigate = useNavigate();
 
@@ -48,34 +45,18 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
             </p>
             <p className={styles.info__text}>
               Subscription -{" "}
-              <span>{user.subscription === "sale" && "Premium Access"}</span>
+              <span>
+                {user.subscription === "sale" && "Trial Premium Access"}
+              </span>
             </p>
             <p className={styles.info__text}>
-              Subscription status - <span>{user.status}</span>
+              Daily Downloads - <span>{user.dailyDownloadCount}</span>
             </p>
-            {user.lastPayedStatus && user.lastPayedDate && (
-              <>
-                <p
-                  className={cn(styles.info__text, {
-                    [styles.aproved]: user.lastPayedStatus === "Approved",
-                    [styles.declined]: user.lastPayedStatus === "Declined",
-                  })}
-                >
-                  Last payed status - <span>{user.lastPayedStatus}</span>
-                </p>
-                <p className={styles.info__text}>
-                  Last payed date -{" "}
-                  <span>
-                    {moment(new Date(user.lastPayedDate)).format("DD-MM-yyyy")}
-                  </span>
-                </p>
-              </>
-            )}
             {user.status !== "Active" && (
               <p className={styles.info__text}>
                 Subscription until -{" "}
                 <span>
-                  {moment(new Date(user.subend)).format("DD-MM-yyyy")}
+                  {moment(new Date(user.subend)).format("DD-MM-yyyy, HH:mm:ss")}
                 </span>
               </p>
             )}
@@ -105,21 +86,14 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
               <span>Report</span>
               <Icon title="report" size={18} />
             </button>
-            {user.status === "Active" && (
-              <button
-                className={cn("button-stroke button-small", styles.button)}
-                onClick={() => dispatch(unsubscribe())}
-              >
-                Unsubscribe
-              </button>
-            )}
+
             {user.status !== "Active" && (
               <button
                 className={cn("button", styles.button)}
                 type="button"
                 onClick={SubmitPayment}
               >
-                Resubscribe
+                Subscribe
               </button>
             )}
           </div>
@@ -139,4 +113,4 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
   );
 };
 
-export default UserMember;
+export default UserSale;

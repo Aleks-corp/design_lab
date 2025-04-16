@@ -22,6 +22,8 @@ import Control from "../../components/Control";
 import moment from "moment";
 import AccessPass from "../../components/AccessPass";
 import toast from "react-hot-toast";
+import { userSubscriptionConst } from "../../constants/user.constants";
+import { setDailyDownloadCount } from "../../redux/auth/authSlice";
 
 const breadcrumbs = [
   {
@@ -61,6 +63,36 @@ const Post = ({
   const like = (postId: string) => {
     if (user) {
       dispatch(addRemoveFavorites(postId));
+    }
+  };
+
+  const DownloadCount = () => {
+    if (user?.subscription === userSubscriptionConst.SALE) {
+      const count = user.dailyDownloadCount + 1;
+      dispatch(setDailyDownloadCount(count));
+    }
+  };
+
+  const DownloadSubmit = async (postId: string) => {
+    try {
+      const response = await dispatch(checkDownloadPermission(postId)).unwrap();
+
+      if (response?.downloadUrl) {
+        const a = document.createElement("a");
+        a.href = response.downloadUrl;
+        a.download = "";
+        a.click();
+        a.remove();
+        DownloadCount();
+      }
+    } catch (err) {
+      if (typeof err === "string") {
+        toast.error(err);
+      } else if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Download failed.");
+      }
     }
   };
 
@@ -106,29 +138,7 @@ const Post = ({
                 {user && user.subscription !== "free" && (
                   <button
                     type="button"
-                    onClick={async () => {
-                      try {
-                        const response = await dispatch(
-                          checkDownloadPermission(post._id)
-                        ).unwrap();
-
-                        if (response?.downloadUrl) {
-                          const a = document.createElement("a");
-                          a.href = response.downloadUrl;
-                          a.download = "";
-                          a.click();
-                          a.remove();
-                        }
-                      } catch (err) {
-                        if (typeof err === "string") {
-                          toast.error(err);
-                        } else if (err instanceof Error) {
-                          toast.error(err.message);
-                        } else {
-                          toast.error("Download failed.");
-                        }
-                      }
-                    }}
+                    onClick={() => DownloadSubmit(post._id)}
                     className={cn("button", styles.button)}
                   >
                     Download
