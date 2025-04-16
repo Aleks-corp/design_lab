@@ -17,6 +17,20 @@ export const checkSubscriptionStatus = async (user: IUser) => {
   if (!user.orderReference) {
     return user;
   }
+  const newDateTime = new Date().getTime();
+  if (
+    user.orderReference === "registrationSale" &&
+    user.subend &&
+    newDateTime > user.subend.getTime()
+  ) {
+    user.subscription = "free";
+    user.orderReference = "";
+    await User.findByIdAndUpdate(user._id, {
+      subscription: user.subscription,
+      orderReference: user.orderReference,
+    });
+    return user;
+  }
   if (user.orderReference && !user.subend) {
     const payload = {
       requestType,
@@ -82,8 +96,7 @@ export const checkSubscriptionStatus = async (user: IUser) => {
     }
     return user;
   }
-  const newDate = new Date();
-  if (user.subend && newDate.getTime() > user.subend.getTime()) {
+  if (user.subend && newDateTime > user.subend.getTime()) {
     const payload = {
       requestType,
       merchantAccount,
@@ -168,6 +181,15 @@ export const checkSubscriptionStatus = async (user: IUser) => {
         await User.findByIdAndUpdate(user._id, {
           subscription: user.subscription,
           status: user.status,
+        });
+        return user;
+      }
+      if (!data.status) {
+        user.subscription = "free";
+        user.orderReference = "";
+        await User.findByIdAndUpdate(user._id, {
+          subscription: user.subscription,
+          orderReference: user.orderReference,
         });
         return user;
       }

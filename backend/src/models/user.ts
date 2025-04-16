@@ -51,6 +51,8 @@ const userSchema = new Schema<IUser, IUserModelType>(
         return this.subscription === "member";
       },
     },
+    dailyDownloadCount: { type: Number, default: 0 },
+    lastDownloadReset: { type: Date, default: null },
     orderReference: {
       type: String,
     },

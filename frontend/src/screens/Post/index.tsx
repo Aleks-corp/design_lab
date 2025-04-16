@@ -1,10 +1,11 @@
 import { SetStateAction, useEffect } from "react";
 import cn from "classnames";
 import styles from "./Post.module.sass";
-import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   addRemoveFavorites,
+  checkDownloadPermission,
   deletePost,
   fetchPostById,
 } from "../../redux/posts/post.thunk";
@@ -20,6 +21,7 @@ import { clearPost } from "../../redux/posts/postSlice";
 import Control from "../../components/Control";
 import moment from "moment";
 import AccessPass from "../../components/AccessPass";
+import toast from "react-hot-toast";
 
 const breadcrumbs = [
   {
@@ -102,13 +104,35 @@ const Post = ({
                   1024
                 ).toFixed(2)} Mb`}</p>
                 {user && user.subscription !== "free" && (
-                  <NavLink
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const response = await dispatch(
+                          checkDownloadPermission(post._id)
+                        ).unwrap();
+
+                        if (response?.downloadUrl) {
+                          const a = document.createElement("a");
+                          a.href = response.downloadUrl;
+                          a.download = "";
+                          a.click();
+                          a.remove();
+                        }
+                      } catch (err) {
+                        if (typeof err === "string") {
+                          toast.error(err);
+                        } else if (err instanceof Error) {
+                          toast.error(err.message);
+                        } else {
+                          toast.error("Download failed.");
+                        }
+                      }
+                    }}
                     className={cn("button", styles.button)}
-                    to={post.downloadlink}
-                    download
                   >
                     Download
-                  </NavLink>
+                  </button>
                 )}
                 {isAdmin && (
                   <button

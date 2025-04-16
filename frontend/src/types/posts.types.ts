@@ -3,14 +3,11 @@ export interface GetPost {
   title: string;
   description: string;
   images: string[];
-  downloadlink: string;
   filesize: string;
   favorites: string[];
   category: string[];
   kits: string[];
   upload_at: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface AddPost {

@@ -2,10 +2,14 @@ import Post from "../models/post";
 import { ApiError, deleteFromS3 } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
-import { generatePresignedUrl } from "../helpers/generatePresignedUrl";
-import { generateSignedGetUrl } from "src/helpers/getSignedUrl";
+import { generatePresignedUrl } from "src/helpers/generatePresignedUrl";
+import {
+  generateSignedUrlImage,
+  generateSignedUrlFile,
+} from "src/helpers/getSignedUrl";
 import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
 import { GetPost } from "src/types/post.type";
+import { checkDownloadPermission } from "src/helpers/checkDownloadPermission";
 
 interface PostRequest extends Request {
   body: GetPost;
@@ -53,7 +57,7 @@ const getAllPosts = async (req: Request, res: Response) => {
       const signedImages = await Promise.all(
         post.images.map((image: string) => {
           const key = getKeyFromUrl(image);
-          return generateSignedGetUrl(key);
+          return generateSignedUrlImage(key);
         })
       );
       return {
@@ -68,7 +72,6 @@ const getAllPosts = async (req: Request, res: Response) => {
 
 const getPostById = async (req: Request, res: Response) => {
   const { postId } = req.params;
-  const user = req.user;
   const post = await Post.findById(postId);
   if (!post) {
     throw ApiError(404);
@@ -76,7 +79,7 @@ const getPostById = async (req: Request, res: Response) => {
   const signedImages = await Promise.all(
     post.images.map((image: string) => {
       const key = getKeyFromUrl(image);
-      return generateSignedGetUrl(key);
+      return generateSignedUrlImage(key);
     })
   );
 
@@ -89,20 +92,27 @@ const getPostById = async (req: Request, res: Response) => {
     favorites: post.favorites,
     category: post.category,
     images: signedImages,
-    downloadlink: "",
     upload_at: post.upload_at,
-    createdAt: post.createdAt,
   };
 
-  if (user && user.subscription !== "free") {
-    const signedDownloads = await generateSignedGetUrl(
-      getKeyFromUrl(post.downloadlink)
-    );
-
-    signedPost.downloadlink = signedDownloads;
-  }
-
   res.json(signedPost);
+};
+
+const checkDownload = async (req: Request, res: Response) => {
+  const user = req.user;
+  const { postId } = req.params;
+  const permission = await checkDownloadPermission(user);
+  if (!permission.allowed) {
+    throw ApiError(403, permission.reason);
+  }
+  const post = await Post.findById(postId);
+  if (!post) {
+    throw ApiError(404);
+  }
+  const signedFileUrl = await generateSignedUrlFile(
+    getKeyFromUrl(post.downloadlink)
+  );
+  res.json({ downloadUrl: signedFileUrl });
 };
 
 const postPresignedUrl = async (req: Request, res: Response) => {
@@ -135,31 +145,6 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
     kits,
     upload_at,
   } = req.body;
-  // const { body } = req;
-  // const files = req.files;
-
-  // if (!files || (!files["imagefiles"] && !files["downloadfile"])) {
-  //   console.error("No files uploaded");
-  //   res.status(400).json({ error: "No files uploaded" });
-  //   return;
-  // }
-
-  // const image = files["imagefiles"]
-  //   ? Array.isArray(files["imagefiles"])
-  //     ? await Promise.all(
-  //         files["imagefiles"].map((file) => uploadToS3(file, "post-images"))
-  //       )
-  //     : []
-  //   : [];
-
-  // const downloadlink = files["downloadfile"]
-  //   ? Array.isArray(files["downloadfile"])
-  //     ? await uploadToS3(files["downloadfile"][0], "post-files")
-  //     : await uploadToS3(files["downloadfile"], "post-files")
-  //   : "";
-
-  // const kits = JSON.parse(req.body.kits);
-  // const category = JSON.parse(req.body.category);
 
   const post = await Post.create({
     title,
@@ -171,7 +156,17 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
     kits,
     upload_at,
   });
-  res.status(201).json(post);
+  res.status(201).json({
+    _id: post._id,
+    title: post.title,
+    description: post.description,
+    images: post.images,
+    filesize: post.filesize,
+    favorites: post.favorites,
+    category: post.category,
+    kits: post.kits,
+    upload_at: post.upload_at,
+  });
 };
 
 const updateStatusPost = async (req: Request, res: Response) => {
@@ -197,13 +192,13 @@ const updateStatusPost = async (req: Request, res: Response) => {
       postId,
       { $pull: { favorites: userId } },
       { new: true }
-    );
+    ).select("-owner -createdAt -updatedAt -downloadlink");
   } else {
     updatedPost = await Post.findByIdAndUpdate(
       postId,
       { $addToSet: { favorites: userId } },
       { new: true }
-    );
+    ).select("-owner -createdAt -updatedAt -downloadlink");
   }
 
   if (!updatedPost) {
@@ -237,6 +232,7 @@ const deletePostById = async (req: Request, res: Response) => {
 export default {
   getAllPosts: ctrlWrapper(getAllPosts),
   getPostById: ctrlWrapper(getPostById),
+  checkDownload: ctrlWrapper(checkDownload),
   addPost: ctrlWrapper(addPost),
   deletePostById: ctrlWrapper(deletePostById),
   updateStatusPost: ctrlWrapper(updateStatusPost),

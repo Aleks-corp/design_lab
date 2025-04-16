@@ -12,6 +12,7 @@ import { amountData } from "src/constants/amountData";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 import { unsubscribeUser } from "src/helpers/unsubscribeUser";
 import { migrateFromOldBase } from "src/helpers/migrateFromOldBase";
+import { registrationSale } from "src/helpers/registrationSale";
 
 const {
   JWT_SECRET,
@@ -31,23 +32,43 @@ const register = async (req: Request, res: Response) => {
   const hashPassword = await bcrypt.hash(password, 10);
   const verificationToken = nanoid();
   const migrateUserData = await migrateFromOldBase({ email, phone });
-  const orderReference = migrateUserData ? migrateUserData.PaymentOrder : "";
-  const regularDateEnd =
-    migrateUserData && migrateUserData.Status === "ACTIVE"
-      ? migrateUserData.ExpirationDate
-      : null;
+  const newRegData = {
+    orderReference: "",
+    regularDateEnd: null,
+    substart: null,
+    subend: null,
+  };
+  let emailText = "";
+  if (migrateUserData) {
+    newRegData.orderReference = migrateUserData
+      ? migrateUserData.PaymentOrder
+      : "";
+    newRegData.regularDateEnd =
+      migrateUserData && migrateUserData.Status === "ACTIVE"
+        ? migrateUserData.ExpirationDate
+        : null;
+    emailText =
+      "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.";
+  } else {
+    const registerSale = registrationSale();
+    newRegData.orderReference = registerSale.orderReference;
+    newRegData.substart = registerSale.substart;
+    newRegData.subend = registerSale.subend;
+    emailText =
+      "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below. As a new user, you will receive <strong>3 days of Limit Premium access</strong> after verification.";
+  }
+
   await User.create({
     ...req.body,
     password: hashPassword,
     verificationToken,
-    orderReference,
-    regularDateEnd,
+    ...newRegData,
   });
   const maildata = await sendMail({
     email,
     verificationToken,
     path: "verify",
-    text: "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.",
+    text: emailText,
   });
   if (!maildata) {
     throw ApiError(400, "Email not sent");

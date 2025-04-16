@@ -9,11 +9,11 @@ import {
 import { validateBody } from "../../decorators/index";
 import { postSchemas } from "../../schemas/index";
 import { postController } from "../../controllers/index";
-import { upload } from "../../middlewares/index";
 
 const {
   getAllPosts,
   getPostById,
+  checkDownload,
   addPost,
   deletePostById,
   updateStatusPost,
@@ -27,26 +27,27 @@ const postsRouter = express.Router();
 
 postsRouter.get("/", authenticateUser, getAllPosts);
 postsRouter.get("/:postId", authenticateUser, isValidId, getPostById);
-postsRouter.post(
-  "/generate-presigned-url",
+postsRouter.get(
+  "/check-download/:postId",
   authenticateToken,
-  postPresignedUrl
+  isValidId,
+  checkDownload
 );
+postsRouter.post("/generate-presigned-url", authenticateUser, postPresignedUrl);
 postsRouter.post(
   "/",
   authenticateToken,
-  // upload,
   isEmptyBody,
   validateBody(postAddSchema),
   addPost
 );
 postsRouter.patch(
   "/",
-  authenticateToken,
+  authenticateUser,
   isEmptyBodyStatus,
   validateBody(postUpdateStatusSchema),
   updateStatusPost
 );
-postsRouter.delete("/:postId", isValidId, deletePostById);
+postsRouter.delete("/:postId", authenticateToken, isValidId, deletePostById);
 
 export default postsRouter;

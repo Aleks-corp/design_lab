@@ -9,7 +9,7 @@ import { ObjectId } from "mongoose";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 import sendMailToSprt from "src/helpers/sendSprtMail";
 import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
-import { generateSignedGetUrl } from "src/helpers/getSignedUrl";
+import { generateSignedUrlImage } from "src/helpers/getSignedUrl";
 
 const getAllUser = async (req: Request, res: Response) => {
   const { page = "1", limit = "100", filter = "" } = req.query;
@@ -205,7 +205,7 @@ const getUnpublishedPosts = async (req: Request, res: Response) => {
       const signedImages = await Promise.all(
         post.images.map((image: string) => {
           const key = getKeyFromUrl(image);
-          return generateSignedGetUrl(key);
+          return generateSignedUrlImage(key);
         })
       );
       return {
@@ -227,7 +227,7 @@ const getUnpublishedPostById = async (req: Request, res: Response) => {
   const signedImages = await Promise.all(
     post.images.map((image: string) => {
       const key = getKeyFromUrl(image);
-      return generateSignedGetUrl(key);
+      return generateSignedUrlImage(key);
     })
   );
   res.json({ ...post, images: signedImages });

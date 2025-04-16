@@ -54,6 +54,22 @@ export const fetchPostById = createAsyncThunk(
   }
 );
 
+export const checkDownloadPermission = createAsyncThunk(
+  "posts/checkDownloadPermission",
+  async (postId: string, thunkAPI) => {
+    try {
+      const response = await instance.get(`/posts/check-download/${postId}`);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
+      }
+    }
+  }
+);
+
 export const addPost = createAsyncThunk(
   "posts/addPost",
   async (data: AddPost, thunkAPI) => {

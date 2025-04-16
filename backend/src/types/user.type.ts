@@ -16,6 +16,8 @@ export interface IUser {
   lastPayedDate?: Date;
   substart: Date;
   subend: Date;
+  dailyDownloadCount?: number;
+  lastDownloadReset?: Date;
   token?: string;
   verificationToken: string;
   verify: boolean;
