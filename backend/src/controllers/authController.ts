@@ -1,100 +1,64 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { nanoid } from "nanoid";
 import "dotenv/config";
 import User from "../models/user";
-import { ApiError, sendMail } from "../helpers/index";
+import { ApiError } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
-import crypto from "crypto";
-import { nextDate } from "src/helpers/setDate";
-import { amountData } from "src/constants/amountData";
-import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
-import { unsubscribeUser } from "src/helpers/unsubscribeUser";
+
 import { migrateFromOldBase } from "src/helpers/migrateFromOldBase";
 import { registrationSale } from "src/helpers/registrationSale";
-import { userSubscription } from "src/constants/usersConstants";
+import { userSubscriptionConst } from "src/constants/usersConstants";
+import {
+  changePasswordService,
+  createPaymentService,
+  forgotPasswordService,
+  loginService,
+  logoutService,
+  paymentWebhookService,
+  registerService,
+  resendVerifyService,
+  resetPasswordService,
+  unsubscribeWebhookService,
+  verificationService,
+} from "src/services/authService";
+import { ObjectId } from "mongoose";
+import { IUser } from "src/types/user.type";
 
-const {
-  JWT_SECRET,
-  WFP_SECRET_KEY,
-  WFP_MERCHANT_ACCOUNT,
-  WFP_MERCHANT_DOMAIN_NAME,
-  FRONT_SERVER,
-  VITE_BASE_URL,
-} = process.env;
+const { FRONT_SERVER } = process.env;
 
 const register = async (req: Request, res: Response) => {
-  const { email, password, phone } = req.body;
+  const { name, email, password, phone } = req.body;
   const user = await User.findOne({ email });
   if (user) {
     throw ApiError(409, "Email in use. Please Sign In.");
   }
-  const hashPassword = await bcrypt.hash(password, 10);
-  const verificationToken = nanoid();
   const migrateUserData = await migrateFromOldBase({ email, phone });
-  const newRegData = {
-    orderReference: "",
-    regularDateEnd: null,
-    substart: null,
-    subend: null,
-    subscription: userSubscription[0],
-  };
-  let emailText = "";
-  if (migrateUserData) {
-    newRegData.orderReference = migrateUserData
+  const registerSale = registrationSale();
+
+  await registerService({
+    name,
+    email,
+    password,
+    phone,
+    orderReference: migrateUserData
       ? migrateUserData.PaymentOrder
-      : "";
-    newRegData.regularDateEnd =
+      : registerSale.orderReference,
+    regularDateEnd:
       migrateUserData && migrateUserData.Status === "ACTIVE"
         ? migrateUserData.ExpirationDate
-        : null;
-    emailText =
-      "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.";
-  } else {
-    const registerSale = registrationSale();
-    newRegData.orderReference = registerSale.orderReference;
-    newRegData.substart = registerSale.substart;
-    newRegData.subend = registerSale.subend;
-    newRegData.subscription = userSubscription[1];
-    emailText =
-      "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below. As a new user, you will receive <strong>3 days of Limit Premium access</strong> after verification.";
-  }
+        : null,
+    substart: migrateUserData ? null : registerSale.substart,
+    subend: migrateUserData ? null : registerSale.subend,
+    subscription: migrateUserData
+      ? userSubscriptionConst.FREE
+      : userSubscriptionConst.SALE,
+  });
 
-  await User.create({
-    ...req.body,
-    password: hashPassword,
-    verificationToken,
-    ...newRegData,
-  });
-  const maildata = await sendMail({
-    email,
-    verificationToken,
-    path: "verify",
-    text: emailText,
-  });
-  if (!maildata) {
-    throw ApiError(400, "Email not sent");
-  }
   res.status(201).json({ message: "Thank you for signing up" });
 };
 
 const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw ApiError(401, "Email or password not valid");
-  }
-  if (!(await bcrypt.compare(password, user.password))) {
-    throw ApiError(401, "Email or password not valid");
-  }
-  if (!user.verify) {
-    throw ApiError(403, "Non verified user, please check email");
-  }
-  const updatedUser = await checkSubscriptionStatus(user);
-
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "333h" });
-  await User.findByIdAndUpdate(user._id, { token });
+  const { token, updatedUser } = await loginService({ email, password });
 
   res.json({
     token,
@@ -110,6 +74,7 @@ const login = async (req: Request, res: Response) => {
       lastPayedStatus: updatedUser.lastPayedStatus,
       substart: updatedUser.substart,
       subend: updatedUser.subend,
+      dailyDownloadCount: updatedUser.dailyDownloadCount,
       createdAt: updatedUser.createdAt,
     },
   });
@@ -117,8 +82,8 @@ const login = async (req: Request, res: Response) => {
 
 const logout = async (req: Request, res: Response) => {
   const { _id } = req.user;
-  await User.findByIdAndUpdate(_id, { token: "" });
-  res.status(204).json();
+  const message = await logoutService(_id as ObjectId);
+  res.status(204).json(message);
 };
 
 const getCurrent = async (req: Request, res: Response) => {
@@ -134,6 +99,7 @@ const getCurrent = async (req: Request, res: Response) => {
     lastPayedDate,
     lastPayedStatus,
     subend,
+    dailyDownloadCount,
     createdAt,
   } = req.user;
   if (req.user) {
@@ -149,6 +115,7 @@ const getCurrent = async (req: Request, res: Response) => {
       lastPayedStatus,
       substart,
       subend,
+      dailyDownloadCount,
       createdAt,
     });
   }
@@ -156,149 +123,44 @@ const getCurrent = async (req: Request, res: Response) => {
 
 const getVerification = async (req: Request, res: Response) => {
   const { verificationToken } = req.params;
-  const user = await User.findOne({ verificationToken });
-  if (!user) {
-    throw ApiError(404, "User not found");
-  }
-  if (user.verify) {
-    throw ApiError(400, "Verification has already been passed");
-  }
-  await User.findByIdAndUpdate(user._id, {
-    verify: true,
-  });
-  res.json({ message: "Verification has been passed" });
+  const message = await verificationService(verificationToken);
+  res.json(message);
 };
 
 const resendVerify = async (req: Request, res: Response) => {
   const { email } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw ApiError(404, "User Not Found");
-  }
-  if (user.verify) {
-    throw ApiError(400, "Verification has already been passed");
-  }
-  const maildata = await sendMail({
-    email,
-    path: "verify",
-    verificationToken: user.verificationToken,
-    text: "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.",
-  });
-  if (!maildata) {
-    throw ApiError(400, "Email not sent");
-  }
-  res.json({ message: "Verification email sent" });
+  const message = await resendVerifyService(email);
+  res.json(message);
 };
 
 const forgotPassword = async (req: Request, res: Response) => {
   const { email } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw ApiError(404, "User not found");
-  }
-
-  const resetToken = nanoid();
-  user.resetPasswordToken = resetToken;
-  user.resetPasswordExpires = Date.now() + 3600000;
-  await User.findByIdAndUpdate(user._id, {
-    ...user,
-  });
-
-  const maildata = await sendMail({
-    email: user.email,
-    path: "reset-password",
-    verificationToken: resetToken,
-    text: "You requested a password reset. Click the link below to set a new password.",
-  });
-  if (!maildata) {
-    throw ApiError(400, "Email not sent");
-  }
-
-  res.json({ message: "Password reset link sent to email" });
+  const message = await forgotPasswordService(email);
+  res.json(message);
 };
 
 const resetPassword = async (req: Request, res: Response) => {
   const { resetToken } = req.params;
   const { newPassword } = req.body;
-
-  const user = await User.findOne({
-    resetPasswordToken: resetToken,
-  });
-
-  if (!user) {
-    throw ApiError(400, "Invalid reset token");
-  }
-  if (user.resetPasswordExpires < Date.now()) {
-    throw ApiError(400, "Expired reset token");
-  }
-
-  user.password = await bcrypt.hash(newPassword, 10);
-  user.resetPasswordToken = "";
-  user.resetPasswordExpires = 0;
-  await User.findByIdAndUpdate(user._id, {
-    ...user,
-  });
-
-  res.json({ message: "Password successfully reset" });
+  const message = await resetPasswordService({ resetToken, newPassword });
+  res.json(message);
 };
 
 const changePassword = async (req: Request, res: Response) => {
   const { oldPassword, newPassword } = req.body;
-  const user = await User.findById(req.user._id);
-
-  if (!user) {
-    throw ApiError(404, "User not found");
-  }
-
-  const isMatch = await bcrypt.compare(oldPassword, user.password);
-  if (!isMatch) {
-    throw ApiError(401, "Old password is incorrect");
-  }
-
-  user.password = await bcrypt.hash(newPassword, 10);
-  await User.findByIdAndUpdate(user._id, {
-    ...user,
+  const userId = req.user._id as ObjectId;
+  const message = await changePasswordService({
+    oldPassword,
+    newPassword,
+    userId,
   });
-
-  res.json({ message: "Password successfully changed" });
+  res.json(message);
 };
 
 const createPayment = async (req: Request, res: Response) => {
-  const { data }: PaymentData = req.body;
-  const { _id } = req.user;
-  if (!_id) {
-    throw ApiError(401, "Please login first");
-  }
-  await User.findByIdAndUpdate(_id, {
-    orderReference: data.orderReference,
-  });
-  const secretKey = WFP_SECRET_KEY;
-  const merchantAccount = WFP_MERCHANT_ACCOUNT;
-  const merchantDomainName = WFP_MERCHANT_DOMAIN_NAME;
-  const string = [
-    merchantAccount,
-    merchantDomainName,
-    data.orderReference,
-    data.orderDate,
-    amountData.amount,
-    amountData.currency,
-    ...amountData.productName,
-    ...amountData.productCount,
-    ...amountData.productPrice,
-  ].join(";");
-  const hmac = crypto.createHmac("md5", secretKey);
-  hmac.update(string);
-
-  const merchantSignature = hmac.digest("hex");
-  const paymentData = {
-    ...data,
-    ...amountData,
-    merchantAccount,
-    merchantDomainName,
-    merchantSignature,
-    returnUrl: `${VITE_BASE_URL}/users/payment-return`,
-    serviceUrl: `${VITE_BASE_URL}/users/payment-webhook`,
-  };
+  const { data }: { data: PaymentData } = req.body;
+  const userId = req.user._id as ObjectId;
+  const paymentData = await createPaymentService({ data, userId });
   res.json(paymentData);
 };
 
@@ -313,41 +175,10 @@ const paymentWebhook = async (req: Request, res: Response) => {
       throw ApiError(400, "Invalid nested JSON");
     }
   }
-
   if (!data || typeof data !== "object" || !data.orderReference) {
     throw ApiError(400, "Missing orderReference");
   }
-
-  const merchantSecret = WFP_SECRET_KEY;
-  const time = Math.floor(Date.now() / 1000);
-  const responseData = {
-    orderReference: data.orderReference,
-    status: "accept",
-    time: time,
-    signature: crypto
-      .createHmac("md5", merchantSecret)
-      .update(`${data.orderReference};accept;${time}`)
-      .digest("hex"),
-  };
-
-  const { transactionStatus, orderReference, phone, regularDateEnd } = data;
-  const arr = orderReference.split("-");
-  if (transactionStatus === "Approved") {
-    await User.findOneAndUpdate(
-      { orderReference },
-      {
-        subscription: "member",
-        phone,
-        status: "Active",
-        regularDateEnd: new Date(
-          regularDateEnd.split(".").reverse().join(", ")
-        ),
-        substart: new Date(parseInt(arr[1])),
-        subend: nextDate(parseInt(arr[1])),
-      }
-    );
-    console.log("✅ Оплата підтверджена для", orderReference); //Log
-  }
+  const responseData = await paymentWebhookService(data);
   res.json(responseData);
 };
 
@@ -358,23 +189,8 @@ const paymentStatus = async (req: Request, res: Response) => {
 
 const unsubscribeWebhook = async (req: Request, res: Response) => {
   const user = req.user;
-  const data = await unsubscribeUser(user);
-  if (data instanceof Error) {
-    throw ApiError(400, data.message);
-  }
-  if (data.reasonCode === 4100) {
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      {
-        status: "Removed",
-        regularDateEnd: null,
-      },
-      { new: true }
-    );
-    res.json(updatedUser);
-    return;
-  }
-  res.json(user);
+  const updatedUser = await unsubscribeWebhookService(user);
+  res.json(updatedUser);
 };
 const paymentReturn = async (req: Request, res: Response) => {
   res.send(`
