@@ -13,6 +13,7 @@ import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
 import { unsubscribeUser } from "src/helpers/unsubscribeUser";
 import { migrateFromOldBase } from "src/helpers/migrateFromOldBase";
 import { registrationSale } from "src/helpers/registrationSale";
+import { userSubscription } from "src/constants/usersConstants";
 
 const {
   JWT_SECRET,
@@ -37,6 +38,7 @@ const register = async (req: Request, res: Response) => {
     regularDateEnd: null,
     substart: null,
     subend: null,
+    subscription: userSubscription[0],
   };
   let emailText = "";
   if (migrateUserData) {
@@ -54,6 +56,7 @@ const register = async (req: Request, res: Response) => {
     newRegData.orderReference = registerSale.orderReference;
     newRegData.substart = registerSale.substart;
     newRegData.subend = registerSale.subend;
+    newRegData.subscription = userSubscription[1];
     emailText =
       "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below. As a new user, you will receive <strong>3 days of Limit Premium access</strong> after verification.";
   }
