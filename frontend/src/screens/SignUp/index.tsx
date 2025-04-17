@@ -134,6 +134,10 @@ const SignUp = () => {
                         {errors?.email && (
                           <p className={styles.error}>{errors.email.message}</p>
                         )}
+                        <p className={styles.info}>
+                          We'll send a confirmation email to verify your
+                          account.
+                        </p>
                       </div>
                       <div className={styles.field}>
                         <PhoneInputWithCountry

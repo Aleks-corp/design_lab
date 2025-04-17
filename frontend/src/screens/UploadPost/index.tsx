@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import cn from "classnames";
@@ -35,6 +35,9 @@ const Upload = () => {
   const [categoryState, setCategoryState] = useState(
     filterConstant.map((key) => ({ [key]: false }))
   );
+
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [visiblePreview, setVisiblePreview] = useState(false);
   const error = useAppSelector(selectUserError);
@@ -86,6 +89,12 @@ const Upload = () => {
     setIsUploading(false);
     setFileUploadProgress({ fileName: "", progress: 0 });
     setImgUploadProgress([]);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -259,6 +268,7 @@ const Upload = () => {
                   </p>
                   <div className={styles.file}>
                     <input
+                      ref={imageInputRef}
                       className={styles.load}
                       name="imagefiles"
                       type="file"
@@ -316,6 +326,7 @@ const Upload = () => {
                   </p>
                   <div className={styles.filedw}>
                     <input
+                      ref={fileInputRef}
                       className={styles.load}
                       name="downloadfile"
                       type="file"
