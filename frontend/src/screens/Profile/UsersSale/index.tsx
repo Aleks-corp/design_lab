@@ -15,6 +15,7 @@ interface UserProps {
 }
 
 const UserSale = ({ className, user, setDate }: UserProps) => {
+  const dailyLimit = 2;
   const [visibleModalReport, setVisibleModalReport] = useState(false);
   const navigate = useNavigate();
 
@@ -50,7 +51,12 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
               </span>
             </p>
             <p className={styles.info__text}>
-              Daily Downloads - <span>{user.dailyDownloadCount}</span>
+              Daily downloads left -{" "}
+              <span>{`${
+                dailyLimit - user.dailyDownloadCount
+              } (reset in ${moment(new Date(user.subend)).format(
+                "HH:mm"
+              )})`}</span>
             </p>
             {user.status !== "Active" && (
               <p className={styles.info__text}>

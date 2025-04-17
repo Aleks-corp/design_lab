@@ -58,7 +58,9 @@ export const checkDownloadPermission = createAsyncThunk(
   "posts/checkDownloadPermission",
   async (postId: string, thunkAPI) => {
     try {
-      const response = await instance.get(`/posts/check-download/${postId}`);
+      const response: {
+        data: { downloadUrl: string; dailyDownloadCount?: number };
+      } = await instance.get(`/posts/check-download/${postId}`);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {

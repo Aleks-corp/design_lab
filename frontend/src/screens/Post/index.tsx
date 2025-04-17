@@ -22,7 +22,6 @@ import Control from "../../components/Control";
 import moment from "moment";
 import AccessPass from "../../components/AccessPass";
 import toast from "react-hot-toast";
-import { userSubscriptionConst } from "../../constants/user.constants";
 import { setDailyDownloadCount } from "../../redux/auth/authSlice";
 
 const breadcrumbs = [
@@ -66,16 +65,11 @@ const Post = ({
     }
   };
 
-  const DownloadCount = () => {
-    if (user?.subscription === userSubscriptionConst.SALE) {
-      const count = user.dailyDownloadCount + 1;
-      dispatch(setDailyDownloadCount(count));
-    }
-  };
-
   const DownloadSubmit = async (postId: string) => {
     try {
-      const response = await dispatch(checkDownloadPermission(postId)).unwrap();
+      const response:
+        | { downloadUrl: string; dailyDownloadCount?: number }
+        | undefined = await dispatch(checkDownloadPermission(postId)).unwrap();
 
       if (response?.downloadUrl) {
         const a = document.createElement("a");
@@ -83,7 +77,9 @@ const Post = ({
         a.download = "";
         a.click();
         a.remove();
-        DownloadCount();
+        if (response.dailyDownloadCount !== undefined) {
+          dispatch(setDailyDownloadCount(response.dailyDownloadCount));
+        }
       }
     } catch (err) {
       if (typeof err === "string") {

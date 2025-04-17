@@ -9,6 +9,7 @@ import User from "../models/user";
 import { Document, ObjectId } from "mongoose";
 import { IUser } from "../types/user.type";
 import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
+import { resetLimitedDownload } from "src/helpers/checkDownloadPermission";
 
 export interface UserDocument extends IUser, Document {
   _id: ObjectId;
@@ -36,7 +37,8 @@ const authenticateToken = async (
       req.user = user;
       next();
     } else {
-      const updatedUser = await checkSubscriptionStatus(user);
+      const resetUser = await resetLimitedDownload(user);
+      const updatedUser = await checkSubscriptionStatus(resetUser);
       req.user = updatedUser;
       next();
     }

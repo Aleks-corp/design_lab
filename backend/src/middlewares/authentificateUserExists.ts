@@ -8,6 +8,7 @@ import User from "../models/user";
 
 import { Document, ObjectId } from "mongoose";
 import { IUser } from "../types/user.type";
+import { resetLimitedDownload } from "src/helpers/checkDownloadPermission";
 
 export interface UserDocument extends IUser, Document {
   _id: ObjectId;
@@ -15,7 +16,7 @@ export interface UserDocument extends IUser, Document {
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
-const authenticateUser = async (
+const authenticateUserExists = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -30,7 +31,7 @@ const authenticateUser = async (
       ) as JwtPayload;
       const user = (await User.findById(jwtPayload.id)) as UserDocument;
       if (user && user.token) {
-        req.user = user;
+        req.user = await resetLimitedDownload(user);
       }
     } catch {
       throw ApiError(401);
@@ -39,4 +40,4 @@ const authenticateUser = async (
   next();
 };
 
-export default ctrlWrapper(authenticateUser);
+export default ctrlWrapper(authenticateUserExists);

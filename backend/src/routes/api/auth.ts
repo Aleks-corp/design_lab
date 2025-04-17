@@ -48,7 +48,6 @@ authRouter.post(
   validateBody(passwordResetSchema),
   resetPassword
 );
-
 authRouter.post(
   "/change-password",
   authenticateToken,

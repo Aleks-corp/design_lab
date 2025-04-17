@@ -4,7 +4,7 @@ import {
   isEmptyBodyStatus,
   isValidId,
   authenticateToken,
-  authenticateUser,
+  authenticateUserExists,
 } from "../../middlewares/index";
 import { validateBody } from "../../decorators/index";
 import { postSchemas } from "../../schemas/index";
@@ -25,15 +25,19 @@ const postsRouter = express.Router();
 
 // postsRouter.use(authenticateToken);
 
-postsRouter.get("/", authenticateUser, getAllPosts);
-postsRouter.get("/:postId", authenticateUser, isValidId, getPostById);
+postsRouter.get("/", authenticateUserExists, getAllPosts);
+postsRouter.get("/:postId", authenticateUserExists, isValidId, getPostById);
 postsRouter.get(
   "/check-download/:postId",
   authenticateToken,
   isValidId,
   checkDownload
 );
-postsRouter.post("/generate-presigned-url", authenticateUser, postPresignedUrl);
+postsRouter.post(
+  "/generate-presigned-url",
+  authenticateToken,
+  postPresignedUrl
+);
 postsRouter.post(
   "/",
   authenticateToken,
@@ -43,7 +47,7 @@ postsRouter.post(
 );
 postsRouter.patch(
   "/",
-  authenticateUser,
+  authenticateToken,
   isEmptyBodyStatus,
   validateBody(postUpdateStatusSchema),
   updateStatusPost

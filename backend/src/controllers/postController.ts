@@ -112,7 +112,10 @@ const checkDownload = async (req: Request, res: Response) => {
   const signedFileUrl = await generateSignedUrlFile(
     getKeyFromUrl(post.downloadlink)
   );
-  res.json({ downloadUrl: signedFileUrl });
+  res.json({
+    downloadUrl: signedFileUrl,
+    dailyDownloadCount: permission.dailyDownloadCount,
+  });
 };
 
 const postPresignedUrl = async (req: Request, res: Response) => {
