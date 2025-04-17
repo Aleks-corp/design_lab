@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "cd frontend && vite",
     "buildfront": "cd frontend && tsc -b && vite build",
-    "buildback": "cd backend && yarn start",
+    "buildback": "cd backend && tsc && tsc-alias",
     "server": "cd backend && yarn server"
   }
 }
