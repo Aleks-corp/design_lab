@@ -12,6 +12,7 @@ export interface IUser {
   amount?: number;
   mode?: string;
   password: string;
+  ip: string;
   orderReference: string;
   regularDateEnd?: Date;
   lastPayedStatus?: string;
@@ -34,6 +35,7 @@ export interface IUserReg {
   email: string;
   password: string;
   phone: string;
+  ip: string;
 }
 
 export interface IUserLog {

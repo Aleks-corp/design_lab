@@ -32,9 +32,11 @@ export const fetchPosts = createAsyncThunk(
         }`
       );
       return response.data;
-    } catch (e) {
-      if (e instanceof Error) {
-        return thunkAPI.rejectWithValue(e.message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }
@@ -46,9 +48,11 @@ export const fetchPostById = createAsyncThunk(
     try {
       const response = await instance.get(`/posts/${id}`);
       return response.data;
-    } catch (e) {
-      if (e instanceof Error) {
-        return thunkAPI.rejectWithValue(e.message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }
@@ -80,7 +84,9 @@ export const addPost = createAsyncThunk(
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        return thunkAPI.rejectWithValue(error.response ?? error.message);
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }
@@ -95,9 +101,11 @@ export const addRemoveFavorites = createAsyncThunk(
       });
 
       return response.data;
-    } catch (e) {
-      if (e instanceof Error) {
-        return thunkAPI.rejectWithValue(e.message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }
@@ -109,9 +117,11 @@ export const deletePost = createAsyncThunk(
     try {
       await instance.delete(`/posts/${id}`);
       return id;
-    } catch (e) {
-      if (e instanceof Error) {
-        return thunkAPI.rejectWithValue(e.message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }

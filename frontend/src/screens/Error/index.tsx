@@ -42,11 +42,14 @@ const ErrorPage = () => {
                 </p>
               )}
               {errorUser && (
-                <p className={cn("h3", styles.title)}>Server: {errorUser}</p>
+                <p className={cn("h3", styles.title)}>
+                  Server:{" "}
+                  {errorUser === "Network Error"
+                    ? "Сurrently under maintenance."
+                    : errorUser}
+                </p>
               )}
-              <p className={cn("h4", styles.text)}>
-                Something wrong. Try reload page.
-              </p>
+              <p className={cn("h4", styles.text)}>Please try again later.</p>
             </div>
           </div>
         </div>

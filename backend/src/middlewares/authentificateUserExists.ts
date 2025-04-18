@@ -32,6 +32,8 @@ const authenticateUserExists = async (
       const user = (await User.findById(jwtPayload.id)) as UserDocument;
       if (user && user.token) {
         req.user = await resetLimitedDownload(user);
+      } else {
+        throw ApiError(401);
       }
     } catch {
       throw ApiError(401);

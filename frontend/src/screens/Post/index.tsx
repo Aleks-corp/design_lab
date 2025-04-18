@@ -22,7 +22,8 @@ import Control from "../../components/Control";
 import moment from "moment";
 import AccessPass from "../../components/AccessPass";
 import toast from "react-hot-toast";
-import { setDailyDownloadCount } from "../../redux/auth/authSlice";
+import { localLogOut, setDailyDownloadCount } from "../../redux/auth/authSlice";
+import { delToken } from "../../api/axios";
 
 const breadcrumbs = [
   {
@@ -44,8 +45,17 @@ const Post = ({
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchData = async (id: string) => {
+      const { payload } = await dispatch(fetchPostById(id));
+      if (payload === "Not authorized") {
+        delToken();
+        dispatch(localLogOut());
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+      }
+    };
     if (id) {
-      dispatch(fetchPostById(id));
+      fetchData(id);
     } else {
       navigate("/");
     }

@@ -204,9 +204,11 @@ export const checkPaymentStatus = createAsyncThunk(
     try {
       const response = await instance.get(`/users/payment-status`);
       return response.data;
-    } catch (e) {
-      if (e instanceof Error) {
-        return thunkAPI.rejectWithValue(e.message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }
@@ -218,9 +220,11 @@ export const unsubscribe = createAsyncThunk(
     try {
       const response = await instance.get(`/users/unsubscribe`);
       return response.data;
-    } catch (e) {
-      if (e instanceof Error) {
-        return thunkAPI.rejectWithValue(e.message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
       }
     }
   }

@@ -18,17 +18,22 @@ import {
   verificationService,
 } from "src/services/authService";
 
-
 const { FRONT_SERVER } = process.env;
 
 const register = async (req: Request, res: Response) => {
   const { name, email, password, phone } = req.body;
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip =
+    typeof forwarded === "string"
+      ? forwarded.split(",")[0].trim()
+      : req.socket.remoteAddress || "";
 
   await registerService({
     name,
     email,
     password,
     phone,
+    ip,
   });
 
   res.status(201).json({ message: "Thank you for signing up" });
@@ -36,7 +41,12 @@ const register = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const { token, updatedUser } = await loginService({ email, password });
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip =
+    typeof forwarded === "string"
+      ? forwarded.split(",")[0].trim()
+      : req.socket.remoteAddress || "";
+  const { token, updatedUser } = await loginService({ email, password, ip });
 
   res.json({
     token,

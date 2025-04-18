@@ -21,6 +21,10 @@ import {
   deletePostFavorites,
 } from "../../redux/posts/postSlice";
 import Icon from "../../components/Icon";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { localLogOut } from "../../redux/auth/authSlice";
+import { delToken } from "../../api/axios";
 
 const navLinks = [
   "All products",
@@ -36,6 +40,7 @@ const prodListOptions = ["All products", "Favorites"];
 const Home = () => {
   const [prodList, setProdList] = useState(prodListOptions[0]);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const isLoading = useAppSelector(selectIsLoading);
   const posts = useAppSelector(selectPosts);
@@ -45,15 +50,24 @@ const Home = () => {
   const errorPost = useAppSelector(selectPostsError);
 
   useEffect(() => {
+    const fetchData = async () => {
+      const { payload } = await dispatch(
+        fetchPosts(
+          prodList === prodListOptions[0]
+            ? { favorites: false }
+            : { favorites: true }
+        )
+      );
+      if (payload === "Not authorized") {
+        delToken();
+        dispatch(localLogOut());
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+      }
+    };
     dispatch(clearPosts());
-    dispatch(
-      fetchPosts(
-        prodList === prodListOptions[0]
-          ? { favorites: false }
-          : { favorites: true }
-      )
-    );
-  }, [dispatch, prodList]);
+    fetchData();
+  }, [dispatch, navigate, prodList]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 12;
@@ -91,18 +105,24 @@ const Home = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    const timerId = setTimeout(() => {
+    const timerId = setTimeout(async () => {
       setProdList(prodListOptions[0]);
       dispatch(clearPosts());
       dispatch(setFilter(""));
-      dispatch(fetchPosts({ search }));
+      const { payload } = await dispatch(fetchPosts({ search }));
+      if (payload === "Not authorized") {
+        delToken();
+        dispatch(localLogOut());
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+      }
       setCurrentPage(1);
     }, 1000);
     return () => {
       clearTimeout(timerId);
       controller.abort();
     };
-  }, [dispatch, search]);
+  }, [dispatch, navigate, search]);
 
   return (
     <div className={cn("section-pt80", styles.section)}>

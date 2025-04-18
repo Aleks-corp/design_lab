@@ -100,6 +100,12 @@ const authSlice = createSlice({
         state.profile.dailyDownloadCount = action.payload;
       }
     },
+    localLogOut(state: AuthState) {
+      state.isLoggedIn = false;
+      state.profile = null;
+      state.token = "";
+      state.isLogining = false;
+    },
   },
   extraReducers: (builder) =>
     builder
@@ -127,5 +133,5 @@ const authSlice = createSlice({
       ),
 });
 
-export const { setDailyDownloadCount } = authSlice.actions;
+export const { setDailyDownloadCount, localLogOut } = authSlice.actions;
 export const authReducer = authSlice.reducer;

@@ -30,6 +30,7 @@ const userSchema = new Schema<IUser, IUserModelType>(
       type: String,
       required: true,
     },
+    ip: { type: String },
     subscription: {
       type: String,
       enum: userSubscription,

@@ -8,6 +8,9 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectIsAdmin, selectIsLoggedIn } from "../../redux/selectors";
 import { fetchPosts } from "../../redux/posts/post.thunk";
 import { setFilter } from "../../redux/posts/postSlice";
+import { delToken } from "../../api/axios";
+import { localLogOut } from "../../redux/auth/authSlice";
+import toast from "react-hot-toast";
 
 const Headers = () => {
   const [visibleNav, setVisibleNav] = useState(false);
@@ -17,19 +20,23 @@ const Headers = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  const handleRefresh = async () => {
+    setVisibleNav(false);
+    navigate("/");
+    dispatch(setFilter(""));
+    const { payload } = await dispatch(fetchPosts({}));
+    if (payload === "Not authorized") {
+      delToken();
+      dispatch(localLogOut());
+      toast.error("Session expired. Please log in again.");
+      navigate("/login");
+    }
+  };
+
   return (
     <header className={styles.header}>
       <div className={cn("container", styles.container)}>
-        <button
-          className={styles.logo}
-          type="button"
-          onClick={() => {
-            setVisibleNav(false);
-            navigate("/");
-            dispatch(fetchPosts({}));
-            dispatch(setFilter(""));
-          }}
-        >
+        <button className={styles.logo} type="button" onClick={handleRefresh}>
           <Image
             className={styles.pic}
             src="/images/logo-dark.png"

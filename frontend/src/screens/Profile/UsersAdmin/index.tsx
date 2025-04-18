@@ -33,7 +33,7 @@ const UserAdmin = ({ className, user }: UserProps) => {
             to="/admin/users"
           >
             <span>View users subscription</span>
-            <Icon title="image" size={16} />
+            <Icon title="user" size={16} />
           </Link>
           <Link
             className={cn("button-stroke button-small", styles.button)}
@@ -51,7 +51,7 @@ const UserAdmin = ({ className, user }: UserProps) => {
               to="/profile-edit"
             >
               <span>Edit profile</span>
-              <Icon title="image" size={16} />
+              <Icon title="edit" size={16} />
             </Link>
           </div>
         </div>

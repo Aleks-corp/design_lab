@@ -28,10 +28,22 @@ export const registerService = async ({
   email,
   password,
   phone,
+  ip,
 }: IUserReg) => {
   const user = await User.findOne({ email });
   if (user) {
     throw ApiError(409, "Email in use. Please Sign In.");
+  }
+
+  if (ip && ip !== "") {
+    const sameIpUsers = await User.countDocuments({ ip });
+
+    if (sameIpUsers >= 3) {
+      throw ApiError(
+        403,
+        "Too many registrations from your network. Contact support."
+      );
+    }
   }
   const migrateUserData = await migrateFromOldBase({ email, phone });
   const registerSale = registrationSale();
@@ -60,6 +72,7 @@ export const registerService = async ({
     name,
     email,
     phone,
+    ip,
     ...userData,
   });
   const maildata = await sendMail({
@@ -76,9 +89,11 @@ export const registerService = async ({
 export const loginService = async ({
   email,
   password,
+  ip,
 }: {
   email: string;
   password: string;
+  ip: string;
 }) => {
   const user = await User.findOne({ email });
   if (!user) {
@@ -95,7 +110,9 @@ export const loginService = async ({
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
     expiresIn: "333h",
   });
-  await User.findByIdAndUpdate(user._id, { token });
+  ip && ip !== ""
+    ? await User.findByIdAndUpdate(user._id, { token, ip })
+    : await User.findByIdAndUpdate(user._id, { token });
   return { token, updatedUser };
 };
 
