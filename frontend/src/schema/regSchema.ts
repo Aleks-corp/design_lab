@@ -10,7 +10,19 @@ export const regSchema = yup.object().shape({
   email: yup
     .string()
     .matches(emailRegexp, "Oops! That email doesn't seem right")
-    .required(),
+    .required()
+    .test(
+      "not-temp-email",
+      "Temporary emails are not allowed",
+      async (value) => {
+        if (!value) return true;
+        const domain = value.split("@")[1]?.toLowerCase();
+        const { default: tempEmailDomainsSet } = await import(
+          "../constants/temp-email-domains"
+        );
+        return !tempEmailDomainsSet.has(domain);
+      }
+    ),
   phone: yup
     .string()
     .matches(phoneRegexp, "Oops! That phone doesn't seem right")
