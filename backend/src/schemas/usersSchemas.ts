@@ -5,17 +5,29 @@ import {
   passRegexp,
   userSubscription,
 } from "../constants/usersConstants";
+import tempEmailDomainsSet from "../constants/tempEmailDomainsSet";
 
 const usersRegSchema = Joi.object({
   name: Joi.string().required().min(3).max(18).messages({
     "string.empty": `'email' cannot be an empty field`,
     "any.required": `missing required 'name' field`,
   }),
-  email: Joi.string().pattern(emailRegexp).required().messages({
-    "string.pattern.base": `'email' should be a type of 'email'`,
-    "string.empty": `'email' cannot be an empty field`,
-    "any.required": `missing required 'email' field`,
-  }),
+  email: Joi.string()
+    .pattern(emailRegexp)
+    .required()
+    .custom((value, helpers) => {
+      const domain = value.split("@")[1]?.toLowerCase();
+      if (tempEmailDomainsSet.has(domain)) {
+        return helpers.error("any.invalid");
+      }
+      return value;
+    })
+    .messages({
+      "string.pattern.base": `'email' should be a type of 'email'`,
+      "string.empty": `'email' cannot be an empty field`,
+      "any.required": `missing required 'email' field`,
+      "any.invalid": `Temporary emails are not allowed`,
+    }),
   phone: Joi.string().required().min(11).max(13).messages({
     "string.empty": `'email' cannot be an empty field`,
     "any.required": `missing required 'name' field`,
