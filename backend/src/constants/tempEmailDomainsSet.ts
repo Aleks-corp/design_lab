@@ -1,4 +1,5 @@
 const tempEmailDomainsSet = new Set([
+  "cotigz.com",
   "0-00.usa.cc",
   "0-30-24.com",
   "0-attorney.com",
