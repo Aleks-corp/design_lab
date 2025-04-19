@@ -38,7 +38,7 @@ export const registerService = async ({
   if (ip && ip !== "") {
     const sameIpUsers = await User.countDocuments({ ip });
 
-    if (sameIpUsers >= 3) {
+    if (sameIpUsers > 0) {
       throw ApiError(
         403,
         "Too many registrations from your network. Contact support."
