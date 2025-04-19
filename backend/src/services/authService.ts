@@ -14,6 +14,7 @@ import { nextDate } from "src/helpers/setDate";
 import { unsubscribeUser } from "src/helpers/unsubscribeUser";
 import { migrateFromOldBase } from "src/helpers/migrateFromOldBase";
 import { registrationSale } from "src/helpers/registrationSale";
+import axios from "axios";
 
 const {
   JWT_SECRET,
@@ -21,6 +22,7 @@ const {
   WFP_MERCHANT_ACCOUNT,
   WFP_MERCHANT_DOMAIN_NAME,
   VITE_BASE_URL,
+  IPHUB_API_KEY,
 } = process.env;
 
 export const registerService = async ({
@@ -36,6 +38,15 @@ export const registerService = async ({
   }
 
   if (ip && ip !== "") {
+    const { data } = await axios.get(`https://v2.api.iphub.info/ip/${ip}`, {
+      headers: {
+        "X-Key": IPHUB_API_KEY as string,
+      },
+    });
+
+    if (data.block === 1 || data.block === 2) {
+      throw ApiError(403, "Registration via VPN or Proxy is not allowed.");
+    }
     const sameIpUsers = await User.countDocuments({ ip });
 
     if (sameIpUsers > 0) {
@@ -110,9 +121,23 @@ export const loginService = async ({
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
     expiresIn: "333h",
   });
-  ip && ip !== ""
-    ? await User.findByIdAndUpdate(user._id, { token, ip })
-    : await User.findByIdAndUpdate(user._id, { token });
+  if (ip && ip !== "") {
+    const { data } = await axios.get(`https://v2.api.iphub.info/ip/${ip}`, {
+      headers: {
+        "X-Key": IPHUB_API_KEY as string,
+      },
+    });
+
+    if (data.block === 1 || data.block === 2) {
+      await User.findByIdAndUpdate(user._id, { token });
+      return { token, updatedUser };
+    } else {
+      await User.findByIdAndUpdate(user._id, { token, ip });
+      return { token, updatedUser };
+    }
+  }
+
+  await User.findByIdAndUpdate(user._id, { token });
   return { token, updatedUser };
 };
 
