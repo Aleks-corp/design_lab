@@ -51,6 +51,23 @@ export const patchUsers = createAsyncThunk(
   }
 );
 
+export const banUsers = createAsyncThunk(
+  "admin/banusers",
+  async (userData: { usersId: string[] }, thunkAPI) => {
+    try {
+      const response = await instance.patch(
+        "/admin/users/status-blocked",
+        userData
+      );
+      return response.data;
+    } catch (e) {
+      if (e instanceof Error) {
+        return thunkAPI.rejectWithValue(e.message);
+      }
+    }
+  }
+);
+
 export const patchCheckSub = createAsyncThunk(
   "admin/checksubusers",
   async (userData: { usersId: string[] }, thunkAPI) => {

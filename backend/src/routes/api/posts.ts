@@ -5,6 +5,7 @@ import {
   isValidId,
   authenticateToken,
   authenticateUserExists,
+  checkIfUserBlocked,
 } from "../../middlewares/index";
 import { validateBody } from "../../decorators/index";
 import { postSchemas } from "../../schemas/index";
@@ -25,13 +26,28 @@ const postsRouter = express.Router();
 
 // postsRouter.use(authenticateToken);
 
-postsRouter.get("/", authenticateUserExists, getAllPosts);
-postsRouter.get("/:postId", authenticateUserExists, isValidId, getPostById);
+postsRouter.get("/", authenticateUserExists, checkIfUserBlocked, getAllPosts);
+postsRouter.get(
+  "/:postId",
+  authenticateUserExists,
+  checkIfUserBlocked,
+  isValidId,
+  getPostById
+);
 postsRouter.get(
   "/check-download/:postId",
   authenticateToken,
+  checkIfUserBlocked,
   isValidId,
   checkDownload
+);
+postsRouter.patch(
+  "/",
+  authenticateToken,
+  checkIfUserBlocked,
+  isEmptyBodyStatus,
+  validateBody(postUpdateStatusSchema),
+  updateStatusPost
 );
 postsRouter.post(
   "/generate-presigned-url",
@@ -45,13 +61,7 @@ postsRouter.post(
   validateBody(postAddSchema),
   addPost
 );
-postsRouter.patch(
-  "/",
-  authenticateToken,
-  isEmptyBodyStatus,
-  validateBody(postUpdateStatusSchema),
-  updateStatusPost
-);
+
 postsRouter.delete("/:postId", authenticateToken, isValidId, deletePostById);
 
 export default postsRouter;

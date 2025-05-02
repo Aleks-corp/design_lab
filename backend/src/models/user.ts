@@ -31,6 +31,10 @@ const userSchema = new Schema<IUser, IUserModelType>(
       required: true,
     },
     ip: { type: String },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
     subscription: {
       type: String,
       enum: userSubscription,

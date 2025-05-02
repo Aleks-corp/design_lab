@@ -15,6 +15,7 @@ const {
   getUnpublishedPostById,
   checkUsersSubscription,
   getMessageToSprt,
+  updateUserBlockStatus,
 } = adminController;
 
 const adminRouter = express.Router();
@@ -25,6 +26,12 @@ adminRouter.patch(
   authenticateToken,
   validateBody(usersUpdateSubscriptionSchema),
   updateUserSubscription
+);
+
+adminRouter.patch(
+  "/users/status-blocked",
+  authenticateToken,
+  updateUserBlockStatus
 );
 
 adminRouter.patch(

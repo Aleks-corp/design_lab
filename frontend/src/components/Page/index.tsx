@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { clearAllBodyScrollLocks } from "body-scroll-lock";
 import styles from "./Page.module.sass";
@@ -12,6 +12,7 @@ import {
   bannerSaleContent,
   bannerSubscriptionContent,
 } from "../../constants/banner-content.constant";
+import { getDateForSale } from "../../helpers/getDateForSale";
 
 interface PageProps {
   children: React.ReactNode;
@@ -20,6 +21,16 @@ interface PageProps {
 const Page = ({ children }: PageProps) => {
   const { pathname } = useLocation();
   const user = useAppSelector(selectUser);
+  const [dateForSale, setDateForSale] = useState<number>(1);
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      const result = await getDateForSale();
+      setDateForSale(result);
+    };
+
+    fetchDate();
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,12 +40,21 @@ const Page = ({ children }: PageProps) => {
   return (
     <div className={styles.page}>
       <Header />
-      {user && user.subscription === "free" && !user.lastPayedStatus && (
-        <SubscriptionBanner text={bannerSubscriptionContent} />
+      {!user?.isBlocked && (
+        <>
+          {user && user.subscription === "free" && !user.lastPayedStatus && (
+            <SubscriptionBanner text={bannerSubscriptionContent} />
+          )}
+          {user && user.subscription === "sale" && !user.lastPayedStatus && (
+            <SubscriptionBanner
+              text={` Enjoy <span>${
+                dateForSale * 24
+              } hours of Premium Access</span> ${bannerSaleContent}`}
+            />
+          )}
+        </>
       )}
-      {user && user.subscription === "sale" && !user.lastPayedStatus && (
-        <SubscriptionBanner text={bannerSaleContent} />
-      )}
+
       <div className={styles.inner}>{children}</div>
       <Footer />
       <Toaster position="top-center" reverseOrder={false} />

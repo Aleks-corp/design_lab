@@ -109,7 +109,10 @@ const Preview = ({
                 </div>
               </div>
               <div className={styles.line}>
-                <div className={styles.counter}>
+                <div
+                  style={{ whiteSpace: "pre-line" }}
+                  className={styles.counter}
+                >
                   {desc ? desc : "Post description"}
                 </div>
               </div>

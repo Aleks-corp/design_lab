@@ -4,6 +4,7 @@ import {
   getAllUsers,
   patchUser,
   patchUsers,
+  banUsers,
   getUnpublishedPosts,
   getUnpublishedPostById,
   patchCheckSub,
@@ -126,6 +127,8 @@ const adminSlice = createSlice({
       .addCase(patchUser.fulfilled, handlePatchUserFulfilled)
       .addCase(patchUsers.pending, handlePatchUsersPending)
       .addCase(patchUsers.fulfilled, handlePatchUsersFulfilled)
+      .addCase(banUsers.pending, handlePatchUsersPending)
+      .addCase(banUsers.fulfilled, handlePatchUsersFulfilled)
       .addCase(patchCheckSub.pending, handlePatchCheckSubPending)
       .addCase(patchCheckSub.fulfilled, handlePatchCheckSubFulfilled)
       .addCase(getUnpublishedPosts.pending, handlePostsPending)

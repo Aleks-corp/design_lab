@@ -47,6 +47,7 @@ const Post = ({
   useEffect(() => {
     const fetchData = async (id: string) => {
       const { payload } = await dispatch(fetchPostById(id));
+
       if (payload === "Not authorized") {
         delToken();
         dispatch(localLogOut());
@@ -204,7 +205,7 @@ const Post = ({
           </div>
           <div className={cn("container", styles.container)}>
             <h2>Description</h2>
-            <p>{post.description}</p>
+            <p style={{ whiteSpace: "pre-line" }}>{post.description}</p>
           </div>
           <div className={cn("container", styles.created)}>
             <span>

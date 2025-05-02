@@ -13,6 +13,7 @@ export interface IUser {
   mode?: string;
   password: string;
   ip: string;
+  isBlocked: boolean;
   orderReference: string;
   regularDateEnd?: Date;
   lastPayedStatus?: string;

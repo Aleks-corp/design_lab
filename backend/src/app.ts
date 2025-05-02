@@ -9,6 +9,7 @@ import "dotenv/config";
 import postsRouter from "./routes/api/posts";
 import authRouter from "./routes/api/auth";
 import adminRouter from "./routes/api/admin";
+import dataRouter from "./routes/api/data";
 
 const logPath = path.resolve("dist/logs");
 
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 app.use("/users", authRouter);
 app.use("/posts", postsRouter);
 app.use("/admin", adminRouter);
+app.use("/data", dataRouter);
 app.get("/ping", (req, res) => {
   res.send("POST /pong");
 });

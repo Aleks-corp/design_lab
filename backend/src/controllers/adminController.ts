@@ -183,6 +183,34 @@ const checkUsersSubscription = async (req: Request, res: Response) => {
   res.json({ totalHits, users: updatedUsers });
 };
 
+const updateUserBlockStatus = async (req: Request, res: Response) => {
+  const { usersId } = req.body;
+  await Promise.all(
+    usersId.map(async (_id: ObjectId) => {
+      const user = await User.findById(_id);
+      if (!user) {
+        throw ApiError(404, "User not found");
+      }
+      const isBlocked = !user.isBlocked;
+      const updateData = isBlocked ? { isBlocked, token: "" } : { isBlocked };
+
+      await User.findByIdAndUpdate(_id, updateData, {
+        new: true,
+      });
+    })
+  );
+  const updatedUsers = await User.find(
+    {},
+    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt",
+    {
+      skip: 0,
+      limit: 100,
+    }
+  );
+  const totalHits = await User.countDocuments({});
+  res.json({ totalHits, users: updatedUsers });
+};
+
 const getUnpublishedPosts = async (req: Request, res: Response) => {
   const { page = "1", limit = "12" } = req.query;
 
@@ -250,5 +278,6 @@ export default {
   updateUserSubscription: ctrlWrapper(updateUserSubscription),
   updateUsersSubscription: ctrlWrapper(updateUsersSubscription),
   checkUsersSubscription: ctrlWrapper(checkUsersSubscription),
+  updateUserBlockStatus: ctrlWrapper(updateUserBlockStatus),
   getMessageToSprt: ctrlWrapper(getMessageToSprt),
 };

@@ -9,12 +9,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { signUp } from "../../redux/auth/auth.thunk";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { selectIsLogining } from "../../redux/selectors";
 import Loader from "../../components/Loader";
 import { regSchema } from "../../schema/regSchema";
 import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
 import PhoneInput from "../../components/PhoneInput";
+import { getDateForSale } from "../../helpers/getDateForSale";
 
 const breadcrumbs = [
   {
@@ -38,6 +39,17 @@ const SignUp = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isLoading = useAppSelector(selectIsLogining);
+
+  const [dateForSale, setDateForSale] = useState<number>(1);
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      const result = await getDateForSale();
+      setDateForSale(result);
+    };
+
+    fetchDate();
+  }, []);
 
   const [showPass, setShowPass] = useState(false);
   const [showConfPass, setShowConfPass] = useState(false);
@@ -81,7 +93,7 @@ const SignUp = () => {
             <div className={styles.trialBanner}>
               <h3 className={styles.trialTitle}>Trial Premium Access</h3>
               <p>
-                You'll receive a <span>3-day</span> trial of{" "}
+                You'll receive a <span>{dateForSale}-day</span> trial of{" "}
                 <span>Premium Access</span> after email verification. This
                 includes access to premium content with a daily download limit
                 of <span>2 files</span>.

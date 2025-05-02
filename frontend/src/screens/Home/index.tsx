@@ -124,6 +124,16 @@ const Home = () => {
     };
   }, [dispatch, navigate, search]);
 
+  if (user && user.isBlocked) {
+    return (
+      <div className={styles.baned}>
+        <h2>
+          Your account has been temporarily suspended due to policy violations.
+        </h2>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("section-pt80", styles.section)}>
       <div className={cn("container", styles.container)}>

@@ -1,6 +1,5 @@
-export const registrationSale = () => {
+export const registrationSale = (saleDate: number) => {
   const currentDate = new Date().getTime();
-  const saleDate = 3;
   const registerSale = {
     substart: new Date(currentDate),
     subend: new Date(

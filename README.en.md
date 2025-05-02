@@ -40,6 +40,7 @@ DesignUA Lab is a web platform for browsing and downloading digital design asset
 │   │   ├── models
 │   │   ├── routes
 │   │   ├── schemas
+│   │   ├── services
 │   │   ├── types
 │   │   ├── app.ts
 │   │   ├── main.ts
@@ -89,6 +90,17 @@ DesignUA Lab is a web platform for browsing and downloading digital design asset
 - ✅ **Dark/Light Theme Toggle** – Customizable UI experience.
 - ✅ **Private Routes Protection** – Secure content access.
 - ✅ **Modal Windows** – Enhanced user interaction.
+
+## 🆕 Recent Updates
+
+- ✅ **Trial Premium Access** – New users receive a 72-hour Premium Trial with download limits.
+- ✅ **Download Limit System** – Trial users can download up to 2 files per day.
+- ✅ **Dynamic Reset Logic** – Daily limits reset every 24 hours based on initial signup time.
+- ✅ **Temp Email Detection** – Registration blocks disposable/temporary email addresses.
+- ✅ **VPN & Proxy Detection** – Registration restricted for users using anonymizing services.
+- ✅ **IP-Based Registration Limit** – Only one account allowed per IP to prevent abuse.
+- ✅ **Ban System (Admin Controlled)** – Admins can manually block suspicious users.
+- ✅ **Improved Error Handling & Session Validation** – Automatic logout on session expiration.
 
 ## ⚙️ Installation & Setup
 

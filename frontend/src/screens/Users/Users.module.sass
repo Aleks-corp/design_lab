@@ -34,24 +34,30 @@
 
 .scroll
         display: flex
-        margin: 0 -32px
+        margin: 0 -64px
         overflow: auto
         overflow-x: auto 
-        -ms-overflow-style: none
-        scrollbar-width: none
         -webkit-overflow-scrolling: touch
         &::-webkit-scrollbar
-            display: none 
+            height: 8px
+        &::-webkit-scrollbar-track
+            background: transparent
+        &::-webkit-scrollbar-thumb
+            background-color: rgba(0, 0, 0, 0.3)
+            border-radius: 4px
+        +dark
+            &::-webkit-scrollbar-thumb
+                background-color: rgba(255, 255, 255, 0.3)
         &:before,
         &:after
             content: ""
             flex-shrink: 0
-            width: 32px
+            width: 64px
             height: 1px
 
 
 .table 
-    margin: 20px auto
+    margin: 20px auto 0px
 
 
 .caption 
@@ -91,6 +97,10 @@
         color: $green
     &.admin 
         color: $red
+    &.sale 
+        color: $yellow
+    &.ban
+        color: $red
   
 
 .tsel 
@@ -121,3 +131,21 @@
     color: inherit
     &:hover
         background: $red
+
+.checkboxes
+    display: flex
+    flex-wrap: wrap
+    gap: 8px
+    label
+        display: flex
+        align-items: center
+        gap: 4px
+
+.separator
+    color: #ccc
+
+.btnContainer
+    display: flex
+    flex-wrap: wrap
+    gap: 16px
+    margin: 20px 0

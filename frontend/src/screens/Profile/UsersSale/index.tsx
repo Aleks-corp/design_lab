@@ -50,6 +50,14 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
                 {user.subscription === "sale" && "Trial Premium Access"}
               </span>
             </p>
+            {user.isBlocked && (
+              <p className={styles.info__text}>
+                Your account is{" "}
+                <span className={cn(styles.info__text, [styles.declined])}>
+                  BANED
+                </span>
+              </p>
+            )}
             <p className={styles.info__text}>
               Daily downloads left -{" "}
               <span>{`${
@@ -93,7 +101,7 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
               <Icon title="report" size={18} />
             </button>
 
-            {user.status !== "Active" && (
+            {user.status !== "Active" && !user.isBlocked && (
               <button
                 className={cn("button", styles.button)}
                 type="button"

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Users.module.sass";
 import cn from "classnames";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   getAllUsers,
   patchUsers,
+  banUsers,
   patchCheckSub,
 } from "../../redux/admin/admin.thunk";
 import {
@@ -36,6 +37,29 @@ const Users = () => {
   const [sortField, setSortField] = useState<keyof UserList | "">("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [updateUsers, setUpdateUsers] = useState<string[]>([]);
+
+  const [visibleColumns, setVisibleColumns] = useState({
+    name: true,
+    subscription: true,
+    status: true,
+    lastPayedStatus: true,
+    lastPayedDate: true,
+    orderReference: true,
+    substart: true,
+    subend: true,
+    regularDateEnd: true,
+    phone: true,
+    amount: true,
+    mode: true,
+    isBlocked: true,
+  });
+
+  const handleToggleColumn = (column: keyof typeof visibleColumns) => {
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [column]: !prev[column],
+    }));
+  };
 
   useEffect(() => {
     dispatch(getAllUsers({}));
@@ -88,7 +112,11 @@ const Users = () => {
     };
   }, []);
 
-  const handleSort = (field: keyof UserList) => {
+  const handleSort = (field: keyof UserList | "") => {
+    if (field === "") {
+      setSortField("");
+      setSortDirection("asc");
+    }
     const direction =
       sortField === field && sortDirection === "asc" ? "desc" : "asc";
     setSortField(field);
@@ -125,236 +153,346 @@ const Users = () => {
           <span>(payment until end subscription, can download file)</span>
         </p>
         <p className={styles.text}>
+          Sale: <span>(1 day subscription, can download 2 files per day)</span>
+        </p>
+        <p className={styles.text}>
           Admin:{" "}
           <span>
             (All access, can upload/delete post, change users subscription)
           </span>
         </p>
       </div>
+      <div className={styles.checkboxes}>
+        {Object.keys(visibleColumns).map((key, index, array) => (
+          <React.Fragment key={key}>
+            <label>
+              <input
+                type="checkbox"
+                checked={visibleColumns[key as keyof typeof visibleColumns]}
+                onChange={() =>
+                  handleToggleColumn(key as keyof typeof visibleColumns)
+                }
+              />
+              <span>{key}</span>
+            </label>
+            {index < array.length - 1 && (
+              <span className={styles.separator}>|</span>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
       {users.length > 0 && (
-        <div className={styles.scroll}>
-          <table className={styles.table}>
-            <thead className={styles.thead}>
-              <tr className={styles.trow}>
-                <th className={styles.tsel} scope="col">
-                  <button
-                    className={styles.selectbtn}
-                    type="button"
-                    //   onClick={() => handleSort("")}
-                  >
-                    Select
-                  </button>
-                </th>
-                <th className={styles.th} scope="col">
-                  <button
-                    className={styles.selectbtn}
-                    type="button"
-                    onClick={() => handleSort("name")}
-                  >
-                    Name{" "}
-                    {sortField === "name"
-                      ? sortDirection === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
-                  </button>
-                </th>
-                <th className={styles.th} scope="col">
-                  <button
-                    className={styles.selectbtn}
-                    type="button"
-                    onClick={() => handleSort("email")}
-                  >
-                    Email{" "}
-                    {sortField === "email"
-                      ? sortDirection === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
-                  </button>
-                </th>
-
-                <th className={styles.th} scope="col">
-                  <button
-                    className={styles.selectbtn}
-                    type="button"
-                    onClick={() => handleSort("subscription")}
-                  >
-                    Subscription{" "}
-                    {sortField === "subscription"
-                      ? sortDirection === "asc"
-                        ? "↑"
-                        : "↓"
-                      : ""}
-                  </button>
-                </th>
-                <th className={styles.th} scope="col">
-                  Status
-                </th>
-                <th className={styles.th} scope="col">
-                  Last_Payed Status
-                </th>
-                <th className={styles.th} scope="col">
-                  Last_Payed Date
-                </th>
-                <th className={styles.th} scope="col">
-                  Order Reference
-                </th>
-                <th className={styles.th} scope="col">
-                  Subscription start
-                </th>
-                <th className={styles.th} scope="col">
-                  Subscription end
-                </th>
-                <th className={styles.th} scope="col">
-                  Subscription Until
-                </th>
-                <th className={styles.th} scope="col">
-                  Phone
-                </th>
-                <th className={styles.th} scope="col">
-                  Amount
-                </th>
-                <th className={styles.th} scope="col">
-                  Payment period
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedUsers.map((user) => (
-                <tr className={styles.trow} key={user._id}>
-                  <th className={styles.tsel} scope="row">
-                    <input
-                      type="checkbox"
-                      checked={updateUsers.includes(user._id)}
-                      onChange={(e) =>
-                        handleCheckboxChange(user._id, e.target.checked)
-                      }
-                    />
+        <>
+          <div className={styles.scroll}>
+            <table className={styles.table}>
+              <thead className={styles.thead}>
+                <tr className={styles.trow}>
+                  <th className={styles.tsel} scope="col">
+                    <button
+                      className={styles.selectbtn}
+                      type="button"
+                      onClick={() => handleSort("")}
+                    >
+                      Set
+                    </button>
                   </th>
-                  <td className={styles.tcol}>{user.name}</td>
-                  <td className={styles.tcol}>{user.email}</td>
-                  <td
-                    className={cn(styles.tcol, {
-                      [styles.free]: user.subscription === "free",
-                      [styles.member]: user.subscription === "member",
-                      [styles.admin]: user.subscription === "admin",
-                    })}
-                  >
-                    {user.subscription}
-                  </td>
-                  <td className={styles.tcol}>{user.status}</td>
-                  <td className={styles.tcol}>{user.lastPayedStatus}</td>
-                  <td className={styles.tcol}>
-                    {user.lastPayedDate &&
-                      moment(new Date(user.lastPayedDate)).format("DD-MM-YYYY")}
-                  </td>
-                  <td className={styles.tcol}>{user.orderReference}</td>
-                  <td className={styles.tcol}>
-                    {user.substart &&
-                      moment(new Date(user.substart)).format("DD-MM-YYYY")}
-                  </td>
-                  <td className={styles.tcol}>
-                    {user.subend &&
-                      moment(new Date(user.subend)).format("DD-MM-YYYY")}
-                  </td>
-                  <td className={styles.tcol}>
-                    {user.regularDateEnd &&
-                      moment(new Date(user.regularDateEnd)).format(
-                        "DD-MM-YYYY"
-                      )}
-                  </td>
-                  <td className={styles.tcol}>{user.phone}</td>
-                  <td className={styles.tcol}>{user.amount}</td>
-                  <td className={styles.tcol}>{user.mode}</td>
+                  {visibleColumns.name && (
+                    <th className={styles.th} scope="col">
+                      <button
+                        className={styles.selectbtn}
+                        type="button"
+                        onClick={() => handleSort("name")}
+                      >
+                        Name{" "}
+                        {sortField === "name"
+                          ? sortDirection === "asc"
+                            ? "↑"
+                            : "↓"
+                          : ""}
+                      </button>
+                    </th>
+                  )}
+                  <th className={styles.th} scope="col">
+                    <button
+                      className={styles.selectbtn}
+                      type="button"
+                      onClick={() => handleSort("email")}
+                    >
+                      Email{" "}
+                      {sortField === "email"
+                        ? sortDirection === "asc"
+                          ? "↑"
+                          : "↓"
+                        : ""}
+                    </button>
+                  </th>
+
+                  {visibleColumns.subscription && (
+                    <th className={styles.th} scope="col">
+                      <button
+                        className={styles.selectbtn}
+                        type="button"
+                        onClick={() => handleSort("subscription")}
+                      >
+                        Subscription{" "}
+                        {sortField === "subscription"
+                          ? sortDirection === "asc"
+                            ? "↑"
+                            : "↓"
+                          : ""}
+                      </button>
+                    </th>
+                  )}
+                  {visibleColumns.status && (
+                    <th className={styles.th} scope="col">
+                      Status
+                    </th>
+                  )}
+                  {visibleColumns.lastPayedStatus && (
+                    <th className={styles.th} scope="col">
+                      Last_Payed Status
+                    </th>
+                  )}
+                  {visibleColumns.lastPayedDate && (
+                    <th className={styles.th} scope="col">
+                      Last_Payed Date
+                    </th>
+                  )}
+                  {visibleColumns.orderReference && (
+                    <th className={styles.th} scope="col">
+                      Order Reference
+                    </th>
+                  )}
+                  {visibleColumns.substart && (
+                    <th className={styles.th} scope="col">
+                      Subscription start
+                    </th>
+                  )}
+                  {visibleColumns.subend && (
+                    <th className={styles.th} scope="col">
+                      Subscription end
+                    </th>
+                  )}
+                  {visibleColumns.regularDateEnd && (
+                    <th className={styles.th} scope="col">
+                      Subscription Until
+                    </th>
+                  )}
+                  {visibleColumns.phone && (
+                    <th className={styles.th} scope="col">
+                      Phone
+                    </th>
+                  )}
+                  {visibleColumns.amount && (
+                    <th className={styles.th} scope="col">
+                      Amount
+                    </th>
+                  )}
+                  {visibleColumns.mode && (
+                    <th className={styles.th} scope="col">
+                      Payment period
+                    </th>
+                  )}
+                  {visibleColumns.isBlocked && (
+                    <th className={styles.th} scope="col">
+                      Is Baned
+                    </th>
+                  )}
                 </tr>
-              ))}
-            </tbody>
-            {updateUsers.length > 0 && (
+              </thead>
+              <tbody>
+                {sortedUsers.map((user) => (
+                  <tr className={styles.trow} key={user._id}>
+                    <th className={styles.tsel} scope="row">
+                      <input
+                        type="checkbox"
+                        checked={updateUsers.includes(user._id)}
+                        onChange={(e) =>
+                          handleCheckboxChange(user._id, e.target.checked)
+                        }
+                      />
+                    </th>
+                    {visibleColumns.name && (
+                      <td className={styles.tcol}>{user.name}</td>
+                    )}
+                    <td className={styles.tcol}>{user.email}</td>
+                    {visibleColumns.subscription && (
+                      <td
+                        className={cn(styles.tcol, {
+                          [styles.free]: user.subscription === "free",
+                          [styles.member]: user.subscription === "member",
+                          [styles.admin]: user.subscription === "admin",
+                          [styles.sale]: user.subscription === "sale",
+                        })}
+                      >
+                        {user.subscription}
+                      </td>
+                    )}
+                    {visibleColumns.status && (
+                      <td className={styles.tcol}>{user.status}</td>
+                    )}
+                    {visibleColumns.lastPayedStatus && (
+                      <td className={styles.tcol}>{user.lastPayedStatus}</td>
+                    )}
+                    {visibleColumns.lastPayedDate && (
+                      <td className={styles.tcol}>
+                        {user.lastPayedDate &&
+                          moment(new Date(user.lastPayedDate)).format(
+                            "DD-MM-YYYY"
+                          )}
+                      </td>
+                    )}
+                    {visibleColumns.orderReference && (
+                      <td className={styles.tcol}>{user.orderReference}</td>
+                    )}
+                    {visibleColumns.substart && (
+                      <td className={styles.tcol}>
+                        {user.substart &&
+                          moment(new Date(user.substart)).format("DD-MM-YYYY")}
+                      </td>
+                    )}
+                    {visibleColumns.subend && (
+                      <td className={styles.tcol}>
+                        {user.subend &&
+                          moment(new Date(user.subend)).format("DD-MM-YYYY")}
+                      </td>
+                    )}
+                    {visibleColumns.regularDateEnd && (
+                      <td className={styles.tcol}>
+                        {user.regularDateEnd &&
+                          moment(new Date(user.regularDateEnd)).format(
+                            "DD-MM-YYYY"
+                          )}
+                      </td>
+                    )}
+                    {visibleColumns.phone && (
+                      <td className={styles.tcol}>{user.phone}</td>
+                    )}
+                    {visibleColumns.amount && (
+                      <td className={styles.tcol}>{user.amount}</td>
+                    )}
+                    {visibleColumns.mode && (
+                      <td className={styles.tcol}>{user.mode}</td>
+                    )}
+                    {visibleColumns.isBlocked && (
+                      <td
+                        className={cn(styles.tcol, {
+                          [styles.ban]: user.isBlocked,
+                        })}
+                      >
+                        {user.isBlocked && "BAN"}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
               <tfoot>
                 <tr>
-                  <td className={styles.tselected} colSpan={1}>
-                    {updateUsers.length}
-                  </td>
-                  <th className={styles.tcol} scope="row" colSpan={3}>
-                    {isLoadingUpdate ? (
-                      <button
-                        className={cn("button-stroke", styles.button)}
-                        type="button"
-                      >
-                        <Loader />
-                      </button>
-                    ) : (
-                      <button
-                        className={cn("button-stroke", styles.updateBtn)}
-                        type="button"
-                        onClick={() => {
-                          dispatch(
-                            patchUsers({
-                              usersId: updateUsers,
-                              subscription: "member",
-                            })
-                          );
-                        }}
-                      >
-                        Set membership 1 month
-                      </button>
-                    )}
-                  </th>
-                  <th className={styles.tcol} scope="row" colSpan={3}>
-                    {isLoadingUpdate ? (
-                      <button
-                        className={cn("button-stroke", styles.button)}
-                        type="button"
-                      >
-                        <Loader />
-                      </button>
-                    ) : (
-                      <button
-                        className={cn("button-stroke", styles.updateBtnRed)}
-                        type="button"
-                        onClick={() => {
-                          dispatch(
-                            patchUsers({
-                              usersId: updateUsers,
-                              subscription: "free",
-                            })
-                          );
-                        }}
-                      >
-                        Delete subscription
-                      </button>
-                    )}
-                  </th>
-                  <th className={styles.tcol} scope="row" colSpan={3}>
-                    {isLoadingCheck ? (
-                      <button
-                        className={cn("button-stroke", styles.button)}
-                        type="button"
-                      >
-                        <Loader />
-                      </button>
-                    ) : (
-                      <button
-                        className={cn("button-stroke", styles.updateBtn)}
-                        type="button"
-                        onClick={() => {
-                          dispatch(
-                            patchCheckSub({
-                              usersId: updateUsers,
-                            })
-                          );
-                        }}
-                      >
-                        Check WayForPay status
-                      </button>
-                    )}
-                  </th>
+                  {
+                    <td className={styles.tselected} colSpan={1}>
+                      {updateUsers.length > 0 && updateUsers.length}
+                    </td>
+                  }
                 </tr>
               </tfoot>
-            )}
-          </table>
-        </div>
+            </table>
+          </div>
+
+          {updateUsers.length > 0 && (
+            <div className={styles.btnContainer}>
+              {isLoadingCheck ? (
+                <button
+                  className={cn("button-stroke", styles.button)}
+                  type="button"
+                >
+                  <Loader />
+                </button>
+              ) : (
+                <button
+                  className={cn("button-stroke", styles.updateBtn)}
+                  type="button"
+                  onClick={() => {
+                    dispatch(
+                      patchCheckSub({
+                        usersId: updateUsers,
+                      })
+                    );
+                  }}
+                >
+                  Check WayForPay status
+                </button>
+              )}
+              {isLoadingUpdate ? (
+                <button
+                  className={cn("button-stroke", styles.button)}
+                  type="button"
+                >
+                  <Loader />
+                </button>
+              ) : (
+                <button
+                  className={cn("button-stroke", styles.updateBtn)}
+                  type="button"
+                  onClick={() => {
+                    dispatch(
+                      patchUsers({
+                        usersId: updateUsers,
+                        subscription: "member",
+                      })
+                    );
+                  }}
+                >
+                  Set sub-tion for 1 month
+                </button>
+              )}
+              {isLoadingUpdate ? (
+                <button
+                  className={cn("button-stroke", styles.button)}
+                  type="button"
+                >
+                  <Loader />
+                </button>
+              ) : (
+                <button
+                  className={cn("button-stroke", styles.updateBtnRed)}
+                  type="button"
+                  onClick={() => {
+                    dispatch(
+                      patchUsers({
+                        usersId: updateUsers,
+                        subscription: "free",
+                      })
+                    );
+                  }}
+                >
+                  Delete subscription
+                </button>
+              )}
+              {isLoadingUpdate ? (
+                <button
+                  className={cn("button-stroke", styles.button)}
+                  type="button"
+                >
+                  <Loader />
+                </button>
+              ) : (
+                <button
+                  className={cn("button-stroke", styles.updateBtnRed)}
+                  type="button"
+                  onClick={() => {
+                    dispatch(
+                      banUsers({
+                        usersId: updateUsers,
+                      })
+                    );
+                  }}
+                >
+                  Ban | Unban
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
       <div className={styles.btns}>
         {isLoadingMore ? (

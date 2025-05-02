@@ -42,6 +42,14 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
             <p className={styles.info__text}>
               Subscription - <span>{user.subscription}</span>
             </p>
+            {user.isBlocked && (
+              <p className={styles.info__text}>
+                Your account is{" "}
+                <span className={cn(styles.info__text, [styles.declined])}>
+                  BANED
+                </span>
+              </p>
+            )}
             {user.lastPayedStatus === "Declined" && user.lastPayedDate && (
               <div className={styles.declined}>
                 <p
@@ -78,7 +86,7 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
             </button>
           </div>
         </div>
-        {!user.lastPayedStatus && (
+        {!user.lastPayedStatus && !user.isBlocked && (
           <div className={styles.subscription}>
             <p>Please subscribe for downloading file</p>
             <button

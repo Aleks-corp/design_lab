@@ -15,6 +15,7 @@ import { unsubscribeUser } from "src/helpers/unsubscribeUser";
 import { migrateFromOldBase } from "src/helpers/migrateFromOldBase";
 import { registrationSale } from "src/helpers/registrationSale";
 import axios from "axios";
+import { DATE_FOR_SALE } from "src/constants/saleConstant";
 
 const {
   JWT_SECRET,
@@ -57,7 +58,7 @@ export const registerService = async ({
     }
   }
   const migrateUserData = await migrateFromOldBase({ email, phone });
-  const registerSale = registrationSale();
+  const registerSale = registrationSale(DATE_FOR_SALE);
   const userData = {
     password: await bcrypt.hash(password, 10),
     verificationToken: nanoid(),
@@ -110,6 +111,7 @@ export const loginService = async ({
   if (!user) {
     throw ApiError(401, "Email or password not valid");
   }
+  console.log(" user:", user);
   if (!(await bcrypt.compare(password, user.password))) {
     throw ApiError(401, "Email or password not valid");
   }
@@ -121,20 +123,22 @@ export const loginService = async ({
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
     expiresIn: "333h",
   });
+  console.log(" token:", token);
   if (ip && ip !== "") {
-    const { data } = await axios.get(`https://v2.api.iphub.info/ip/${ip}`, {
-      headers: {
-        "X-Key": IPHUB_API_KEY as string,
-      },
-    });
+    try {
+      const { data } = await axios.get(`https://v2.api.iphub.info/ip/${ip}`, {
+        headers: {
+          "X-Key": IPHUB_API_KEY as string,
+        },
+      });
+      if (data.block === 1 || data.block === 2) {
+        await User.findByIdAndUpdate(user._id, { token });
+        return { token, updatedUser };
+      }
+    } catch (error) {}
 
-    if (data.block === 1 || data.block === 2) {
-      await User.findByIdAndUpdate(user._id, { token });
-      return { token, updatedUser };
-    } else {
-      await User.findByIdAndUpdate(user._id, { token, ip });
-      return { token, updatedUser };
-    }
+    await User.findByIdAndUpdate(user._id, { token, ip });
+    return { token, updatedUser };
   }
 
   await User.findByIdAndUpdate(user._id, { token });
