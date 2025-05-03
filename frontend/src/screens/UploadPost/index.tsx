@@ -1,68 +1,54 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
-import Datetime from "react-datetime";
-import "react-datetime/css/react-datetime.css";
 import cn from "classnames";
+import toast from "react-hot-toast";
 import styles from "./UploadPost.module.sass";
-import Icon from "../../components/Icon";
-import TextInput from "../../components/TextInput";
-import Switch from "../../components/Switch";
-import Loader from "../../components/Loader";
-import Preview from "./Preview";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 
+import { addPost } from "../../redux/posts/post.thunk";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectIsLogining, selectUserError } from "../../redux/selectors";
 import { kitsConstant } from "../../constants/kits.constant";
-import TextArea from "../../components/TextArea";
 import { filterConstant } from "../../constants/filter.constant";
+
 import {
   handleFileChange,
   handleImageFileChange,
 } from "../../helpers/handleFileChange";
-import { addPost } from "../../redux/posts/post.thunk";
-import toast from "react-hot-toast";
-import { FileUploadProgress } from "../../types/upload.types";
-import { uploadDownLoadFile, uploadImgFiles } from "../../helpers/uploadFile";
-import { generatePresignedUrl } from "../../helpers/genSignedUrl";
 import { setArrayString } from "../../helpers/categoryKitSetArray";
 import { imageIndexChanger } from "../../helpers/imageIndexChanger";
+import { useUploadFiles } from "../../hooks/useUploadFiles";
+
+import Preview from "./Preview";
+import Icon from "../../components/Icon";
+import Loader from "../../components/Loader";
+import UploadImageInput from "../../components/UploadForm/UploadImageInput";
+import UploadFileInput from "../../components/UploadForm/UploadFileInput";
+import PostFormFields from "../../components/UploadForm/PostFormFields";
+import SwitchSelector from "../../components/UploadForm/SwitchSelector";
+import UploadProgressList from "../../components/UploadForm/UploadProgressList";
 
 const Upload = () => {
   const dispatch = useAppDispatch();
-
-  const [kitState, setKitState] = useState(
-    kitsConstant.map((key) => ({ [key]: false }))
-  );
-  const [categoryState, setCategoryState] = useState(
-    filterConstant.map((key) => ({ [key]: false }))
-  );
-
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [visiblePreview, setVisiblePreview] = useState(false);
   const error = useAppSelector(selectUserError);
   const isLoading = useAppSelector(selectIsLogining);
+
+  const [visiblePreview, setVisiblePreview] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[] | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
   const [titleValue, setTitleValue] = useState<string>("");
   const [descriptionValue, setDescriptionValue] = useState<string>("");
-  const [fileUploadProgress, setFileUploadProgress] =
-    useState<FileUploadProgress>({ fileName: "", progress: 0 });
-  const [imgUploadProgress, setImgUploadProgress] = useState<
-    FileUploadProgress[]
-  >([]);
-  const [isUploading, setIsUploading] = useState(false);
-
   const [uploadAt, setUploadAt] = useState<string>("");
-  const [uploadError, setUploadError] = useState<string>("");
-
-  const moveImagePreview = (indexStart: number, indexEnd: number) => {
-    if (previews) {
-      imageIndexChanger(indexStart, indexEnd, setImageFiles, setPreviews);
-    }
-  };
+  const [kitState, setKitState] = useState(
+    kitsConstant.map((key) => ({ [key]: false }))
+  );
+  const [categoryState, setCategoryState] = useState(
+    filterConstant.map((key) => ({ [key]: false }))
+  );
 
   useEffect(() => {
     if (imageFiles.length > 0) {
@@ -77,6 +63,15 @@ const Upload = () => {
     }
   }, [imageFiles]);
 
+  const {
+    uploadFiles,
+    imgUploadProgress,
+    fileUploadProgress,
+    uploadError,
+    clearUploadError,
+    resetProgress,
+  } = useUploadFiles();
+
   const reset = () => {
     setImageFiles([]);
     setPreviews(null);
@@ -87,8 +82,7 @@ const Upload = () => {
     setCategoryState(filterConstant.map((key) => ({ [key]: false })));
     setUploadAt("");
     setIsUploading(false);
-    setFileUploadProgress({ fileName: "", progress: 0 });
-    setImgUploadProgress([]);
+    resetProgress();
     if (imageInputRef.current) {
       imageInputRef.current.value = "";
     }
@@ -100,7 +94,7 @@ const Upload = () => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsUploading(true);
-    setUploadError("");
+    clearUploadError();
 
     const category = setArrayString(categoryState);
     const kits = setArrayString(kitState);
@@ -144,111 +138,54 @@ const Upload = () => {
       }
     }
 
-    try {
-      let signedUrls: string[];
-      try {
-        signedUrls = await generatePresignedUrl(imageFiles, downloadFile);
-      } catch (err) {
-        setUploadError("Failed to generate signed URLs.");
-        console.error("Error generating signed URLs:", err);
-        toast.error("Failed to generate signed URLs.");
-        toast.error("Please try signout and singin again.");
-        setIsUploading(false);
-        return;
-      }
+    const result = await uploadFiles(imageFiles, downloadFile);
 
-      let uploadedImageUrls: string[] = [];
-      let uploadImgPromises: Promise<void>[] = [];
-      try {
-        ({ uploadedImageUrls, uploadImgPromises } = await uploadImgFiles(
-          imageFiles,
-          signedUrls,
-          setImgUploadProgress
-        ));
-      } catch (err) {
-        setUploadError("Failed to upload images. Try again.");
-        console.error("Image upload error:", err);
-        toast.error("Failed to upload images. Try again.");
-        setIsUploading(false);
-        return;
-      }
+    if (!result) {
+      setIsUploading(false);
+      return;
+    }
 
-      let uploadedFileUrl = "";
-      let uploadFilePromises: Promise<void>[] = [];
-      try {
-        ({ uploadedFileUrl, uploadFilePromises } = await uploadDownLoadFile(
-          downloadFile,
-          signedUrls,
-          imageFiles,
-          setFileUploadProgress
-        ));
-      } catch (err) {
-        setUploadError("Failed to upload file. Try again.");
-        console.error("File upload error:", err);
-        toast.error("Failed to upload file.");
-        setIsUploading(false);
-        return;
-      }
+    const { uploadedImageUrls, uploadedFileUrl } = result;
 
-      try {
-        await Promise.all([...uploadImgPromises, ...uploadFilePromises]);
-      } catch (err) {
-        setUploadError("An error occurred while uploading files.");
-        console.error("Error during file uploads:", err);
-        toast.error("An error occurred while uploading files.");
-        setIsUploading(false);
-        return;
-      }
-      toast.success("Files uploaded successfully!");
+    if (!uploadedFileUrl || uploadedImageUrls.length === 0) {
+      toast.error("Upload failed. Try again.");
+      setIsUploading(false);
+      return;
+    }
 
-      if (!uploadedFileUrl) {
-        toast.error("Failed to upload file. Try again.");
-        setIsUploading(false);
-        return;
-      }
-      if (uploadedImageUrls.length === 0) {
-        toast.error("Failed to upload images. Try again.");
-        setIsUploading(false);
-        return;
-      }
+    const data = {
+      title: titleValue,
+      description: descriptionValue,
+      category: setArrayString(categoryState),
+      kits: setArrayString(kitState),
+      upload_at: uploadAt,
+      filesize: downloadFile ? downloadFile.size.toString() : "0",
+      images: uploadedImageUrls,
+      downloadlink: uploadedFileUrl,
+    };
 
-      const data = {
-        title: titleValue,
-        description: descriptionValue,
-        category,
-        kits,
-        upload_at: uploadAt,
-        filesize: downloadFile ? downloadFile.size.toString() : "0",
-        images: uploadedImageUrls,
-        downloadlink: uploadedFileUrl,
-      };
+    const resultAction = await dispatch(addPost(data));
 
-      const resultAction = await dispatch(addPost(data));
-
-      if (addPost.fulfilled.match(resultAction)) {
-        toast.success("Post created!");
-        reset();
-      } else if (addPost.rejected.match(resultAction)) {
-        toast.error("Create post failed");
-        setIsUploading(false);
-      }
-
-      if (error) {
-        toast.error(error);
-        console.error(error);
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      toast.error("Something went wrong. Please try again.");
+    if (addPost.fulfilled.match(resultAction)) {
+      toast.success("Post created!");
+      reset();
+    } else if (addPost.rejected.match(resultAction)) {
+      toast.error("Create post failed");
       setIsUploading(false);
     }
+
+    if (error) {
+      toast.error(error);
+      console.error(error);
+    }
+
+    setIsUploading(false);
   };
 
-  const inputProps = {
-    placeholder: "Select upload Date",
-    className: styles.inputdate,
-    required: true,
-    value: uploadAt ? uploadAt : "",
+  const moveImagePreview = (indexStart: number, indexEnd: number) => {
+    if (previews) {
+      imageIndexChanger(indexStart, indexEnd, setImageFiles, setPreviews);
+    }
   };
 
   return (
@@ -261,159 +198,46 @@ const Upload = () => {
             </div>
             <form className={styles.form} onSubmit={onSubmit}>
               <div className={styles.list}>
-                <div className={styles.item}>
-                  <h2 className={styles.category}>Upload Image</h2>
-                  <p className={styles.note}>
-                    Drag or choose your Image to upload
-                  </p>
-                  <div className={styles.file}>
-                    <input
-                      ref={imageInputRef}
-                      className={styles.load}
-                      name="imagefiles"
-                      type="file"
-                      accept=".jpg, .jpeg, .png, .webp"
-                      onChange={(e) => handleImageFileChange(e, setImageFiles)}
-                      multiple
-                    />
-                    <div className={styles.icon}>
-                      <Icon title="upload-file" size={24} />
-                    </div>
-                    <p className={styles.format}>
-                      JPG, PNG, WEBP. Max 8 files up to 4Mb.
-                    </p>
-                  </div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.fieldset}>
-                    <div className={styles.field}>
-                      <TextInput
-                        label="Post title"
-                        name="title"
-                        type="text"
-                        placeholder="Please enter Post title"
-                        value={titleValue}
-                        onChange={(e) => setTitleValue(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className={styles.field}>
-                      <TextArea
-                        label="Description"
-                        name="description"
-                        placeholder="Please enter short description"
-                        value={descriptionValue}
-                        onChange={(e) => setDescriptionValue(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className={styles.field}>
-                      <p className={styles.label}>Datetime to upload</p>
-                      <div className={styles.wrap}>
-                        <Datetime
-                          inputProps={inputProps}
-                          onChange={(e) => setUploadAt(e.toString())}
-                          value={uploadAt !== "" ? new Date(uploadAt) : ""}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.item}>
-                  <p className={styles.label}>Upload File</p>
-                  <p className={styles.note}>
-                    Drag or choose your File to upload or insert link below
-                  </p>
-                  <div className={styles.filedw}>
-                    <input
-                      ref={fileInputRef}
-                      className={styles.load}
-                      name="downloadfile"
-                      type="file"
-                      accept=".zip"
-                      onChange={(e) => handleFileChange(e, setDownloadFile)}
-                    />
-                    <div className={styles.icon}>
-                      <Icon title="upload-file" size={24} />
-                    </div>
-                    <p className={styles.format}>ZIP. Max 2Gb.</p>
-                  </div>
-                  <p className={styles.note}>
-                    {downloadFile?.name || "No file selected"}
-                  </p>
-                </div>
-                <p className={styles.text}>Kits</p>
-                <div className={styles.options}>
-                  {kitsConstant.map((kit, index) => (
-                    <div key={index} className={styles.option}>
-                      <Switch
-                        value={
-                          kitState.find((i) => Object.keys(i)[0] === kit)?.[
-                            kit
-                          ] || false
-                        }
-                        setValue={(newValue) =>
-                          setKitState((prevKits) =>
-                            prevKits.map((i) =>
-                              Object.keys(i)[0] === kit
-                                ? { [kit]: newValue }
-                                : i
-                            )
-                          )
-                        }
-                        name={kit}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <p className={styles.text}>Filter</p>
-                <div className={styles.filteroptions}>
-                  {filterConstant.map((filter, index) => (
-                    <div key={index} className={styles.filteroption}>
-                      <Switch
-                        value={
-                          categoryState.find(
-                            (i) => Object.keys(i)[0] === filter
-                          )?.[filter] || false
-                        }
-                        setValue={(newValue) =>
-                          setCategoryState((prevCats) =>
-                            prevCats.map((i) =>
-                              Object.keys(i)[0] === filter
-                                ? { [filter]: newValue }
-                                : i
-                            )
-                          )
-                        }
-                      />
-                      <div className={styles.box}>
-                        <p className={styles.category}>{filter}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  {imgUploadProgress.map((fileProgress, index) => (
-                    <div key={index}>
-                      <div>{fileProgress.fileName}</div>
-                      <progress
-                        value={fileProgress.progress}
-                        max={100}
-                      ></progress>
-                      <div>{fileProgress.progress}%</div>
-                    </div>
-                  ))}
-                  {fileUploadProgress.fileName !== "" && (
-                    <div>
-                      <div>{fileUploadProgress.fileName}</div>
-                      <progress
-                        value={fileUploadProgress.progress}
-                        max={100}
-                      ></progress>
-                      <div>{fileUploadProgress.progress}%</div>
-                    </div>
-                  )}
-                </div>
+                <UploadImageInput
+                  imageInputRef={imageInputRef}
+                  onImageChange={(e) => handleImageFileChange(e, setImageFiles)}
+                />
+                <PostFormFields
+                  titleValue={titleValue}
+                  onTitleChange={(e) => setTitleValue(e.target.value)}
+                  descriptionValue={descriptionValue}
+                  onDescriptionChange={(e) =>
+                    setDescriptionValue(e.target.value)
+                  }
+                  uploadAt={uploadAt}
+                  onUploadAtChange={(value) => setUploadAt(value)}
+                />
+                <UploadFileInput
+                  fileInputRef={fileInputRef}
+                  onFileChange={(e) => handleFileChange(e, setDownloadFile)}
+                  fileName={downloadFile?.name}
+                />
+                <SwitchSelector
+                  title="Kits"
+                  items={kitState}
+                  setItems={setKitState}
+                  constants={kitsConstant}
+                  containerClass={styles.options}
+                  optionClass={styles.option}
+                />
+                <SwitchSelector
+                  title="Filter"
+                  items={categoryState}
+                  setItems={setCategoryState}
+                  constants={filterConstant}
+                  containerClass={styles.filteroptions}
+                  optionClass={styles.filteroption}
+                  showBox={true}
+                />
+                <UploadProgressList
+                  imgUploadProgress={imgUploadProgress}
+                  fileUploadProgress={fileUploadProgress}
+                />
               </div>
 
               <div className={styles.foot}>

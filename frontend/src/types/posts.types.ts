@@ -34,3 +34,12 @@ export interface AddFavorites {
 //   downloadlink?: string;
 //   favorites: string[];
 // }
+
+export interface PostFormFieldsProps {
+  titleValue: string;
+  onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  descriptionValue: string;
+  onDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  uploadAt: string;
+  onUploadAtChange: (value: string) => void;
+}
