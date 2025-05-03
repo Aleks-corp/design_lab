@@ -13,6 +13,7 @@ import {
   bannerSubscriptionContent,
 } from "../../constants/banner-content.constant";
 import { getDateForSale } from "../../helpers/getDateForSale";
+import { userSubscriptionConst } from "../../constants/user.constants";
 
 interface PageProps {
   children: React.ReactNode;
@@ -24,13 +25,14 @@ const Page = ({ children }: PageProps) => {
   const [dateForSale, setDateForSale] = useState<number>(1);
 
   useEffect(() => {
-    const fetchDate = async () => {
-      const result = await getDateForSale();
-      setDateForSale(result);
-    };
-
-    fetchDate();
-  }, []);
+    if (user?.subscription === userSubscriptionConst.SALE) {
+      const fetchDate = async () => {
+        const result = await getDateForSale();
+        setDateForSale(result);
+      };
+      fetchDate();
+    }
+  }, [user]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -42,16 +44,20 @@ const Page = ({ children }: PageProps) => {
       <Header />
       {!user?.isBlocked && (
         <>
-          {user && user.subscription === "free" && !user.lastPayedStatus && (
-            <SubscriptionBanner text={bannerSubscriptionContent} />
-          )}
-          {user && user.subscription === "sale" && !user.lastPayedStatus && (
-            <SubscriptionBanner
-              text={` Enjoy <span>${
-                dateForSale * 24
-              } hours of Premium Access</span> ${bannerSaleContent}`}
-            />
-          )}
+          {user &&
+            user.subscription === userSubscriptionConst.FREE &&
+            !user.lastPayedStatus && (
+              <SubscriptionBanner text={bannerSubscriptionContent} />
+            )}
+          {user &&
+            user.subscription === userSubscriptionConst.SALE &&
+            !user.lastPayedStatus && (
+              <SubscriptionBanner
+                text={` Enjoy <span>${
+                  dateForSale * 24
+                } hours of Premium Access</span> ${bannerSaleContent}`}
+              />
+            )}
         </>
       )}
 
