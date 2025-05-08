@@ -93,7 +93,7 @@ DesignUA Lab is a web platform for browsing and downloading digital design asset
 
 ## 🆕 Recent Updates
 
-- ✅ **Trial Premium Access** – New users receive a 72-hour Premium Trial with download limits.
+- ✅ **Trial Premium Access** – New users receive a 24-hour Premium Trial with download limits.
 - ✅ **Download Limit System** – Trial users can download up to 2 files per day.
 - ✅ **Dynamic Reset Logic** – Daily limits reset every 24 hours based on initial signup time.
 - ✅ **Temp Email Detection** – Registration blocks disposable/temporary email addresses.
@@ -101,6 +101,7 @@ DesignUA Lab is a web platform for browsing and downloading digital design asset
 - ✅ **IP-Based Registration Limit** – Only one account allowed per IP to prevent abuse.
 - ✅ **Ban System (Admin Controlled)** – Admins can manually block suspicious users.
 - ✅ **Improved Error Handling & Session Validation** – Automatic logout on session expiration.
+- ✅ **Added post editing feature** - Added the ability for administrators to edit a post.
 
 ## ⚙️ Installation & Setup
 

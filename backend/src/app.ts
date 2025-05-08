@@ -38,7 +38,11 @@ app.use(express.json()); // для application/json
 app.use(express.urlencoded({ extended: true })); // для application/x-www-form-urlencoded
 app.use(express.static("public"));
 app.use((req, res, next) => {
-  console.log("📩 New Request:", req.ip, req.method, req.url);
+  const ip =
+    typeof req.headers["x-forwarded-for"] === "string"
+      ? req.headers["x-forwarded-for"].split(",")[0].trim()
+      : req.socket.remoteAddress || "";
+  console.log("📩 New Request:", ip, req.method, req.url);
   next();
 });
 
