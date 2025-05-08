@@ -36,6 +36,28 @@ const postAddSchema = Joi.object({
   }),
 });
 
+const postUpdateSchema = Joi.object({
+  title: Joi.string().messages({
+    "string.base": `'name' should be a type of 'text'`,
+    "string.empty": `'name' cannot be an empty field`,
+  }),
+  description: Joi.string().messages({
+    "string.empty": `'description' cannot be an empty field`,
+  }),
+  kits: Joi.array().items(Joi.string()).messages({
+    "string.empty": `'kits' cannot be an empty field`,
+  }),
+  category: Joi.array().items(Joi.string()).messages({
+    "string.empty": `'category' cannot be an empty field`,
+  }),
+  images: Joi.array().items(Joi.string()).messages({
+    "string.empty": `'image' cannot be an empty field`,
+  }),
+  upload_at: Joi.string().messages({
+    "string.empty": `'upload_at' cannot be an empty field`,
+  }),
+});
+
 const postUpdateStatusSchema = Joi.object({
   postId: Joi.string().required().messages({
     "string.empty": `'userId' cannot be an empty field`,
@@ -43,4 +65,4 @@ const postUpdateStatusSchema = Joi.object({
   }),
 });
 
-export default { postAddSchema, postUpdateStatusSchema };
+export default { postAddSchema, postUpdateStatusSchema, postUpdateSchema };

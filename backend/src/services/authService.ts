@@ -111,7 +111,6 @@ export const loginService = async ({
   if (!user) {
     throw ApiError(401, "Email or password not valid");
   }
-  console.log(" user:", user);
   if (!(await bcrypt.compare(password, user.password))) {
     throw ApiError(401, "Email or password not valid");
   }
@@ -123,7 +122,6 @@ export const loginService = async ({
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
     expiresIn: "333h",
   });
-  console.log(" token:", token);
   if (ip && ip !== "") {
     try {
       const { data } = await axios.get(`https://v2.api.iphub.info/ip/${ip}`, {

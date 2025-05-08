@@ -21,6 +21,7 @@ const ResetPasswordPage = lazy(() => import("./screens/PassReset"));
 const PaymentPage = lazy(() => import("./screens/Payment"));
 const PaymentSuccessPage = lazy(() => import("./screens/PaymentSuccess"));
 const Post = lazy(() => import("./screens/Post"));
+const EditPost = lazy(() => import("./screens/EditPost"));
 const Profile = lazy(() => import("./screens/Profile"));
 const ProfileEdit = lazy(() => import("./screens/ProfileEdit"));
 const SignIn = lazy(() => import("./screens/SignIn"));
@@ -226,6 +227,19 @@ function App() {
                 component={
                   <Page>
                     <UploadPost />
+                  </Page>
+                }
+              />
+            }
+          />
+          <Route
+            path="edit-post/:id"
+            element={
+              <AdminRoute
+                redirectTo="/"
+                component={
+                  <Page>
+                    <EditPost />
                   </Page>
                 }
               />

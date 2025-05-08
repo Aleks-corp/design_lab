@@ -26,6 +26,8 @@ export const selectCurrentFilter = (state: State) => state.posts.currentFilter;
 
 export const selectPost = (state: State) => state.posts.selectedPost;
 
+export const selectPostToEdit = (state: State) => state.posts.postToEdit;
+
 export const selectIsLoading = (state: State) => state.posts.isLoading;
 
 export const selectPostsError = (state: State) => state.posts.error;

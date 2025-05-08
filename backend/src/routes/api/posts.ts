@@ -19,8 +19,9 @@ const {
   deletePostById,
   updateStatusPost,
   postPresignedUrl,
+  updatePost,
 } = postController;
-const { postAddSchema, postUpdateStatusSchema } = postSchemas;
+const { postAddSchema, postUpdateStatusSchema, postUpdateSchema } = postSchemas;
 
 const postsRouter = express.Router();
 
@@ -39,7 +40,7 @@ postsRouter.get(
   authenticateToken,
   checkIfUserBlocked,
   isValidId,
-  checkDownload
+  checkDownload 
 );
 postsRouter.patch(
   "/",
@@ -60,6 +61,14 @@ postsRouter.post(
   isEmptyBody,
   validateBody(postAddSchema),
   addPost
+);
+postsRouter.patch(
+  "/:postId",
+  authenticateToken,
+  isEmptyBody,
+  isValidId,
+  validateBody(postUpdateSchema),
+  updatePost
 );
 
 postsRouter.delete("/:postId", authenticateToken, isValidId, deletePostById);

@@ -14,6 +14,7 @@ export interface PostsState {
   selectedPost: GetPost | null;
   isLoading: boolean;
   error: string;
+  postToEdit: GetPost | null;
 }
 
 export interface AuthState {

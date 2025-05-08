@@ -12,3 +12,12 @@ export interface GetPost {
   kits: string[];
   upload_at: string;
 }
+
+export interface UpdatePost {
+  title?: string;
+  description?: string;
+  category?: string[];
+  kits?: string[];
+  images: string[];
+  upload_at?: string;
+}

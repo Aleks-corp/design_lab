@@ -21,6 +21,15 @@ export interface AddPost {
   upload_at: string;
 }
 
+export interface EditPost {
+  title: string;
+  description: string;
+  images: string[];
+  category: string[];
+  kits: string[];
+  upload_at: string;
+}
+
 export interface AddFavorites {
   userId: string;
   postId: string;

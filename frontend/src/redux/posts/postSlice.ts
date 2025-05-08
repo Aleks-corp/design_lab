@@ -82,6 +82,9 @@ const postsSlice = createSlice({
   name: "posts",
   initialState: initialState,
   reducers: {
+    setPostToEdit: (state, action) => {
+      state.postToEdit = action.payload;
+    },
     clearPosts(state: PostsState) {
       state.posts = [];
       state.totalHits = 0;
@@ -122,6 +125,11 @@ const postsSlice = createSlice({
   },
 });
 
-export const { clearPosts, setFilter, clearPost, deletePostFavorites } =
-  postsSlice.actions;
+export const {
+  clearPosts,
+  setFilter,
+  clearPost,
+  deletePostFavorites,
+  setPostToEdit,
+} = postsSlice.actions;
 export const postsReducer = postsSlice.reducer;

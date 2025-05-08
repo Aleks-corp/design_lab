@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { instance } from "../../api/axios";
 import { AxiosError } from "axios";
-import { AddPost } from "../../types/posts.types";
+import { AddPost, EditPost } from "../../types/posts.types";
 
 interface Query {
   page?: number;
@@ -81,6 +81,22 @@ export const addPost = createAsyncThunk(
   async (data: AddPost, thunkAPI) => {
     try {
       const response = await instance.post("/posts", data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
+      }
+    }
+  }
+);
+
+export const editPost = createAsyncThunk(
+  "posts/addPost",
+  async ({ post, postId }: { post: EditPost; postId: string }, thunkAPI) => {
+    try {
+      const response = await instance.patch(`/posts/${postId}`, post);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {

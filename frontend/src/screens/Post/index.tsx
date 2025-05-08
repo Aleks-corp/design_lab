@@ -17,7 +17,7 @@ import {
 } from "../../redux/selectors";
 import Loader from "../../components/LoaderCircle";
 import Icon from "../../components/Icon";
-import { clearPost } from "../../redux/posts/postSlice";
+import { clearPost, setPostToEdit } from "../../redux/posts/postSlice";
 import Control from "../../components/Control";
 import moment from "moment";
 import AccessPass from "../../components/AccessPass";
@@ -149,6 +149,18 @@ const Post = ({
                     className={cn("button", styles.button)}
                   >
                     Download
+                  </button>
+                )}
+                {isAdmin && (
+                  <button
+                    className={styles.edit}
+                    onClick={() => {
+                      dispatch(setPostToEdit(post));
+                      navigate(`/edit-post/${post._id}`);
+                    }}
+                  >
+                    <Icon title={"edit"} size={28} />
+                    <p className={styles.edittext}>Edit Post</p>
                   </button>
                 )}
                 {isAdmin && (

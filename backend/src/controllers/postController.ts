@@ -8,7 +8,7 @@ import {
   generateSignedUrlFile,
 } from "src/helpers/getSignedUrl";
 import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
-import { GetPost } from "src/types/post.type";
+import { GetPost, UpdatePost } from "src/types/post.type";
 import { checkDownloadPermission } from "src/helpers/checkDownloadPermission";
 
 interface PostRequest extends Request {
@@ -231,6 +231,32 @@ const deletePostById = async (req: Request, res: Response) => {
 
   res.json({ message: "Post deleted" });
 };
+const updatePost = async (req: Request, res: Response) => {
+  const { _id: userId, subscription } = req.user;
+  if (!userId || subscription !== "admin") {
+    throw ApiError(403, "No access to create POST");
+  }
+  const { postId } = req.params;
+  const newPost: UpdatePost = req.body;
+
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    throw ApiError(404, "Post not found");
+  }
+
+  const updatedPost = await Post.findByIdAndUpdate(
+    postId,
+    { ...newPost },
+    { new: true }
+  ).select("-owner -createdAt -updatedAt -downloadlink");
+
+  if (!updatedPost) {
+    throw ApiError(404, "Post not found");
+  }
+
+  res.json(post);
+};
 
 export default {
   getAllPosts: ctrlWrapper(getAllPosts),
@@ -240,4 +266,5 @@ export default {
   deletePostById: ctrlWrapper(deletePostById),
   updateStatusPost: ctrlWrapper(updateStatusPost),
   postPresignedUrl: ctrlWrapper(postPresignedUrl),
+  updatePost: ctrlWrapper(updatePost),
 };

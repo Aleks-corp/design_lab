@@ -7,4 +7,5 @@ export const initialState: PostsState = {
   selectedPost: null,
   isLoading: false,
   error: "",
+  postToEdit: null,
 };

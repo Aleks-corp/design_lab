@@ -38,7 +38,7 @@ app.use(express.json()); // для application/json
 app.use(express.urlencoded({ extended: true })); // для application/x-www-form-urlencoded
 app.use(express.static("public"));
 app.use((req, res, next) => {
-  console.log("📩 New Request:", req.method, req.url);
+  console.log("📩 New Request:", req.ip, req.method, req.url);
   next();
 });
 
@@ -60,6 +60,7 @@ app.use((error: Err, _: Request, res: Response, next: NextFunction): void => {
   }
   const { status, message } = error;
   res.status(status).json({ message });
+  console.log("📩 Error Response:", res.statusCode, res.statusMessage);
 });
 
 export default app;
