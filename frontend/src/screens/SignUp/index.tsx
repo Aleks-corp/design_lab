@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { getDateForSale } from "../../helpers/getDateForSale";
 import { registerBreadcrumbs } from "../../constants/breadcrumbs.constants";
 import { Trans, useTranslation } from "react-i18next";
+import SignUpForm from "../../components/SignUpForm";
 
 const SignUp = () => {
   const { t } = useTranslation();
@@ -61,7 +62,9 @@ const SignUp = () => {
             </div>
           </div>
           <div className={styles.row}>
-            <div className={styles.col}></div>
+            <div className={styles.col}>
+              <SignUpForm />
+            </div>
           </div>
         </div>
       </div>
