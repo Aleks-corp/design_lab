@@ -12,7 +12,6 @@
   "register-info": "You can set preferred display name and create your personal profile.",
   "register-warn-start": "Already have an account? ",
   "register-warn-end": "Sign In here.",
-  "register-name-placeholder": "Enter your display name",
   "reg-trial-info": "You'll receive a <1>{{days}}-day</1> trial of <3>Premium Access</3> after email verification. This includes access to premium content with a daily download limit of <5>{{limit}} files</5>.",
   "logout": "SignOut",
   "upload-btn": "Upload",
@@ -90,14 +89,25 @@
     "text-btn": "Contact Support",
     "login-alert": "Please SignIn first"
   },
+  "labels": {
+    "name": "name",
+    "email": "email",
+    "phone": "phone",
+    "password": "password",
+    "confirm-pass": "confirm password"
+  },
+  "placeholders": {
+    "name": "Enter your display name",
+    "email": "example@email.com",
+    "password": "Example: Qwerty123"
+  },
   "passchange": {
     "title": "Set new password",
     "text": "You can set up new password for ",
     "text-str": "your personal profile",
     "form-title": "Account info",
     "oldpass-label": "please enter old password",
-    "pass-placeholder": "Example: Qwerty123",
-    "newpass-label": "new password",
+    "newpass-label": "please enter new password",
     "confirmpass-label": "Confirm password",
     "submit-btn": "Change password",
     "set-new-btn": "Set new password",
@@ -105,8 +115,6 @@
     "send-btn": "Send",
     "verify-resend": "Please enter your email first.",
     "forgot-title": "Account info",
-    "forgot-label": "email",
-    "forgot-placeholder": "example@email.com",
     "forgot-subtitle": "Forgot Password",
     "forgot-notification": "Check email to set new password",
     "forgot-alert": "Sorry, you haven't any registeration account on this site, please ",

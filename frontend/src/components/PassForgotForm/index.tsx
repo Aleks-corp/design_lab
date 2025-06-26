@@ -60,10 +60,10 @@ const ForgotPassForm = ({ setIsSuccess, setNotFound }: IForgotPass) => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("email")}
-                label={t("passchange.forgot-label")}
+                label={t("labels.email")}
                 name="Email"
                 type="email"
-                placeholder={t("passchange.forgot-placeholder")}
+                placeholder={t("placeholders.email")}
               />
               {errors?.email && (
                 <p className={styles.error}>{errors.email.message}</p>

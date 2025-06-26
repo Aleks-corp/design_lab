@@ -63,7 +63,7 @@ const ChangePasswordForm = () => {
                 label={t("passchange.oldpass-label")}
                 name="oldPassword"
                 type={showPass ? "text" : "password"}
-                placeholder={t("passchange.pass-placeholder")}
+                placeholder={t("placeholders.password")}
                 required
               />
               <button
@@ -84,10 +84,10 @@ const ChangePasswordForm = () => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("newPassword")}
-                label={t("passchange.oldpass-label")}
+                label={t("passchange.newpass-label")}
                 name="newPassword"
                 type={showPass ? "text" : "password"}
-                placeholder={t("passchange.pass-placeholder")}
+                placeholder={t("placeholders.password")}
                 required
               />
               <button
@@ -111,7 +111,7 @@ const ChangePasswordForm = () => {
                 label={t("passchange.confirmpass-label")}
                 name="password"
                 type={showConfPass ? "text" : "password"}
-                placeholder={t("passchange.pass-placeholder")}
+                placeholder={t("placeholders.password")}
                 required
               />
               <button

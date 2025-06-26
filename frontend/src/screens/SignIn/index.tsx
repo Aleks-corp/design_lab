@@ -19,7 +19,7 @@ const SignIn = () => {
             <div className={styles.info}>
               {t("login-info-start")}
               <Link className={styles.link} to="/register">
-                {t("login")}
+                {t("register")}
               </Link>
               {t("login-info-end")}
             </div>

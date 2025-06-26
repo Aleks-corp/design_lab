@@ -63,10 +63,10 @@ const SignInForm = () => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("email")}
-                label="email"
+                label={t("labels.email")}
                 name="Email"
                 type="email"
-                placeholder="example@email.com"
+                placeholder={t("placeholders.email")}
               />
               {errors?.email && (
                 <p className={styles.error}>{errors.email.message}</p>
@@ -75,10 +75,10 @@ const SignInForm = () => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("password")}
-                label="password"
+                label={t("labels.password")}
                 name="password"
                 type={showPass ? "text" : "password"}
-                placeholder="example: Qwerty123"
+                placeholder={t("placeholders.password")}
               />
               <button
                 className={styles.showpass}

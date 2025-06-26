@@ -62,7 +62,7 @@ const ResetPasswordForm = () => {
                 label={t("passchange.newpass-label")}
                 name="password"
                 type={showPass ? "text" : "password"}
-                placeholder={t("passchange.pass-placeholder")}
+                placeholder={t("placeholders.password")}
                 required
               />
               <button
@@ -86,7 +86,7 @@ const ResetPasswordForm = () => {
                 label={t("passchange.confirmpass-label")}
                 name="password"
                 type={showConfPass ? "text" : "password"}
-                placeholder={t("passchange.pass-placeholder")}
+                placeholder={t("placeholders.password")}
                 required
               />
               <button

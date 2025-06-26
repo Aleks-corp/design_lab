@@ -73,10 +73,10 @@ const SignUpForm = () => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("name")}
-                label="nickname"
+                label={t("labels.name")}
                 name="Name"
                 type="text"
-                placeholder={t("register-name-placeholder")}
+                placeholder={t("placeholders.name")}
                 required
               />
               {errors?.name && (
@@ -86,10 +86,10 @@ const SignUpForm = () => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("email")}
-                label="your email"
+                label={t("labels.email")}
                 name="Email"
                 type="email"
-                placeholder="example@email.com"
+                placeholder={t("placeholders.email")}
                 required
               />
               {errors?.email && (
@@ -101,6 +101,7 @@ const SignUpForm = () => {
               <PhoneInputWithCountry
                 inputComponent={PhoneInput}
                 name="phone"
+                label={t("labels.phone")}
                 control={control}
                 rules={{ required: true }}
                 className={styles.phoneInput}
@@ -115,10 +116,10 @@ const SignUpForm = () => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("password")}
-                label="your password"
+                label={t("labels.password")}
                 name="password"
                 type={showPass ? "text" : "password"}
-                placeholder="example: Qwerty123"
+                placeholder={t("placeholders.password")}
                 required
               />
               <button
@@ -139,10 +140,10 @@ const SignUpForm = () => {
             <div className={styles.field}>
               <TextInput
                 hookformprop={register("confpass")}
-                label="Confirm password"
+                label={t("labels.confirm-pass")}
                 name="password"
                 type={showConfPass ? "text" : "password"}
-                placeholder="example: Qwerty123"
+                placeholder={t("placeholders.password")}
                 required
               />
               <button
