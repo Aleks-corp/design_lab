@@ -22,7 +22,7 @@ const items = [
   //   url: "/?filter=favorites",
   // },
   {
-    title: { EN: "Dark theme", UA: "Мій профіль" },
+    title: { EN: "Dark theme", UA: "Темна тема" },
     icon: "bulb",
   },
   {

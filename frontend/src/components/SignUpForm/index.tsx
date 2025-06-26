@@ -98,10 +98,10 @@ const SignUpForm = () => {
               <p className={styles.info}>{t("register-email-info")}</p>
             </div>
             <div className={styles.field}>
+              <p className={styles.label}>{t("labels.phone")}</p>
               <PhoneInputWithCountry
                 inputComponent={PhoneInput}
                 name="phone"
-                label={t("labels.phone")}
                 control={control}
                 rules={{ required: true }}
                 className={styles.phoneInput}

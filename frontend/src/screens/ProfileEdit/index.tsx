@@ -57,10 +57,10 @@ const ProfileEdit = () => {
                   <div className={styles.fieldset}>
                     <TextInput
                       className={styles.field}
-                      label="display name"
+                      label={t("labels.name")}
                       name="Name"
                       type="text"
-                      placeholder={t("register-name-placeholder")}
+                      placeholder={t("placeholders.name")}
                       required
                     />
                   </div>
