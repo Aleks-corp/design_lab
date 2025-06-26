@@ -1,0 +1,187 @@
+@use "../../styles/helpers" as * @use "../../styles/helpers" as * 
+
+
+    
+.list
+    margin-bottom: 40px
+    +d
+        display: flex
+        margin: 0 -20px 64px
+    +m
+        display: block
+        margin: 0 0 32px
+
+.item
+    +d
+        flex: 0 0 calc(50% - 40px)
+        width: calc(50% - 40px)
+        margin: 0 20px
+    +m
+        width: 100%
+        margin: 0
+    & > .button
+        margin-top: 32px
+    &:not(:last-child)
+        margin-bottom: 40px
+        +d
+            margin-bottom: 0
+        +m
+            margin-bottom: 32px
+
+.category
+    margin-bottom: 32px
+    +body-bold-2
+
+.fieldset 
+    & > .field
+        position: relative
+        &:not(:last-child)
+            margin-bottom: 40px
+
+.box
+    position: relative
+    .button
+        position: absolute
+        right: 12px
+        bottom: 8px
+        height: 32px
+        padding: 0 10px
+
+.info
+    color: $neutrals4
+    span
+        font-weight: 500
+        color: $neutrals2
+        +dark
+            color: $neutrals8
+
+.note
+    color: $neutrals4
+
+.btns
+    display: flex
+    margin-top: 40px
+    padding-top: 40px
+    border-top: 1px solid $neutrals6
+    +m
+        display: block
+        text-align: center
+    +dark
+        border-color: $neutrals3
+    .button
+        +m
+            width: 100%
+        &:not(:last-child)
+            margin-right: 32px
+            +m
+                margin: 0 0 32px
+
+.clear
+    display: inline-flex
+    align-items: center
+    +button-1
+    color: $neutrals4
+    transition: color .2s
+    svg
+        margin-right: 8px
+        fill: $neutrals4
+        transition: fill .2s
+    &:hover
+        color: $blue
+        svg
+            fill: $blue
+
+.error
+    position: absolute
+    left: 0
+    bottom: -22px
+    font-size: 12px
+    color: $alert3
+
+.errorpass
+    position: absolute
+    left: 0
+    bottom: -28px
+    font-size: 12px
+    line-height: 1.15
+    color: $alert3
+
+.showpass
+    position: absolute
+    right: 20px
+    top: 38px
+    svg
+        fill: $neutrals4
+        transition: fill .2s
+    &:hover
+        svg
+            fill: $blue
+
+.phoneInput
+    width: 100%
+    height: 48px
+    padding: 0 0 0 14px 
+    border-radius: 12px
+    border: 2px solid $neutrals6
+    border-right: 0
+    background: none
+    +poppins
+    +caption-bold-1
+    color: $neutrals2
+    transition: border-color .2s
+    +dark
+        border-color: $neutrals3
+        color: $neutrals8
+    +placeholder
+        color: $neutrals4
+    &:focus
+        border-color: $neutrals4
+
+    &.PhoneInputInput
+        background: transparent !important
+        color: inherit
+        border: none
+        outline: none
+        font-size: inherit
+        padding: 0
+        width: 100%
+        height: 100%
+
+.link
+    font-weight: 500
+    color: $neutrals2
+    +dark
+        color: $neutrals8
+    &:hover 
+        color: $neutrals4
+        +dark
+            color: $neutrals5
+
+.trialBanner
+  background: rgba(55, 114, 255, 0.07)
+  max-width: 600px
+  border: 1px solid $blue
+  padding: 16px
+  border-radius: 8px
+  color: #151617
+  font-size: 14px
+  line-height: 1.5
+  margin-bottom: 24px
+  text-align: left
+  h3
+    font-size: 16px
+    font-weight: 600
+    margin-bottom: 8px
+    color: $neutrals2
+    +dark
+        color: $neutrals8
+  p     
+    font-size: 14px
+    color: $neutrals4
+    +dark
+        color: $neutrals5
+    span
+        color: $neutrals2
+        font-weight: 600
+        +dark
+            color: $neutrals8
