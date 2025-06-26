@@ -4,11 +4,13 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { checkPaymentStatus } from "../../redux/auth/auth.thunk";
 import { selectUser } from "../../redux/selectors";
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const PaymentSuccessPage = () => {
-  const [status, setStatus] = useState("Перевіряємо оплату...");
+  const [status, setStatus] = useState("Checking");
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const timeout = setTimeout(async () => {
@@ -23,26 +25,23 @@ const PaymentSuccessPage = () => {
 
   return (
     <div>
-      {status === "Перевіряємо оплату..." && (
-        <h2 className={styles.title}>{status}</h2>
+      {status === "Checking" && (
+        <h2 className={styles.title}>{t("payment.check")}</h2>
       )}
       {status === "member" && (
-        <h2 className={styles.title}>
-          Payment Successful! Access to files is open.
-        </h2>
+        <h2 className={styles.title}>{t("payment.check-success")}</h2>
       )}
       {(status === "free" || status === null) && (
         <h2 className={styles.title}>
-          No payment yet. Please wait a few minutes and reload page or contact
-          our{" "}
+          {t("payment.check-not-success")}
           <NavLink className={styles.titlelink} to="/profile">
-            support
+            {t("payment.check-not-success-str")}
           </NavLink>
         </h2>
       )}
       {(status === "member" || user?.subscription === "member") && (
         <NavLink className={styles.titlelink} to="/">
-          Go to Posts
+          {t("payment.go-to")}
         </NavLink>
       )}
     </div>

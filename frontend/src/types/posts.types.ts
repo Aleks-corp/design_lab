@@ -1,7 +1,7 @@
 export interface GetPost {
   _id: string;
   title: string;
-  description: string;
+  description: string | { ua: string; en: string };
   images: string[];
   filesize: string;
   favorites: string[];
@@ -12,7 +12,7 @@ export interface GetPost {
 
 export interface AddPost {
   title: string;
-  description: string;
+  description: string | { ua: string; en: string };
   images: string[];
   downloadlink: string;
   filesize: string;
@@ -23,7 +23,7 @@ export interface AddPost {
 
 export interface EditPost {
   title: string;
-  description: string;
+  description: string | { ua: string; en: string };
   images: string[];
   category: string[];
   kits: string[];
@@ -49,6 +49,8 @@ export interface PostFormFieldsProps {
   onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   descriptionValue: string;
   onDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  descriptionUAValue: string;
+  onDescriptionUAChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   uploadAt: string;
   onUploadAtChange: (value: string) => void;
 }

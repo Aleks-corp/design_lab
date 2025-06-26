@@ -7,6 +7,7 @@ import Modal from "../../../components/Modal";
 import { UserProfile } from "../../../types/auth.types";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
+import { useTranslation } from "react-i18next";
 
 interface UserProps {
   className: string;
@@ -16,6 +17,7 @@ interface UserProps {
 
 const UserFree = ({ className, user, setDate }: UserProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [visibleModalReport, setVisibleModalReport] = useState(false);
 
   const SubmitPayment = () => {
@@ -27,26 +29,30 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
   return (
     <>
       <div className={cn(styles.user, className)}>
-        <p className={styles.name}>Profile</p>
+        <p className={styles.name}>{t("profile.title")}</p>
         <div className={styles.container}>
           <div className={styles.info}>
             <p className={styles.info__text}>
-              Name: <span>{user.name}</span>
+              {t("profile.name")}
+              <span>{user.name}</span>
             </p>
             <p className={styles.info__text}>
-              Email: <span>{user.email}</span>
+              {t("profile.email")}
+              <span>{user.email}</span>
             </p>
             <p className={styles.info__text}>
-              Phone: <span>{user.phone}</span>
+              {t("profile.phone")}
+              <span>{user.phone}</span>
             </p>
             <p className={styles.info__text}>
-              Subscription - <span>{user.subscription}</span>
+              {t("profile.sub")}
+              <span>{user.subscription}</span>
             </p>
             {user.isBlocked && (
               <p className={styles.info__text}>
-                Your account is{" "}
+                {t("profile.ban-start")}
                 <span className={cn(styles.info__text, [styles.declined])}>
-                  BANED
+                  {t("profile.ban-end")}
                 </span>
               </p>
             )}
@@ -57,10 +63,11 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
                     [styles.declined]: user.lastPayedStatus === "Declined",
                   })}
                 >
-                  Last payed status - <span>{user.lastPayedStatus}</span>
+                  {t("profile.payed-status")}
+                  <span>{user.lastPayedStatus}</span>
                 </p>
                 <p className={styles.info__text}>
-                  Last payed date -{" "}
+                  {t("profile.payed-date")}
                   <span>
                     {moment(new Date(user.lastPayedDate)).format("DD-MM-yyyy")}
                   </span>
@@ -73,7 +80,7 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
               className={cn("button-stroke button-small", styles.button)}
               to="/profile-edit"
             >
-              <span>Edit profile</span>
+              <span>{t("profile.edit-title")}</span>
               <Icon title="image" size={16} />
             </Link>
 
@@ -81,20 +88,20 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
               className={cn("button-stroke button-small", styles.button)}
               onClick={() => setVisibleModalReport(true)}
             >
-              <span>Report</span>
+              <span>{t("profile.report-btn")}</span>
               <Icon title="report" size={18} />
             </button>
           </div>
         </div>
         {!user.lastPayedStatus && !user.isBlocked && (
           <div className={styles.subscription}>
-            <p>Please subscribe for downloading file</p>
+            <p> {t("profile.download-info")}</p>
             <button
               className={cn("button", styles.button)}
               type="button"
               onClick={SubmitPayment}
             >
-              Get All-Access Pass
+              {t("profile.download-get-pass")}
             </button>
           </div>
         )}
@@ -106,22 +113,18 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
                 styles.declined__text__alert
               )}
             >
-              Unfortunately, your last payment was declined. Please check your
-              payment details.
+              {t("profile.decline-warn")}
             </p>
+            <p className={styles.declined__text}>{t("profile.decline-info")}</p>
             <p className={styles.declined__text}>
-              Ensure that your payment credentials are up-to-date and that there
-              are sufficient funds in your account.
-            </p>
-            <p className={styles.declined__text}>
-              After a successful payment, refresh the page to see the updated
-              status.
+              {t("profile.decline-info-next")}
             </p>
           </div>
         )}
 
         <div className={styles.note}>
-          Member since {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
+          {t("profile.member-since")}
+          {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
         </div>
       </div>
       <Modal

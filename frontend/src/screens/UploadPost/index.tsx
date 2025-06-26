@@ -25,9 +25,13 @@ import UploadFileInput from "../../components/UploadForm/UploadFileInput";
 import PostFormFields from "../../components/UploadForm/PostFormFields";
 import SwitchSelector from "../../components/UploadForm/SwitchSelector";
 import UploadProgressList from "../../components/UploadForm/UploadProgressList";
+import { useTheme } from "../../helpers/darkModeContext";
+import { useTranslation } from "react-i18next";
 
 const Upload = () => {
   const dispatch = useAppDispatch();
+  const { locale } = useTheme();
+  const { t } = useTranslation();
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -42,6 +46,7 @@ const Upload = () => {
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
   const [titleValue, setTitleValue] = useState<string>("");
   const [descriptionValue, setDescriptionValue] = useState<string>("");
+  const [descriptionUAValue, setDescriptionUAValue] = useState<string>("");
   const [uploadAt, setUploadAt] = useState<string>("");
   const [kitState, setKitState] = useState(
     kitsConstant.map((key) => ({ [key]: false }))
@@ -78,6 +83,7 @@ const Upload = () => {
     setDownloadFile(null);
     setTitleValue("");
     setDescriptionValue("");
+    setDescriptionUAValue("");
     setKitState(kitsConstant.map((key) => ({ [key]: false })));
     setCategoryState(filterConstant.map((key) => ({ [key]: false })));
     setUploadAt("");
@@ -155,7 +161,9 @@ const Upload = () => {
 
     const data = {
       title: titleValue,
-      description: descriptionValue,
+      description: descriptionUAValue
+        ? { ua: descriptionUAValue, en: descriptionValue }
+        : descriptionValue,
       category: setArrayString(categoryState),
       kits: setArrayString(kitState),
       upload_at: uploadAt,
@@ -194,7 +202,9 @@ const Upload = () => {
         <div className={cn("container", styles.container)}>
           <div className={styles.wrapper}>
             <div className={styles.head}>
-              <h1 className={cn("h2", styles.title)}>Create new post</h1>
+              <h1 className={cn("h2", styles.title)}>
+                {t("upload.create-post-title")}
+              </h1>
             </div>
             <form className={styles.form} onSubmit={onSubmit}>
               <div className={styles.list}>
@@ -208,6 +218,10 @@ const Upload = () => {
                   descriptionValue={descriptionValue}
                   onDescriptionChange={(e) =>
                     setDescriptionValue(e.target.value)
+                  }
+                  descriptionUAValue={descriptionUAValue}
+                  onDescriptionUAChange={(e) =>
+                    setDescriptionUAValue(e.target.value)
                   }
                   uploadAt={uploadAt}
                   onUploadAtChange={(value) => setUploadAt(value)}
@@ -246,7 +260,7 @@ const Upload = () => {
                   onClick={() => setVisiblePreview(true)}
                   type="button"
                 >
-                  Preview
+                  {t("upload.preview-btn")}
                 </button>
                 <button
                   className={cn("button", styles.button)}
@@ -257,7 +271,7 @@ const Upload = () => {
                     <Loader className="" />
                   ) : (
                     <>
-                      <span>Create post</span>
+                      <span>{t("upload.create-post-btn")}</span>
                       <Icon title="arrow-next" size={10} />
                     </>
                   )}
@@ -277,7 +291,7 @@ const Upload = () => {
             previews={previews}
             reset={reset}
             title={titleValue}
-            desc={descriptionValue}
+            desc={locale === "UA" ? descriptionUAValue : descriptionValue}
             kits={kitState}
             category={categoryState}
             fileSize={downloadFile?.size}

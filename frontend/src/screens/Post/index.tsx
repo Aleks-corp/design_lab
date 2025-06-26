@@ -24,16 +24,9 @@ import AccessPass from "../../components/AccessPass";
 import toast from "react-hot-toast";
 import { localLogOut, setDailyDownloadCount } from "../../redux/auth/authSlice";
 import { delToken } from "../../api/axios";
-
-const breadcrumbs = [
-  {
-    title: "Home",
-    url: "/",
-  },
-  {
-    title: "Post",
-  },
-];
+import { useTheme } from "../../helpers/darkModeContext";
+import { homeBreadcrumbs } from "../../constants/breadcrumbs.constants";
+import { useTranslation } from "react-i18next";
 
 const Post = ({
   setDate,
@@ -43,6 +36,8 @@ const Post = ({
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { locale } = useTheme();
 
   useEffect(() => {
     const fetchData = async (id: string) => {
@@ -51,7 +46,7 @@ const Post = ({
       if (payload === "Not authorized") {
         delToken();
         dispatch(localLogOut());
-        toast.error("Session expired. Please log in again.");
+        toast.error(`${t("session-expired-alert")}`);
         navigate("/login");
       }
     };
@@ -63,7 +58,7 @@ const Post = ({
     return () => {
       dispatch(clearPost());
     };
-  }, [dispatch, id, navigate]);
+  }, [dispatch, id, navigate, t]);
 
   const isLoading = useAppSelector(selectIsLoading);
   const post = useAppSelector(selectPost);
@@ -105,7 +100,7 @@ const Post = ({
 
   return (
     <>
-      <Control className={styles.control} item={breadcrumbs} />
+      <Control className={styles.control} item={homeBreadcrumbs} />
       {isLoading && <Loader className={styles.mainloader} />}
       {!isLoading && post && (
         <div className={cn("section", styles.section)}>
@@ -148,7 +143,7 @@ const Post = ({
                     onClick={() => DownloadSubmit(post._id)}
                     className={cn("button", styles.button)}
                   >
-                    Download
+                    {t("btns.download")}
                   </button>
                 )}
                 {isAdmin && (
@@ -160,7 +155,7 @@ const Post = ({
                     }}
                   >
                     <Icon title={"edit"} size={28} />
-                    <p className={styles.edittext}>Edit Post</p>
+                    <p className={styles.edittext}>{t("btns.edit-post")}</p>
                   </button>
                 )}
                 {isAdmin && (
@@ -173,7 +168,7 @@ const Post = ({
                     className={styles.delete}
                   >
                     <Icon title={"close-circle-fill"} size={28} />
-                    <p className={styles.deletetext}>Delete Post</p>
+                    <p className={styles.deletetext}>{t("btns.delete-post")}</p>
                   </button>
                 )}
               </div>
@@ -194,9 +189,9 @@ const Post = ({
               user.subscription === "free" &&
               user.lastPayedStatus === "Declined" && (
                 <div className={styles.infoprofile}>
-                  Unfortunately, your last payment was declined. More info in{" "}
+                  {t("info-profile")}
                   <Link className={styles.linkprofile} to={"/profile"}>
-                    Profile
+                    {t("info-profile-str")}
                   </Link>
                 </div>
               )}
@@ -216,12 +211,18 @@ const Post = ({
             ))}
           </div>
           <div className={cn("container", styles.container)}>
-            <h2>Description</h2>
-            <p style={{ whiteSpace: "pre-line" }}>{post.description}</p>
+            <h2>{t("desc")}</h2>
+            <p style={{ whiteSpace: "pre-line" }}>
+              {typeof post.description === "string"
+                ? post.description
+                : locale === "UA"
+                ? post.description.ua
+                : post.description.en}
+            </p>
           </div>
           <div className={cn("container", styles.created)}>
             <span>
-              Post created:{" "}
+              {t("post-created")}
               <span>
                 {moment(new Date(post.upload_at)).format("DD MMM YYYY HH:mm")}
               </span>

@@ -9,15 +9,27 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       : window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
 
+  const [locale, setLocale] = useState<string>(() => {
+    const savedLang = localStorage.getItem("locale");
+    return savedLang === "UA" ? "UA" : "EN";
+  });
+
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
     document.body.classList.toggle("dark-mode", darkMode);
   }, [darkMode]);
 
+  useEffect(() => {
+    localStorage.setItem("locale", locale);
+  }, [locale]);
+
   const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const changeLocale = (lang: string) => setLocale(lang);
 
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
+    <ThemeContext.Provider
+      value={{ darkMode, toggleDarkMode, locale, changeLocale }}
+    >
       {children}
     </ThemeContext.Provider>
   );

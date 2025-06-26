@@ -25,6 +25,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { localLogOut } from "../../redux/auth/authSlice";
 import { delToken } from "../../api/axios";
+import { useTranslation } from "react-i18next";
 
 const navLinks = [
   "All products",
@@ -41,6 +42,7 @@ const Home = () => {
   const [prodList, setProdList] = useState(prodListOptions[0]);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const isLoading = useAppSelector(selectIsLoading);
   const posts = useAppSelector(selectPosts);
@@ -61,13 +63,13 @@ const Home = () => {
       if (payload === "Not authorized") {
         delToken();
         dispatch(localLogOut());
-        toast.error("Session expired. Please log in again.");
+        toast.error(`${t("session-expired-alert")}`);
         navigate("/login");
       }
     };
     dispatch(clearPosts());
     fetchData();
-  }, [dispatch, navigate, prodList]);
+  }, [dispatch, navigate, prodList, t]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 12;
@@ -113,7 +115,7 @@ const Home = () => {
       if (payload === "Not authorized") {
         delToken();
         dispatch(localLogOut());
-        toast.error("Session expired. Please log in again.");
+        toast.error(`${t("session-expired-alert")}`);
         navigate("/login");
       }
       setCurrentPage(1);
@@ -122,14 +124,12 @@ const Home = () => {
       clearTimeout(timerId);
       controller.abort();
     };
-  }, [dispatch, navigate, search]);
+  }, [dispatch, navigate, search, t]);
 
   if (user && user.isBlocked) {
     return (
       <div className={styles.baned}>
-        <h2>
-          Your account has been temporarily suspended due to policy violations.
-        </h2>
+        <h2>{t("block-acc-alert")}</h2>
       </div>
     );
   }
@@ -138,7 +138,7 @@ const Home = () => {
     <div className={cn("section-pt80", styles.section)}>
       <div className={cn("container", styles.container)}>
         <div className={styles.top}>
-          <div className={styles.title}>Type keywords for search</div>
+          <div className={styles.title}>{t("search-title")}</div>
           <form className={styles.search}>
             <input
               className={styles.input}
@@ -146,7 +146,7 @@ const Home = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               name="search"
-              placeholder="Search ..."
+              placeholder={t("search")}
             />
             {search && (
               <button
@@ -208,7 +208,7 @@ const Home = () => {
         </div>
         <div className={styles.btns}>
           {errorPost && typeof errorPost === "string" && <p>{errorPost}</p>}
-          {!isLoading && posts.length === 0 && <p>No match found</p>}
+          {!isLoading && posts.length === 0 && <p>{t("no-match-found")}</p>}
           {isLoading ? (
             <button
               className={cn("button-stroke", styles.button)}
@@ -236,7 +236,7 @@ const Home = () => {
                     );
                   }}
                 >
-                  <span>Load more</span>
+                  <span>{t("load-more")}</span>
                 </button>
               )}
             </>

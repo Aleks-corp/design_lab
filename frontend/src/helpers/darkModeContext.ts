@@ -3,6 +3,8 @@ import { createContext, useContext } from "react";
 interface ThemeContextType {
   darkMode: boolean;
   toggleDarkMode: () => void;
+  locale: string;
+  changeLocale: (lang: string) => void;
 }
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(

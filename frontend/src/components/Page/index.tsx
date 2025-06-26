@@ -9,11 +9,14 @@ import { useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/selectors";
 import SubscriptionBanner from "../SubscriptionBanner";
 import {
-  bannerSaleContent,
-  bannerSubscriptionContent,
+  bannerSaleContentEN,
+  bannerSubscriptionContentEN,
+  bannerSaleContentUA,
+  bannerSubscriptionContentUA,
 } from "../../constants/banner-content.constant";
 import { getDateForSale } from "../../helpers/getDateForSale";
 import { userSubscriptionConst } from "../../constants/user.constants";
+import { useTheme } from "../../helpers/darkModeContext";
 
 interface PageProps {
   children: React.ReactNode;
@@ -23,6 +26,7 @@ const Page = ({ children }: PageProps) => {
   const { pathname } = useLocation();
   const user = useAppSelector(selectUser);
   const [dateForSale, setDateForSale] = useState<number>(1);
+  const { locale } = useTheme();
 
   useEffect(() => {
     if (user?.subscription === userSubscriptionConst.SALE) {
@@ -47,15 +51,27 @@ const Page = ({ children }: PageProps) => {
           {user &&
             user.subscription === userSubscriptionConst.FREE &&
             !user.lastPayedStatus && (
-              <SubscriptionBanner text={bannerSubscriptionContent} />
+              <SubscriptionBanner
+                text={
+                  locale === "UA"
+                    ? bannerSubscriptionContentUA
+                    : bannerSubscriptionContentEN
+                }
+              />
             )}
           {user &&
             user.subscription === userSubscriptionConst.SALE &&
             !user.lastPayedStatus && (
               <SubscriptionBanner
-                text={` Enjoy <span>${
-                  dateForSale * 24
-                } hours of Premium Access</span> ${bannerSaleContent}`}
+                text={
+                  locale === "UA"
+                    ? `Насолоджуйся <span>${
+                        dateForSale * 24
+                      } годинами Преміум-доступу</span> ${bannerSaleContentUA}`
+                    : ` Enjoy <span>${
+                        dateForSale * 24
+                      } hours of Premium Access</span> ${bannerSaleContentEN}`
+                }
               />
             )}
         </>

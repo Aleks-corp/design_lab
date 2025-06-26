@@ -5,6 +5,7 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import ImagePreview from "./PreviewCard";
+import { useTranslation } from "react-i18next";
 
 interface PreviewProp {
   className?: string;
@@ -39,7 +40,7 @@ const Preview = ({
     const [key, value] = Object.entries(i)[0];
     return value ? (acc ? acc + ", " + key : key) : acc;
   }, "");
-
+  const { t } = useTranslation();
   const [instanceId] = useState(Symbol("instance-id"));
 
   useEffect(() => {
@@ -75,7 +76,7 @@ const Preview = ({
         <button className={styles.close} onClick={onClose}>
           <Icon title="close" size={14} />
         </button>
-        <div className={styles.info}>Preview</div>
+        <div className={styles.info}>{t("Preview")}</div>
         <div className={styles.card}>
           {previews && previews.length > 0 && (
             <div className={styles.preview4x}>
@@ -143,7 +144,7 @@ const Preview = ({
             </div>
             {categoryString && (
               <>
-                <p>Category:</p>
+                <p>{t("Category")}</p>
                 <p className={styles.category}>{categoryString}</p>
               </>
             )}

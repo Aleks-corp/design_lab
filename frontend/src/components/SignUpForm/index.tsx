@@ -1,0 +1,178 @@
+import "react-phone-number-input/style.css";
+import cn from "classnames";
+import styles from "./SignUpForm.module.sass";
+import TextInput from "../../components/TextInput";
+import Icon from "../../components/Icon";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { useNavigate } from "react-router-dom";
+import { signUp } from "../../redux/auth/auth.thunk";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
+import { selectIsLogining } from "../../redux/selectors";
+import Loader from "../../components/Loader";
+import { getRegSchema } from "../../schema/regSchema";
+import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
+import PhoneInput from "../../components/PhoneInput";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "../../helpers/darkModeContext";
+
+type FormValues = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confpass: string;
+};
+
+const SignUpForm = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const isLoading = useAppSelector(selectIsLogining);
+  const { locale } = useTheme();
+  const { t } = useTranslation();
+  const schema = getRegSchema(locale as "EN" | "UA");
+
+  const [showPass, setShowPass] = useState(false);
+  const [showConfPass, setShowConfPass] = useState(false);
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FormValues>({
+    resolver: yupResolver(schema),
+  });
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const { name, email, phone, password } = data;
+    const cleanedPhone = phone.replace("+", "");
+    try {
+      await dispatch(
+        signUp({
+          name,
+          email: email.toLowerCase(),
+          phone: cleanedPhone,
+          password,
+        })
+      ).unwrap();
+      setTimeout(() => {
+        navigate("/verify/0");
+        reset();
+      }, 0);
+    } catch (err) {
+      console.error("Registration failed", err);
+    }
+  };
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className={styles.list}>
+        <div className={styles.item}>
+          <div className={styles.category}>{t("passchange.form-title")}</div>
+          <div className={styles.fieldset}>
+            <div className={styles.field}>
+              <TextInput
+                hookformprop={register("name")}
+                label="nickname"
+                name="Name"
+                type="text"
+                placeholder={t("register-name-placeholder")}
+                required
+              />
+              {errors?.name && (
+                <p className={styles.error}>{errors.name.message}</p>
+              )}
+            </div>
+            <div className={styles.field}>
+              <TextInput
+                hookformprop={register("email")}
+                label="your email"
+                name="Email"
+                type="email"
+                placeholder="example@email.com"
+                required
+              />
+              {errors?.email && (
+                <p className={styles.error}>{errors.email.message}</p>
+              )}
+              <p className={styles.info}>{t("register-email-info")}</p>
+            </div>
+            <div className={styles.field}>
+              <PhoneInputWithCountry
+                inputComponent={PhoneInput}
+                name="phone"
+                control={control}
+                rules={{ required: true }}
+                className={styles.phoneInput}
+                international
+                defaultCountry="UA"
+                maxLength={16}
+              />
+              {errors?.phone && (
+                <p className={styles.error}>{errors.phone.message}</p>
+              )}
+            </div>
+            <div className={styles.field}>
+              <TextInput
+                hookformprop={register("password")}
+                label="your password"
+                name="password"
+                type={showPass ? "text" : "password"}
+                placeholder="example: Qwerty123"
+                required
+              />
+              <button
+                className={styles.showpass}
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+              >
+                {showPass ? (
+                  <Icon title="eye-open" size={24} />
+                ) : (
+                  <Icon title="eye-closed" size={24} />
+                )}
+              </button>
+              {errors?.password && (
+                <p className={styles.errorpass}>{errors.password.message}</p>
+              )}
+            </div>
+            <div className={styles.field}>
+              <TextInput
+                hookformprop={register("confpass")}
+                label="Confirm password"
+                name="password"
+                type={showConfPass ? "text" : "password"}
+                placeholder="example: Qwerty123"
+                required
+              />
+              <button
+                className={styles.showpass}
+                type="button"
+                onClick={() => setShowConfPass(!showConfPass)}
+              >
+                {showConfPass ? (
+                  <Icon title="eye-open" size={24} />
+                ) : (
+                  <Icon title="eye-closed" size={24} />
+                )}
+              </button>
+              {errors?.confpass && (
+                <p className={styles.errorpass}>{errors.confpass.message}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className={styles.btns}>
+        <button type="submit" className={cn("button", styles.button)}>
+          {isLoading ? <Loader className="" /> : "Sign Up"}
+        </button>
+        <button type="reset" className={styles.clear}>
+          <Icon title="circle-close" size={24} />
+          {t("passchange.reset-btn")}
+        </button>
+      </div>
+    </form>
+  );
+};
+export default SignUpForm;

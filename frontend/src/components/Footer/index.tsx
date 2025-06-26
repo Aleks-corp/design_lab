@@ -10,14 +10,16 @@ import toast from "react-hot-toast";
 import { useAppSelector } from "../../redux/hooks";
 import { selectIsLoggedIn } from "../../redux/selectors";
 import { footerGroupLink } from "../../constants/footerGroup";
+import { useTranslation } from "react-i18next";
 
 const Footers = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const [email, setEmail] = useState("");
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success("You have successfully subscribed to our newsletter!");
+    toast.success(`${t("footer.subscription-alert")}`);
     setEmail("");
   };
 
@@ -34,9 +36,9 @@ const Footers = () => {
                 alt="Fitness Pro"
               />
             </Link>
-            <div className={styles.info}>The New Creative Economy</div>
+            <div className={styles.info}>{t("footer.title")}</div>
             <div className={styles.version}>
-              <div className={styles.details}>Dark theme</div>
+              <div className={styles.details}>{t("theme")}</div>
               <Theme className="theme-big" />
             </div>
           </div>
@@ -50,16 +52,14 @@ const Footers = () => {
                 ))}
           </div>
           <div className={styles.col}>
-            <div className={styles.category}>Join Newsletter</div>
-            <div className={styles.text}>
-              Subscribe our newsletter to get more design course and resource
-            </div>
+            <div className={styles.category}>{t("footer.newsletter")}</div>
+            <div className={styles.text}>{t("footer.subscription")}</div>
             <Form
               className={styles.form}
               value={email}
               setValue={setEmail}
               onSubmit={(e) => handleSubmit(e)}
-              placeholder="Enter your email"
+              placeholder={t("footer.placeholder")}
               type="email"
               name="email"
             />
@@ -69,7 +69,7 @@ const Footers = () => {
           <div className={styles.copyright}>
             Copyright © 2024 ACITS GROUP. All rights reserved
           </div>
-          <div className={styles.note}>We use cookies for better service.</div>
+          <div className={styles.note}>{t("footer.cookies")}</div>
         </div>
       </div>
     </footer>

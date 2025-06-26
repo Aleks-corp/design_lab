@@ -22,20 +22,15 @@ import SwitchSelector from "../../components/UploadForm/SwitchSelector";
 import { setPostToEdit } from "../../redux/posts/postSlice";
 import Control from "../../components/Control";
 import { useNavigate } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    title: "Home",
-    url: "/",
-  },
-  {
-    title: "Post",
-  },
-];
+import { useTheme } from "../../helpers/darkModeContext";
+import { useTranslation } from "react-i18next";
+import { homeBreadcrumbs } from "../../constants/breadcrumbs.constants";
 
 const EditPost = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { locale } = useTheme();
+  const { t } = useTranslation();
   const post = useAppSelector(selectPostToEdit);
 
   const error = useAppSelector(selectUserError);
@@ -46,7 +41,14 @@ const EditPost = () => {
 
   const [titleValue, setTitleValue] = useState<string>(post?.title || "");
   const [descriptionValue, setDescriptionValue] = useState<string>(
-    post?.description || ""
+    !post
+      ? ""
+      : typeof post.description === "string"
+      ? post.description
+      : post.description.en
+  );
+  const [descriptionUAValue, setDescriptionUAValue] = useState<string>(
+    !post ? "" : typeof post.description === "string" ? "" : post.description.ua
   );
   const [previews, setPreviews] = useState<string[] | null>(
     post?.images || null
@@ -72,7 +74,20 @@ const EditPost = () => {
 
   const undo = () => {
     setTitleValue(post?.title || "");
-    setDescriptionValue(post?.description || "");
+    setDescriptionValue(
+      !post
+        ? ""
+        : typeof post.description === "string"
+        ? post.description
+        : post.description.en
+    );
+    setDescriptionUAValue(
+      !post
+        ? ""
+        : typeof post.description === "string"
+        ? ""
+        : post.description.ua
+    );
     setKitState(
       kitsConstant.map((key) => ({
         [key]: post?.kits.includes(key) ? true : false,
@@ -90,6 +105,7 @@ const EditPost = () => {
   const reset = () => {
     setTitleValue("");
     setDescriptionValue("");
+    setDescriptionUAValue("");
     setKitState(
       kitsConstant.map((key) => ({
         [key]: false,
@@ -145,7 +161,9 @@ const EditPost = () => {
     const data = {
       title: titleValue,
       images: previews?.map((url) => url.split("?")[0]) || [],
-      description: descriptionValue,
+      description: descriptionUAValue
+        ? { ua: descriptionUAValue, en: descriptionValue }
+        : descriptionValue,
       category,
       kits,
       upload_at: uploadAt,
@@ -189,12 +207,14 @@ const EditPost = () => {
 
   return (
     <>
-      <Control className={styles.control} item={breadcrumbs} />
+      <Control className={styles.control} item={homeBreadcrumbs} />
       <div className={cn("section", styles.section)}>
         <div className={cn("container", styles.container)}>
           <div className={styles.wrapper}>
             <div className={styles.head}>
-              <h1 className={cn("h2", styles.title)}>Update post</h1>
+              <h1 className={cn("h2", styles.title)}>
+                {t("upload.update-post")}
+              </h1>
             </div>
             <form className={styles.form} onSubmit={onSubmit}>
               <div className={styles.list}>
@@ -204,6 +224,10 @@ const EditPost = () => {
                   descriptionValue={descriptionValue}
                   onDescriptionChange={(e) =>
                     setDescriptionValue(e.target.value)
+                  }
+                  descriptionUAValue={descriptionUAValue}
+                  onDescriptionUAChange={(e) =>
+                    setDescriptionUAValue(e.target.value)
                   }
                   uploadAt={uploadAt}
                   onUploadAtChange={(value) => setUploadAt(value)}
@@ -234,7 +258,7 @@ const EditPost = () => {
                   onClick={() => setVisiblePreview(true)}
                   type="button"
                 >
-                  Preview
+                  {t("upload.preview-btn")}
                 </button>
                 <button
                   className={cn("button", styles.button)}
@@ -245,7 +269,7 @@ const EditPost = () => {
                     <Loader className="" />
                   ) : (
                     <>
-                      <span>Update post</span>
+                      <span>{t("upload.update-post")}</span>
                       <Icon title="arrow-next" size={10} />
                     </>
                   )}
@@ -261,7 +285,7 @@ const EditPost = () => {
             reset={reset}
             undo={undo}
             title={titleValue}
-            desc={descriptionValue}
+            desc={locale === "UA" ? descriptionUAValue : descriptionValue}
             kits={kitState}
             category={categoryState}
             fileSize={post ? parseInt(post?.filesize) : undefined}

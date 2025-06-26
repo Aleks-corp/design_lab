@@ -4,9 +4,11 @@ import styles from "./Payment.module.sass";
 import { useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/selectors";
 import { handleWayForPay } from "../../helpers/wayforpay";
+import { useTranslation } from "react-i18next";
 
 const PaymentPage = ({ date }: { date: Date }) => {
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const user = useAppSelector(selectUser);
 
@@ -20,13 +22,15 @@ const PaymentPage = ({ date }: { date: Date }) => {
 
   return (
     <div className={styles.wrapper}>
-      <h2 className={styles.title}>Subscription Registration</h2>
-      <p className={styles.subtitle}>Recurring Payment Details</p>
+      <h2 className={styles.title}>{t("payment.title")}</h2>
+      <p className={styles.subtitle}>{t("payment.subtitle")}</p>
       <p className={styles.text}>
-        Amount: <span>€5 EURO</span>
+        {t("payment.ammount-text")}
+        <span>{t("payment.ammount-text-str")}</span>
       </p>
       <p className={styles.text}>
-        Frequency: <span> Monthly</span>
+        {t("payment.frequency-text")}
+        <span>{t("payment.frequency-text-str")}</span>
       </p>
       {user && (
         <button
@@ -34,7 +38,7 @@ const PaymentPage = ({ date }: { date: Date }) => {
           onClick={handlePayment}
           disabled={loading}
         >
-          {loading ? "Wait..." : "WayForPay"}
+          {loading ? t("payment.wait") : "WayForPay"}
         </button>
       )}
     </div>

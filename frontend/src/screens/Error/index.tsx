@@ -6,8 +6,10 @@ import Icon from "../../components/Icon";
 import { useAppSelector } from "../../redux/hooks";
 import { selectAdminError, selectUserError } from "../../redux/selectors";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const ErrorPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const errorAdmin = useAppSelector(selectAdminError);
   const errorUser = useAppSelector(selectUserError);
@@ -30,7 +32,7 @@ const ErrorPage = () => {
             }}
           >
             <Icon title="arrow-prev" size={24} />
-            <div className={cn("h2", styles.stage)}>HOME</div>
+            <div className={cn("h2", styles.stage)}>{t("error.home")}</div>
           </Link>
         </div>
         <div className={styles.body}>
@@ -38,18 +40,18 @@ const ErrorPage = () => {
             <div className={styles.item}>
               {errorAdmin && (
                 <p className={cn("h3", styles.title)}>
-                  Admin: <span>{errorAdmin}</span>
+                  {t("error.admin")}: <span>{errorAdmin}</span>
                 </p>
               )}
               {errorUser && (
                 <p className={cn("h3", styles.title)}>
-                  Server:{" "}
+                  {t("error.server")}{" "}
                   {errorUser === "Network Error"
-                    ? "Сurrently under maintenance."
+                    ? t("error.maintenance")
                     : errorUser}
                 </p>
               )}
-              <p className={cn("h4", styles.text)}>Please try again later.</p>
+              <p className={cn("h4", styles.text)}>{t("error.try-again")}</p>
             </div>
           </div>
         </div>

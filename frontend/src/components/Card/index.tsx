@@ -5,6 +5,8 @@ import Icon from "../Icon";
 import toast from "react-hot-toast";
 import moment from "moment";
 import { GetPost } from "../../types/posts.types";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "../../helpers/darkModeContext";
 
 interface CardProps {
   className: string;
@@ -16,6 +18,8 @@ interface CardProps {
 const Card = ({ className, post, like, userId }: CardProps) => {
   const { _id, title, description, images, kits, favorites, upload_at } = post;
   const visible = favorites.some((id) => id === userId);
+  const { t } = useTranslation();
+  const { locale } = useTheme();
 
   return (
     <div className={cn(styles.card, className)}>
@@ -110,18 +114,24 @@ const Card = ({ className, post, like, userId }: CardProps) => {
               ))}
             </div>
             <Link to={`/post/${_id}`}>
-              <button className={styles.counter}>View Detail</button>
+              <button className={styles.counter}>{t("card-detail")}</button>
             </Link>
           </div>
         </div>
         <div className={styles.foot}>
           <div className={styles.description}>
-            <span>{description}</span>
+            <span>
+              {typeof description === "string"
+                ? description
+                : locale === "UA"
+                ? description.ua
+                : description.en}
+            </span>
           </div>
           <div className={styles.description}>
             <Icon title="candlesticks-up" size={20} />
             <span>
-              Post created:{" "}
+              {t("post-created")}
               <span>
                 {moment(new Date(upload_at)).format("DD MMM YYYY HH:mm")}
               </span>

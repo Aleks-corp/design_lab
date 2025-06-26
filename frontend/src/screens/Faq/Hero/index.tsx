@@ -10,10 +10,14 @@ import Modal from "../../../components/Modal";
 import { useAppSelector } from "../../../redux/hooks";
 import { selectIsLoggedIn } from "../../../redux/selectors";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../helpers/darkModeContext";
 
 const Hero = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
-  const options = faqs.map((i) => i.title);
+  const { t } = useTranslation();
+  const { locale } = useTheme();
+  const options = faqs.map((i) => i.title[(locale as "EN", "UA")]);
   const [visibleModalReport, setVisibleModalReport] = useState(false);
 
   const [direction, setDirection] = useState<string>(options[0]);
@@ -23,22 +27,20 @@ const Hero = () => {
       <div className={cn("section", styles.section)}>
         <div className={cn("container", styles.container)}>
           <div className={styles.top}>
-            <div className={styles.stage}>learn how to get started</div>
-            <h1 className={cn("h2", styles.title)}>
-              Frequently asked questions
-            </h1>
+            <div className={styles.stage}>{t("faq.sub-title")}</div>
+            <h1 className={cn("h2", styles.title)}>{t("faq.title")}</h1>
             <div className={styles.info}>
-              Find answers to your questions or{" "}
+              {t("faq.text")}
               <button
                 onClick={() => {
                   if (isLoggedIn) {
                     setVisibleModalReport(true);
                   } else {
-                    toast.error("Please LogIn first");
+                    toast.error(`${t("faq.login-alert")}`);
                   }
                 }}
               >
-                Contact Support
+                {t("faq.text-btn")}
               </button>
             </div>
             <Dropdown
@@ -54,25 +56,28 @@ const Hero = () => {
                 {faqs.map((x, index) => (
                   <div
                     className={cn(styles.link, {
-                      [styles.active]: x.title === direction,
+                      [styles.active]:
+                        x.title[(locale as "EN", "UA")] === direction,
                     })}
-                    onClick={() => setDirection(x.title)}
+                    onClick={() =>
+                      setDirection(x.title[(locale as "EN", "UA")])
+                    }
                     key={index}
                   >
                     <Icon title={x.icon} size={16} />
-                    <span>{x.title}</span>
+                    <span>{x.title[(locale as "EN", "UA")]}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className={styles.col}>
               {faqs
-                .find((i) => i.title === direction)
+                .find((i) => i.title[(locale as "EN", "UA")] === direction)
                 ?.items.map((i, index) => (
                   <Item
                     className={styles.item}
-                    title={i.title}
-                    description={i.description}
+                    title={i.title[(locale as "EN", "UA")]}
+                    description={i.description[(locale as "EN", "UA")]}
                     key={index}
                   />
                 ))}

@@ -7,24 +7,26 @@ import Theme from "../../Theme";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { logOut } from "../../../redux/auth/auth.thunk";
 import { selectUser } from "../../../redux/selectors";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../helpers/darkModeContext";
 
 const items = [
   {
-    title: "My profile",
+    title: { EN: "My profile", UA: "Мій профіль" },
     icon: "user",
     url: "/profile",
   },
   // {
-  //   title: "My favorites posts",
+  //   title: {EN:"My favorites posts", UA:"Мої вподобайки"},
   //   icon: "image",
   //   url: "/?filter=favorites",
   // },
   {
-    title: "Dark theme",
+    title: { EN: "Dark theme", UA: "Мій профіль" },
     icon: "bulb",
   },
   {
-    title: "Sign Out",
+    title: { EN: "Sign Out", UA: "Вийти" },
     icon: "exit",
     url: "logout",
   },
@@ -39,6 +41,8 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
   const user = useAppSelector(selectUser);
   const [visible, setVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const { t } = useTranslation();
+  const { locale } = useTheme();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -100,7 +104,7 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
                 setVisibleNav();
               }}
             >
-              Change Password
+              {t("Change Password")}
             </button>
           </div>
           <div className={styles.menu}>
@@ -116,7 +120,9 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
                     <div className={styles.icon}>
                       <Icon title={i.icon} size={20} />
                     </div>
-                    <div className={styles.text}>{i.title}</div>
+                    <div className={styles.text}>
+                      {i.title[locale as "EN" | "UA"]}
+                    </div>
                   </button>
                 ) : (
                   <Link
@@ -131,7 +137,9 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
                     <div className={styles.icon}>
                       <Icon title={i.icon} size={20} />
                     </div>
-                    <div className={styles.text}>{i.title}</div>
+                    <div className={styles.text}>
+                      {i.title[locale as "EN" | "UA"]}
+                    </div>
                   </Link>
                 )
               ) : (
@@ -139,7 +147,9 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
                   <div className={styles.icon}>
                     <Icon title={i.icon} size={20} />
                   </div>
-                  <div className={styles.text}>{i.title}</div>
+                  <div className={styles.text}>
+                    {i.title[locale as "EN" | "UA"]}
+                  </div>
                   <Theme className={styles.theme} />
                 </div>
               )

@@ -1,23 +1,23 @@
 export const footerGroupLink = {
   loggedIn: [
     {
-      title: "Design",
+      title: { EN: "Design", UA: "Дизайн" },
       menu: [
         {
-          title: "Discover",
+          title: { EN: "Discover", UA: "Огляд" },
           url: "/",
         },
         {
-          title: "Profile",
+          title: { EN: "Profile", UA: "Профіль" },
           url: "/profile",
         },
       ],
     },
     {
-      title: "Info",
+      title: { EN: "Info", UA: "Інформація" },
       menu: [
         {
-          title: "FAQ",
+          title: { EN: "FAQ", UA: "Питання та відповіді" },
           url: "/faq",
         },
       ],
@@ -25,26 +25,26 @@ export const footerGroupLink = {
   ],
   notLoggedIn: [
     {
-      title: "Design",
+      title: { EN: "Design", UA: "Дизайн" },
       menu: [
         {
-          title: "Discover",
+          title: { EN: "Discover", UA: "Огляд" },
           url: "/",
         },
         {
-          title: "Login",
+          title: { EN: "Login", UA: "Увійти" },
           url: "/login",
         },
       ],
     },
     {
-      title: "Info",
+      title: { EN: "Info", UA: "Інформація" },
       menu: [
         {
-          title: "FAQ",
+          title: { EN: "FAQ", UA: "Питання та відповіді" },
           url: "/faq",
         },
-        { title: "Registration", url: "/register" },
+        { title: { EN: "Registration", UA: "Реєстрація" }, url: "/register" },
       ],
     },
   ],

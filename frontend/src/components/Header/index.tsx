@@ -11,11 +11,14 @@ import { setFilter } from "../../redux/posts/postSlice";
 import { delToken } from "../../api/axios";
 import { localLogOut } from "../../redux/auth/authSlice";
 import toast from "react-hot-toast";
+import { LanguageSwitcher } from "../LangSwitcher/LangSwitcher";
+import { useTranslation } from "react-i18next";
 
 const Headers = () => {
   const [visibleNav, setVisibleNav] = useState(false);
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const isAdmin = useAppSelector(selectIsAdmin);
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -28,7 +31,7 @@ const Headers = () => {
     if (payload === "Not authorized") {
       delToken();
       dispatch(localLogOut());
-      toast.error("Session expired. Please log in again.");
+      toast.error(`${t("session-expired-alert")}`);
       navigate("/login");
     }
   };
@@ -48,7 +51,7 @@ const Headers = () => {
 
         {isAdmin && (
           <Link className={cn("button-small", styles.button)} to="/upload-post">
-            Upload
+            {t("upload-btn")}
           </Link>
         )}
         {!isLoggedIn ? (
@@ -62,15 +65,16 @@ const Headers = () => {
               to="/register"
               onClick={() => setVisibleNav(false)}
             >
-              Sign Up
+              {t("register")}
             </Link>
             <Link
               className={cn("button-stroke button-small", styles.button)}
               to="/login"
               onClick={() => setVisibleNav(false)}
             >
-              Sign In
+              {t("login")}
             </Link>
+            <LanguageSwitcher />
           </div>
         ) : (
           <div
@@ -82,6 +86,7 @@ const Headers = () => {
               className={styles.user}
               setVisibleNav={() => setVisibleNav(false)}
             />
+            <LanguageSwitcher />
           </div>
         )}
         <button

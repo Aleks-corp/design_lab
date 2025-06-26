@@ -7,6 +7,7 @@ import Modal from "../../../components/Modal";
 import { UserProfile } from "../../../types/auth.types";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
+import { useTranslation } from "react-i18next";
 
 interface UserProps {
   className: string;
@@ -18,6 +19,7 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
   const dailyLimit = 2;
   const [visibleModalReport, setVisibleModalReport] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const SubmitPayment = () => {
     const currentDate = new Date();
@@ -32,34 +34,37 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
   return (
     <>
       <div className={cn(styles.user, className)}>
-        <p className={styles.name}>Profile</p>
+        <p className={styles.name}>{t("profile.title")}</p>
         <div className={styles.container}>
           <div className={styles.info}>
             <p className={styles.info__text}>
-              Name: <span>{user.name}</span>
+              {t("profile.name")}
+              <span>{user.name}</span>
             </p>
             <p className={styles.info__text}>
-              Email: <span>{user.email}</span>
+              {t("profile.email")}
+              <span>{user.email}</span>
             </p>
             <p className={styles.info__text}>
-              Phone: <span>{user.phone}</span>
+              {t("profile.phone")}
+              <span>{user.phone}</span>
             </p>
             <p className={styles.info__text}>
-              Subscription -{" "}
+              {t("profile.sub")}
               <span>
                 {user.subscription === "sale" && "Trial Premium Access"}
               </span>
             </p>
             {user.isBlocked && (
               <p className={styles.info__text}>
-                Your account is{" "}
+                {t("profile.ban-start")}
                 <span className={cn(styles.info__text, [styles.declined])}>
-                  BANED
+                  {t("profile.ban-end")}
                 </span>
               </p>
             )}
             <p className={styles.info__text}>
-              Daily downloads left -{" "}
+              {t("profile.day-download-left")}
               <span>{`${
                 dailyLimit - user.dailyDownloadCount
               } (reset in ${moment(new Date(user.subend)).format(
@@ -68,7 +73,7 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
             </p>
             {user.status !== "Active" && (
               <p className={styles.info__text}>
-                Subscription until -{" "}
+                {t("profile.sub-until")}
                 <span>
                   {moment(new Date(user.subend)).format("DD-MM-yyyy, HH:mm:ss")}
                 </span>
@@ -76,7 +81,7 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
             )}
             {user.status === "Active" && (
               <p className={styles.info__text}>
-                Next payment -{" "}
+                {t("profile.sub-next-pay")}
                 <span>
                   {moment(new Date(user.subend)).format("DD-MM-yyyy")}
                 </span>
@@ -89,7 +94,7 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
               className={cn("button-stroke button-small", styles.button)}
               to="/profile-edit"
             >
-              <span>Edit profile</span>
+              <span>{t("profile.edit-title")}</span>
               <Icon title="image" size={16} />
             </Link>
 
@@ -97,7 +102,7 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
               className={cn("button-stroke button-small", styles.button)}
               onClick={() => setVisibleModalReport(true)}
             >
-              <span>Report</span>
+              <span>{t("profile.report-btn")}</span>
               <Icon title="report" size={18} />
             </button>
 
@@ -107,14 +112,15 @@ const UserSale = ({ className, user, setDate }: UserProps) => {
                 type="button"
                 onClick={SubmitPayment}
               >
-                Subscribe
+                {t("profile.sub-btn")}
               </button>
             )}
           </div>
         </div>
 
         <div className={styles.note}>
-          Member since {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
+          {t("profile.member-since")}
+          {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
         </div>
       </div>
       <Modal

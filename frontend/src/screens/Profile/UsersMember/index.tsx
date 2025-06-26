@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { useAppDispatch } from "../../../redux/hooks";
 import { unsubscribe } from "../../../redux/auth/auth.thunk";
+import { useTranslation } from "react-i18next";
 
 interface UserProps {
   className: string;
@@ -20,6 +21,7 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
   const dispatch = useAppDispatch();
   const [visibleModalReport, setVisibleModalReport] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const SubmitPayment = () => {
     const currentDate = new Date();
@@ -34,24 +36,29 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
   return (
     <>
       <div className={cn(styles.user, className)}>
-        <p className={styles.name}>Profile</p>
+        <p className={styles.name}>{t("profile.title")}</p>
         <div className={styles.container}>
           <div className={styles.info}>
             <p className={styles.info__text}>
-              Name: <span>{user.name}</span>
+              {t("profile.name")}
+              <span>{user.name}</span>
             </p>
             <p className={styles.info__text}>
-              Email: <span>{user.email}</span>
+              {t("profile.email")}
+              <span>{user.email}</span>
             </p>
             <p className={styles.info__text}>
-              Phone: <span>{user.phone}</span>
+              {t("profile.phone")}
+              <span>{user.phone}</span>
             </p>
             <p className={styles.info__text}>
-              Subscription -{" "}
+              {t("profile.sub")}
               <span>{user.subscription === "sale" && "Premium Access"}</span>
             </p>
             <p className={styles.info__text}>
-              Subscription status - <span>{user.status}</span>
+              {" "}
+              {t("profile.sub-status")}
+              <span>{user.status}</span>
             </p>
             {user.lastPayedStatus && user.lastPayedDate && (
               <>
@@ -61,10 +68,11 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
                     [styles.declined]: user.lastPayedStatus === "Declined",
                   })}
                 >
-                  Last payed status - <span>{user.lastPayedStatus}</span>
+                  {t("profile.payed-status")}
+                  <span>{user.lastPayedStatus}</span>
                 </p>
                 <p className={styles.info__text}>
-                  Last payed date -{" "}
+                  {t("profile.payed-date")}
                   <span>
                     {moment(new Date(user.lastPayedDate)).format("DD-MM-yyyy")}
                   </span>
@@ -73,7 +81,7 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
             )}
             {user.status !== "Active" && (
               <p className={styles.info__text}>
-                Subscription until -{" "}
+                {t("profile.sub-until")}
                 <span>
                   {moment(new Date(user.subend)).format("DD-MM-yyyy")}
                 </span>
@@ -81,7 +89,7 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
             )}
             {user.status === "Active" && (
               <p className={styles.info__text}>
-                Next payment -{" "}
+                {t("profile.sub-next-pay")}
                 <span>
                   {moment(new Date(user.subend)).format("DD-MM-yyyy")}
                 </span>
@@ -94,7 +102,7 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
               className={cn("button-stroke button-small", styles.button)}
               to="/profile-edit"
             >
-              <span>Edit profile</span>
+              <span>{t("profile.edit-title")}</span>
               <Icon title="image" size={16} />
             </Link>
 
@@ -102,7 +110,7 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
               className={cn("button-stroke button-small", styles.button)}
               onClick={() => setVisibleModalReport(true)}
             >
-              <span>Report</span>
+              <span>{t("profile.report-btn")}</span>
               <Icon title="report" size={18} />
             </button>
             {user.status === "Active" && (
@@ -110,7 +118,7 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
                 className={cn("button-stroke button-small", styles.button)}
                 onClick={() => dispatch(unsubscribe())}
               >
-                Unsubscribe
+                {t("profile.unsub-btn")}
               </button>
             )}
             {user.status !== "Active" && (
@@ -119,14 +127,15 @@ const UserMember = ({ className, user, setDate }: UserProps) => {
                 type="button"
                 onClick={SubmitPayment}
               >
-                Resubscribe
+                {t("profile.resub-btn")}
               </button>
             )}
           </div>
         </div>
 
         <div className={styles.note}>
-          Member since {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
+          {t("profile.member-since")}
+          {moment(new Date(user.createdAt)).format("DD-MM-yyyy")}
         </div>
       </div>
       <Modal

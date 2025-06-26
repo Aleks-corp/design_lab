@@ -9,9 +9,11 @@ import {
   selectUserError,
 } from "../../redux/selectors";
 import Loader from "../../components/Loader";
+import { useTranslation } from "react-i18next";
 
 const VerifyPage = () => {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const isLoggining = useAppSelector(selectIsLogining);
   const error = useAppSelector(selectUserError);
@@ -26,7 +28,7 @@ const VerifyPage = () => {
   return (
     <>
       {token === "0" && error !== "Verification has already been passed." && (
-        <h3 className={styles.title}>Check Your Email to verify account</h3>
+        <h3 className={styles.title}>{t("verify.title")}</h3>
       )}
 
       {isLoggining && !error && <Loader className={styles.loader} />}
@@ -35,9 +37,9 @@ const VerifyPage = () => {
         error !== "Verification has already been passed." && (
           <>
             <h3 className={styles.title}>
-              Verification success
+              {t("verify.success")}
               <NavLink className={styles.titlelink} to="/login">
-                Go to Login
+                {t("verify.success-link")}
               </NavLink>
             </h3>
           </>
@@ -47,9 +49,9 @@ const VerifyPage = () => {
         !isLoggedIn && (
           <>
             <h3 className={styles.title}>
-              Verification has already been passed
+              {t("verify.passed")}
               <NavLink className={styles.titlelink} to="/login">
-                Go to Login
+                {t("verify.success-link")}
               </NavLink>
             </h3>
           </>

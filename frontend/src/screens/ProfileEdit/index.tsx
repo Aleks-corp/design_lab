@@ -4,29 +4,21 @@ import Control from "../../components/Control";
 import TextInput from "../../components/TextInput";
 import Icon from "../../components/Icon";
 import { Link } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    title: "Home",
-    url: "/",
-  },
-  {
-    title: "Edit Profile",
-  },
-];
+import { useTranslation } from "react-i18next";
+import { editProfileBreadcrumbs } from "../../constants/breadcrumbs.constants";
 
 const ProfileEdit = () => {
+  const { t } = useTranslation();
   return (
     <div className={styles.page}>
-      <Control className={styles.control} item={breadcrumbs} />
+      <Control className={styles.control} item={editProfileBreadcrumbs} />
       <div className={cn("section-pt80", styles.section)}>
         <div className={cn("container", styles.container)}>
           <div className={styles.top}>
-            <h1 className={cn("h2", styles.title)}>Edit profile</h1>
-            <div className={styles.info}>
-              You can set preferred display name, and manage other personal
-              settings.
-            </div>
+            <h1 className={cn("h2", styles.title)}>
+              {t("profile.edit-title")}
+            </h1>
+            <div className={styles.info}>{t("profile.edit-info")}</div>
           </div>
           <div className={styles.row}>
             {/* <div className={styles.col}>
@@ -59,14 +51,16 @@ const ProfileEdit = () => {
             <div className={styles.col}>
               <div className={styles.list}>
                 <div className={styles.item}>
-                  <div className={styles.category}>Account info</div>
+                  <div className={styles.category}>
+                    {t("passchange.form-title")}
+                  </div>
                   <div className={styles.fieldset}>
                     <TextInput
                       className={styles.field}
                       label="display name"
                       name="Name"
                       type="text"
-                      placeholder="Enter your display name"
+                      placeholder={t("register-name-placeholder")}
                       required
                     />
                   </div>
@@ -79,7 +73,7 @@ const ProfileEdit = () => {
                         )}
                         to="/change-password"
                       >
-                        <span>Change Password</span>
+                        <span>{t("change-pass")}</span>
                       </Link>
                     </div>
                   </div>
@@ -87,11 +81,11 @@ const ProfileEdit = () => {
               </div>
               <div className={styles.btns}>
                 <button className={cn("button", styles.button)}>
-                  Update Profile
+                  {t("profile.update-btn")}
                 </button>
                 <button className={styles.clear}>
                   <Icon title="circle-close" size={24} />
-                  Clear all
+                  {t("passchange.reset-btn")}
                 </button>
               </div>
             </div>
