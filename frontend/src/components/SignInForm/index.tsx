@@ -109,7 +109,7 @@ const SignInForm = () => {
       </div>
       <div className={styles.btns}>
         <button type="submit" className={cn("button", styles.button)}>
-          {isLoading ? <Loader className="" /> : "Login"}
+          {isLoading ? <Loader className="" /> : `${t("login")}`}
         </button>
         <button type="reset" className={styles.clear}>
           <Icon title="circle-close" size={24} />

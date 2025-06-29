@@ -29,7 +29,11 @@ app.use(morgan(formatsLogger, { stream: accessLogStream }));
 
 app.use(
   cors({
-    origin: [process.env.FRONT_SERVER, "https://secure.wayforpay.com"],
+    origin: [
+      process.env.FRONT_SERVER,
+      process.env.FRONT_WEB_SERVER,
+      "https://secure.wayforpay.com",
+    ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type"],
   })
