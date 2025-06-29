@@ -11,7 +11,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [locale, setLocale] = useState<string>(() => {
     const savedLang = localStorage.getItem("locale");
-    return savedLang === "UA" ? "UA" : "EN";
+    return savedLang === "EN" ? "EN" : "UA";
   });
 
   useEffect(() => {
