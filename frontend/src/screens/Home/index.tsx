@@ -138,7 +138,7 @@ const Home = () => {
     <div className={cn("section-pt80", styles.section)}>
       <div className={cn("container", styles.container)}>
         <div className={styles.top}>
-          <div className={styles.title}>{t("search-title")}</div>
+          <h1 className={styles.title}>{t("hero-title")}</h1>
           <form className={styles.search}>
             <input
               className={styles.input}
