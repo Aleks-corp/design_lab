@@ -10,9 +10,19 @@ const postSchema = new Schema(
       required: [true, "Set name for post"],
     },
     description: {
-      type: String,
+      type: Schema.Types.Mixed,
       required: [true, "Set description for post"],
     },
+    // description: {
+    //   type: new Schema(
+    //     {
+    //       ua: { type: String, required: true },
+    //       en: { type: String, required: true },
+    //     },
+    //     { _id: false }
+    //   ),
+    //   required: true,
+    // },
     images: {
       type: [String],
       required: [true, "Set array of images link for post"],

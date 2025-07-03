@@ -6,10 +6,25 @@ const postAddSchema = Joi.object({
     "string.empty": `'name' cannot be an empty field`,
     "any.required": `missing required 'name' field`,
   }),
-  description: Joi.string().required().messages({
-    "string.empty": `'description' cannot be an empty field`,
-    "any.required": `missing required 'description' field`,
-  }),
+  description: Joi.alternatives()
+    .try(
+      Joi.string().messages({
+        "string.empty": `'description' cannot be an empty field`,
+      }),
+      Joi.object({
+        ua: Joi.string()
+          .required()
+          .messages({ "string.empty": `'ua' cannot be an empty field` }),
+        en: Joi.string()
+          .required()
+          .messages({ "string.empty": `'en' cannot be an empty field` }),
+      })
+    )
+    .required()
+    .messages({
+      "any.required": `missing required 'description' field`,
+      "alternatives.types": `'description' must be a string or { ua, en } object`,
+    }),
   kits: Joi.array().items(Joi.string()).required().messages({
     "string.empty": `'kits' cannot be an empty field`,
     "any.required": `missing required 'kits' field`,
@@ -41,9 +56,17 @@ const postUpdateSchema = Joi.object({
     "string.base": `'name' should be a type of 'text'`,
     "string.empty": `'name' cannot be an empty field`,
   }),
-  description: Joi.string().messages({
-    "string.empty": `'description' cannot be an empty field`,
-  }),
+  description: Joi.alternatives()
+    .try(
+      Joi.string(),
+      Joi.object({
+        ua: Joi.string(),
+        en: Joi.string(),
+      })
+    )
+    .messages({
+      "alternatives.types": `'description' must be a string or { ua, en } object`,
+    }),
   kits: Joi.array().items(Joi.string()).messages({
     "string.empty": `'kits' cannot be an empty field`,
   }),
