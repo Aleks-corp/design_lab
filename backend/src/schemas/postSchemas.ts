@@ -57,14 +57,18 @@ const postUpdateSchema = Joi.object({
   }),
   description: Joi.alternatives()
     .try(
-      Joi.string(),
+      Joi.string().messages({ "string.empty": "description cannot be empty" }),
       Joi.object({
-        ua: Joi.string(),
-        en: Joi.string(),
+        ua: Joi.string()
+        .messages({ "string.empty": "ua cannot be empty" }),
+        en: Joi.string()
+        .messages({ "string.empty": "en cannot be empty" }),
       })
     )
     .messages({
-      "alternatives.types": `'description' must be a string or { ua, en } object`,
+      "any.required": "missing required description field",
+      "alternatives.types":
+        "description must be a string or object with ua and en",
     }),
   kits: Joi.array().items(Joi.string()).messages({
     "string.empty": `'kits' cannot be an empty field`,
