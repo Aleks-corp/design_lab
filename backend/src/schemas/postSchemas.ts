@@ -8,22 +8,21 @@ const postAddSchema = Joi.object({
   }),
   description: Joi.alternatives()
     .try(
-      Joi.string().messages({
-        "string.empty": `'description' cannot be an empty field`,
-      }),
+      Joi.string().messages({ "string.empty": "description cannot be empty" }),
       Joi.object({
         ua: Joi.string()
           .required()
-          .messages({ "string.empty": `'ua' cannot be an empty field` }),
+          .messages({ "string.empty": "ua cannot be empty" }),
         en: Joi.string()
           .required()
-          .messages({ "string.empty": `'en' cannot be an empty field` }),
+          .messages({ "string.empty": "en cannot be empty" }),
       })
     )
     .required()
     .messages({
-      "any.required": `missing required 'description' field`,
-      "alternatives.types": `'description' must be a string or { ua, en } object`,
+      "any.required": "missing required description field",
+      "alternatives.types":
+        "description must be a string or object with ua and en",
     }),
   kits: Joi.array().items(Joi.string()).required().messages({
     "string.empty": `'kits' cannot be an empty field`,

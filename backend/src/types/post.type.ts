@@ -3,7 +3,7 @@ import { ObjectId } from "mongoose";
 export interface GetPost {
   _id: ObjectId;
   title: string;
-  description: string;
+  description: string | { ua: string; en: string };
   images: string[];
   downloadlink: string;
   filesize: string;
@@ -15,7 +15,7 @@ export interface GetPost {
 
 export interface UpdatePost {
   title?: string;
-  description?: string;
+  description?: string | { ua: string; en: string };
   category?: string[];
   kits?: string[];
   images: string[];
