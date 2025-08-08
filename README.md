@@ -123,7 +123,7 @@ yarn install
 yarn build
 cp .env.example .env
 # Заповнити змінні в .env приклад в .env.example
-yarn dev
+yarn start
 ```
 
 ### 3️⃣ Налаштування фронтенду
