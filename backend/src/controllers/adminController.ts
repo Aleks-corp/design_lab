@@ -12,7 +12,7 @@ import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
 import { generateSignedUrlImage } from "src/helpers/getSignedUrl";
 
 const getAllUser = async (req: Request, res: Response) => {
-  const { page = "1", limit = "100", filter = "" } = req.query;
+  const { page = "1", limit = "500", filter = "" } = req.query;
 
   const pageNumber = parseInt(page as string, 10);
   const limitNumber = parseInt(limit as string, 10);

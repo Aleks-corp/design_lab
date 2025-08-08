@@ -88,9 +88,10 @@
         color: $red
 
 .tcol
-    min-width: 100px
+    min-width: 98px
+    height: 56px
     align-content: center
-    padding: 8px 10px
+    padding: 4px 6px
     text-align: left
 
     &.free 
@@ -126,6 +127,7 @@
 
 .selectbtn
     color: inherit
+    text-align: left
 
 .updateBtn
     color: inherit
@@ -144,8 +146,6 @@
         align-items: center
         gap: 4px
 
-.separator
-    color: #ccc
 
 .btnContainer
     display: flex
@@ -155,28 +155,28 @@
 
 .pagination 
   display: flex
-  justify-content: center
   gap: 5px
-  margin-block: 15px
+  margin-top: 15px
 
 .pageButton 
     padding: 5px 10px
-    border-radius: 8px
+    border: 1px solid #ccc
+    background: white
     cursor: pointer
-    +hairline-1
-    color: $neutrals2
-    +dark
-        color: $neutrals7
+
     &.active 
-      color: $blue
+      background: #3772FF
+      color: white
       font-weight: bold
     
   
 .thIcon 
   cursor: pointer
-  text-align: center
+  text-align: start
   padding: 4px 6px
+  padding-left: 10px
   &.collapsed
+    text-align: center
     border-right: 1px solid #ffffff50
     border-left: 1px solid #ffffff50
 
