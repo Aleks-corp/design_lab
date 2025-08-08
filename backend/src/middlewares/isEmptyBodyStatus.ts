@@ -3,9 +3,10 @@ import { NextFunction, Request, Response } from "express";
 
 const isEmptyBodyStatus = (req: Request, res: Response, next: NextFunction) => {
   if (!Object.keys(req.body).length) {
-    next(ApiError(400, "missing fields"));
+    return next(ApiError(400, "missing fields"));
+  } else {
+    next();
   }
-  next();
 };
 
 export default isEmptyBodyStatus;

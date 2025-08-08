@@ -7,12 +7,12 @@ const checkIfUserBlocked = (
   next: NextFunction
 ) => {
   if (req.user?.isBlocked) {
-    throw ApiError(
-      403,
-      "Your account has been blocked. Please contact support."
+   return next(
+      ApiError(403, "Your account has been blocked. Please contact support.")
     );
+  } else {
+    next();
   }
-  next();
 };
 
 export default checkIfUserBlocked;
