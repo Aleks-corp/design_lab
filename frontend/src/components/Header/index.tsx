@@ -1,16 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import cn from "classnames";
 import styles from "./Header.module.sass";
 import Image from "../Image";
 import User from "./User";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { useAppSelector } from "../../redux/hooks";
 import { selectIsAdmin, selectIsLoggedIn } from "../../redux/selectors";
-import { fetchPosts } from "../../redux/posts/post.thunk";
-import { setFilter } from "../../redux/posts/postSlice";
-import { delToken } from "../../api/axios";
-import { localLogOut } from "../../redux/auth/authSlice";
-import toast from "react-hot-toast";
 import { LanguageSwitcher } from "../LangSwitcher/LangSwitcher";
 import { useTranslation } from "react-i18next";
 
@@ -20,31 +15,19 @@ const Headers = () => {
   const isAdmin = useAppSelector(selectIsAdmin);
   const { t } = useTranslation();
 
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-
-  const handleRefresh = async () => {
-    setVisibleNav(false);
-    navigate("/");
-    dispatch(setFilter(""));
-    const { payload } = await dispatch(fetchPosts({}));
-    if (payload === "Not authorized") {
-      delToken();
-      dispatch(localLogOut());
-      toast.error(`${t("session-expired-alert")}`);
-      navigate("/login");
-    }
-  };
-
   return (
     <header className={styles.header}>
       <div className={cn("container", styles.container)}>
-        <button className={styles.logo} type="button" onClick={handleRefresh}>
+        <button
+          className={styles.logo}
+          type="button"
+          onClick={() => (window.location.href = "/")}
+        >
           <Image
             className={styles.pic}
             src="/images/logo-dark.png"
             srcDark="/images/logo-light.png"
-            alt="Fitness Pro"
+            alt="Logo"
           />
         </button>
         <div className={styles.wrapper}></div>

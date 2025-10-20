@@ -61,6 +61,8 @@ const PostFormFields: React.FC<PostFormFieldsProps> = ({
                 required: true,
                 value: uploadAt ? uploadAt : "",
               }}
+              timeFormat="HH:mm"
+              dateFormat="DD.MM.YYYY"
               onChange={(e) => onUploadAtChange(e.toString())}
               value={uploadAt !== "" ? new Date(uploadAt) : ""}
             />

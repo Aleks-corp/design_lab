@@ -84,6 +84,7 @@ const SignInForm = () => {
                 className={styles.showpass}
                 type="button"
                 onClick={() => setShowPass(!showPass)}
+                tabIndex={-1}
               >
                 {showPass ? (
                   <Icon title="eye-open" size={24} />
@@ -96,11 +97,11 @@ const SignInForm = () => {
               )}
             </div>
             {isntVerify ? (
-              <Link to="/resendverify" className={styles.link}>
+              <Link to="/resendverify" className={styles.link} tabIndex={-1}>
                 {t("login-resend")}
               </Link>
             ) : (
-              <Link to="/forgot-password" className={styles.link}>
+              <Link to="/forgot-password" className={styles.link} tabIndex={-1}>
                 {t("login-forgot")}
               </Link>
             )}

@@ -41,12 +41,21 @@ app.use(
 app.use(express.json()); // для application/json
 app.use(express.urlencoded({ extended: true })); // для application/x-www-form-urlencoded
 app.use(express.static("public"));
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const ip =
     typeof req.headers["x-forwarded-for"] === "string"
       ? req.headers["x-forwarded-for"].split(",")[0].trim()
       : req.socket.remoteAddress || "";
-  console.log("📩 New Request:", ip, req.method, req.url);
+
+  const start = Date.now();
+
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    console.info(
+      `📩 New Request: ${ip} ${req.method} ${req.originalUrl} -> ${res.statusCode} ${res.statusMessage} (${duration}ms)`
+    );
+  });
+
   next();
 });
 

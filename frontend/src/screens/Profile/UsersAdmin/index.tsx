@@ -27,6 +27,13 @@ const UserAdmin = ({ className, user }: UserProps) => {
         </div>
         <div className={styles.info}>
           <p>Subscription - {user.subscription}</p>
+          <Link
+            className={cn("button button-small", styles.button)}
+            to="/unpublished-post"
+          >
+            <span>View unpublished posts</span>
+            <Icon title="image" size={16} />
+          </Link>
 
           <Link
             className={cn("button-stroke button-small", styles.button)}
@@ -34,13 +41,6 @@ const UserAdmin = ({ className, user }: UserProps) => {
           >
             <span>View users subscription</span>
             <Icon title="user" size={16} />
-          </Link>
-          <Link
-            className={cn("button-stroke button-small", styles.button)}
-            to="/unpublished-post"
-          >
-            <span>View unpublished posts</span>
-            <Icon title="image" size={16} />
           </Link>
         </div>
 

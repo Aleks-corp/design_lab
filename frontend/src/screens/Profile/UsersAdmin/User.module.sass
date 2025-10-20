@@ -47,11 +47,15 @@
             fill: color.adjust($blue, $lightness: -10%) 
 
 .info
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-direction: column
+    gap: 10px
     margin-bottom: 20px
     
     color: $neutrals4
-    p
-        margin-bottom: 10px
+    
 
 .site
     display: inline-flex
@@ -150,8 +154,6 @@
                 display: none
             &:nth-child(2)
                 display: inline
-    &:not(:last-child)
-        margin-right: 8px
     
 .socials
     display: flex

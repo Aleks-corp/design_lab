@@ -47,8 +47,9 @@ const SignUpForm = () => {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const { name, email, phone, password } = data;
     const cleanedPhone = phone.replace("+", "");
+
     try {
-      await dispatch(
+      const res = await dispatch(
         signUp({
           name,
           email: email.toLowerCase(),
@@ -56,10 +57,11 @@ const SignUpForm = () => {
           password,
         })
       ).unwrap();
-      setTimeout(() => {
-        navigate("/verify/0");
-        reset();
-      }, 0);
+      if (!("ok" in res) || res.ok !== true) {
+        throw new Error(res?.message || "Помилка реєстрації.");
+      }
+      navigate("/verify/0");
+      reset();
     } catch (err) {
       console.error("Registration failed", err);
     }
@@ -126,6 +128,7 @@ const SignUpForm = () => {
                 className={styles.showpass}
                 type="button"
                 onClick={() => setShowPass(!showPass)}
+                tabIndex={-1}
               >
                 {showPass ? (
                   <Icon title="eye-open" size={24} />
@@ -150,6 +153,7 @@ const SignUpForm = () => {
                 className={styles.showpass}
                 type="button"
                 onClick={() => setShowConfPass(!showConfPass)}
+                tabIndex={-1}
               >
                 {showConfPass ? (
                   <Icon title="eye-open" size={24} />

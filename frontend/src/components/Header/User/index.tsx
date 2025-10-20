@@ -7,7 +7,6 @@ import Theme from "../../Theme";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { logOut } from "../../../redux/auth/auth.thunk";
 import { selectUser } from "../../../redux/selectors";
-import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../helpers/darkModeContext";
 
 const items = [
@@ -41,7 +40,6 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
   const user = useAppSelector(selectUser);
   const [visible, setVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const { t } = useTranslation();
   const { locale } = useTheme();
 
   useEffect(() => {
@@ -95,18 +93,20 @@ const User = ({ className, setVisibleNav }: UserNavProps) => {
               <Icon title="copy" size={16} />
             </button>
           </div>
-          <div className={styles.wrap}>
-            <button
-              className={cn("button-stroke button-small", styles.button)}
-              onClick={() => {
-                navigate("/change-password");
-                setVisible(!visible);
-                setVisibleNav();
-              }}
-            >
-              {t("Change Password")}
-            </button>
-          </div>
+          {user?.subscription === "admin" && (
+            <div className={styles.wrap}>
+              <button
+                className={cn("button-stroke button-small", styles.button)}
+                onClick={() => {
+                  navigate("/unpublished-post");
+                  setVisible(!visible);
+                  setVisibleNav();
+                }}
+              >
+                Unpublished
+              </button>
+            </div>
+          )}
           <div className={styles.menu}>
             {items.map((i, index) =>
               i.url ? (

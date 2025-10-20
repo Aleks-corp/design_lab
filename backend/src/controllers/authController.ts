@@ -36,7 +36,7 @@ const register = async (req: Request, res: Response) => {
     ip,
   });
 
-  res.status(201).json({ message: "Thank you for signing up" });
+  res.status(201).json({ ok: true, message: "Thank you for signing up" });
 };
 
 const login = async (req: Request, res: Response) => {
