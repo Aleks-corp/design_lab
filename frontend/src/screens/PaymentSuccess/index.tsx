@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./PaymentSuccess.module.sass";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { checkPaymentStatus } from "../../redux/auth/auth.thunk";
+import { checkPaymentStatus, refreshUser } from "../../redux/auth/auth.thunk";
 import { selectUser } from "../../redux/selectors";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,9 @@ const PaymentSuccessPage = () => {
       const response = await dispatch(checkPaymentStatus());
       if (response.payload) {
         setStatus(response.payload.subscription);
+        if (response.payload.subscription === "member") {
+          dispatch(refreshUser());
+        }
       }
     }, 3000);
 

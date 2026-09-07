@@ -166,7 +166,10 @@ const checkUsersSubscription = async (req: Request, res: Response) => {
   await Promise.all(
     usersId.map(async (_id: ObjectId) => {
       const user = await User.findById(_id);
-      const updatedUser = await checkSubscriptionStatus(user);
+      if (!user) {
+        return null;
+      }
+      const updatedUser = await checkSubscriptionStatus(user, true);
       return updatedUser;
     })
   );
@@ -226,7 +229,7 @@ const getUnpublishedPosts = async (req: Request, res: Response) => {
       skip,
       limit: limitNumber,
     }
-  );
+  ).sort({ upload_at: 1 });
   const totalHits = await Post.countDocuments(query);
   const signedPosts = await Promise.all(
     posts.map(async (post) => {
@@ -258,7 +261,7 @@ const getUnpublishedPostById = async (req: Request, res: Response) => {
       return generateSignedUrlImage(key);
     })
   );
-  res.json({ ...post, images: signedImages });
+  res.json({ ...post.toObject(), images: signedImages });
 };
 
 const getMessageToSprt = async (req: Request, res: Response) => {

@@ -7,7 +7,7 @@ export const generatePresignedUrl = async (
   const { data } = await instance.post("/posts/generate-presigned-url", {
     files: [
       ...imageFiles.map((file) => file.name),
-      downloadFile ? downloadFile.name : "",
+      ...(downloadFile ? [downloadFile.name] : []),
     ],
   });
   const signedUrls: string[] = data.signedUrls;

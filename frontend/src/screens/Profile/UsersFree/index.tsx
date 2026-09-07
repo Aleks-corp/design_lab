@@ -119,6 +119,15 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
             <p className={styles.declined__text}>
               {t("profile.decline-info-next")}
             </p>
+            {!user.isBlocked && (
+              <button
+                className={cn("button", styles.button)}
+                type="button"
+                onClick={SubmitPayment}
+              >
+                {t("profile.sub-btn")}
+              </button>
+            )}
           </div>
         )}
 

@@ -13,12 +13,10 @@ import {
 import Loader from "../../components/Loader";
 import { getUnpublishedPosts } from "../../redux/admin/admin.thunk";
 
+const LIMIT = 12;
+
 const UnpublishedPosts = () => {
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(getUnpublishedPosts({}));
-  }, [dispatch]);
 
   const isLoading = useAppSelector(selectAdminLoadingPost);
   const posts = useAppSelector(selectUnpublishedPosts);
@@ -27,10 +25,21 @@ const UnpublishedPosts = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
 
+  useEffect(() => {
+    setCurrentPage(1);
+    dispatch(getUnpublishedPosts({ page: 1, limit: LIMIT }));
+  }, [dispatch]);
+
   const like = (postId: string) => {
     if (user) {
       dispatch(addRemoveFavorites(postId));
     }
+  };
+
+  const loadMore = () => {
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    dispatch(getUnpublishedPosts({ page: nextPage, limit: LIMIT }));
   };
 
   return (
@@ -46,12 +55,12 @@ const UnpublishedPosts = () => {
                 <Card
                   className={styles.card}
                   post={i}
-                  key={index}
+                  key={i._id || index}
                   like={like}
                   userId={user._id}
                 />
               ) : (
-                <Card className={styles.card} post={i} key={index} />
+                <Card className={styles.card} post={i} key={i._id || index} />
               )
             )}
         </div>
@@ -69,16 +78,7 @@ const UnpublishedPosts = () => {
                 <button
                   className={cn("button-stroke", styles.button)}
                   type="button"
-                  onClick={() => {
-                    const nextPage = currentPage + 1;
-                    setCurrentPage(nextPage);
-                    dispatch(
-                      getUnpublishedPosts({
-                        page: nextPage,
-                        limit: 1,
-                      })
-                    );
-                  }}
+                  onClick={loadMore}
                 >
                   <span>Load more</span>
                 </button>

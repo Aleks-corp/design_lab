@@ -4,6 +4,7 @@ import { IUser } from "src/types/user.type";
 import User from "../models/user";
 import { dateBegin } from "./setDate";
 import { userSubscriptionConst } from "src/constants/usersConstants";
+import { unsubscribeUser } from "./unsubscribeUser";
 
 const requestType = "STATUS";
 const merchantAccount = process.env.WFP_MERCHANT_ACCOUNT || "";
@@ -11,246 +12,183 @@ const merchantPassword = process.env.WFP_MERCHANT_PASSWORD || "";
 const WFP_API_URL =
   process.env.WFP_API_URL || "https://api.wayforpay.com/regularApi";
 
-export const checkSubscriptionStatus = async (user: IUser) => {
+// How often an automatic (non-forced) status check is allowed per user.
+const SUB_CHECK_THROTTLE_MS = 12 * 60 * 60 * 1000; // 12h
+
+const toMsFromSeconds = (value?: string | number) => {
+  if (value === undefined || value === null || value === "") return NaN;
+  return parseInt(`${value}000`, 10);
+};
+
+const persist = async (user: IUser, patch: Record<string, unknown>) => {
+  Object.assign(user, patch);
+  await User.findByIdAndUpdate(user._id, patch);
+};
+
+/**
+ * Recurring charge failed (not enough money on the card).
+ * Cancel the WayForPay regular payment and drop the user to free,
+ * keeping a reason so the profile can explain what happened.
+ */
+const cancelForInsufficientFunds = async (
+  user: IUser,
+  data: { lastPayedDate?: string }
+) => {
+  try {
+    await unsubscribeUser(user);
+  } catch (error) {
+    console.error("Failed to REMOVE WayForPay regular payment:", error);
+  }
+
+  const lastPayedMs = toMsFromSeconds(data.lastPayedDate);
+  await persist(user, {
+    subscription: userSubscriptionConst.FREE,
+    status: "Removed",
+    subCancelReason: "insufficient_funds",
+    lastPayedStatus: "Declined",
+    lastPayedDate: isNaN(lastPayedMs) ? new Date() : new Date(lastPayedMs),
+    subend: null,
+    orderReference: "",
+    lastSubCheck: new Date(),
+  });
+};
+
+const applyWfpStatus = async (
+  user: IUser,
+  data: {
+    status?: string;
+    lastPayedStatus?: string;
+    lastPayedDate?: string;
+    nextPaymentDate?: string;
+    dateBegin?: string;
+    amount?: number;
+    mode?: string;
+  }
+) => {
+  const now = Date.now();
+  const patch: Record<string, unknown> = { lastSubCheck: new Date() };
+
+  if (data.status === "Active") {
+    if (data.lastPayedStatus === "Declined") {
+      await cancelForInsufficientFunds(user, data);
+      return;
+    }
+
+    if (data.lastPayedStatus === "Approved") {
+      const nextMs = toMsFromSeconds(data.nextPaymentDate);
+      const beginMs = toMsFromSeconds(data.dateBegin);
+      const lastPayedMs = toMsFromSeconds(data.lastPayedDate);
+
+      Object.assign(patch, {
+        subscription: userSubscriptionConst.MEMBER,
+        status: "Active",
+        lastPayedStatus: "Approved",
+        lastPayedDate: isNaN(lastPayedMs) ? new Date() : new Date(lastPayedMs),
+        amount: data.amount,
+        mode: data.mode,
+        subCancelReason: null,
+        subend: isNaN(nextMs)
+          ? new Date(now + 30 * 24 * 60 * 60 * 1000)
+          : new Date(nextMs),
+        substart: isNaN(beginMs) ? user.substart : dateBegin(beginMs),
+      });
+      await persist(user, patch);
+      return;
+    }
+
+    // Active subscription, payment status not conclusive — keep as is.
+    await persist(user, patch);
+    return;
+  }
+
+  if (
+    data.status === "Suspended" ||
+    data.status === "Removed" ||
+    data.status === "Completed" ||
+    data.status === "Created"
+  ) {
+    Object.assign(patch, {
+      subscription: userSubscriptionConst.FREE,
+      status: data.status,
+    });
+    if (data.status === "Removed" || data.status === "Completed") {
+      Object.assign(patch, { lastPayedStatus: "", lastPayedDate: null });
+    }
+    await persist(user, patch);
+    return;
+  }
+
+  // Unknown / empty status — stop tracking this order.
+  Object.assign(patch, {
+    subscription: userSubscriptionConst.FREE,
+    orderReference: "",
+  });
+  await persist(user, patch);
+};
+
+export const checkSubscriptionStatus = async (user: IUser, force = false) => {
   if (user.subscription === userSubscriptionConst.ADMIN) {
     return user;
   }
   if (!user.orderReference) {
     return user;
   }
-  const newDateTime = new Date().getTime();
+
+  const now = Date.now();
+
+  // Registration trial expiry — purely local, no WayForPay call needed.
   if (
     user.subscription === userSubscriptionConst.SALE &&
     user.orderReference === "registrationSale" &&
     user.subend &&
-    newDateTime > user.subend.getTime()
+    now > user.subend.getTime()
   ) {
-    user.subscription = userSubscriptionConst.FREE;
-    user.orderReference = "";
-    user.substart = null;
-    user.subend = null;
-    await User.findByIdAndUpdate(user._id, {
-      subscription: user.subscription,
-      orderReference: user.orderReference,
-      subend: user.subend,
-      substart: user.substart,
+    await persist(user, {
+      subscription: userSubscriptionConst.FREE,
+      orderReference: "",
+      substart: null,
+      subend: null,
     });
     return user;
   }
-  if (user.orderReference && !user.subend) {
-    const payload = {
-      requestType,
-      merchantAccount,
-      merchantPassword,
-      orderReference: user.orderReference,
-    };
-    try {
-      const { data } = await axios.post(WFP_API_URL, payload, {
-        headers: { "Content-Type": "application/json" },
-      });
-      if (data.status === "Active") {
-        if (data.lastPayedStatus === "Declined") {
-          user.subscription = userSubscriptionConst.FREE;
-        }
-        if (data.lastPayedStatus === "Approved") {
-          user.subscription = userSubscriptionConst.MEMBER;
-        }
-        user.lastPayedStatus = data.lastPayedStatus;
-        user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
-        user.status = data.status;
-        user.amount = data.amount;
-        user.mode = data.mode;
-        if (data.nextPaymentDate) {
-          user.subend = new Date(parseInt(data.nextPaymentDate + "000"));
-        } else {
-          user.subend = new Date(
-            user.subend.setMonth(user.subend.getMonth() + 1)
-          );
-        }
-        user.substart = dateBegin(parseInt(data.dateBegin + "000"));
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-          subend: user.subend,
-          substart: user.substart,
-          amount: user.amount,
-          mode: user.mode,
-          lastPayedStatus: user.lastPayedStatus,
-          lastPayedDate: user.lastPayedDate,
-        });
-        return user;
-      }
-      if (data.status === "Created") {
-        user.subscription = userSubscriptionConst.FREE;
-        user.status = data.status;
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-        });
-        return user;
-      } else {
-        user.subscription = userSubscriptionConst.FREE;
-        user.orderReference = "";
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          orderReference: user.orderReference,
-        });
-        return user;
-      }
-    } catch (error) {
-      console.error("Error checking WayForPay subscription:", error);
-    }
+
+  // Throttle automatic checks so a WayForPay request does not fire on every
+  // authenticated API call. Admin-triggered checks pass force = true.
+  if (
+    !force &&
+    user.lastSubCheck &&
+    now - new Date(user.lastSubCheck).getTime() < SUB_CHECK_THROTTLE_MS
+  ) {
     return user;
   }
-  if (user.subend && newDateTime > user.subend.getTime()) {
-    const payload = {
-      requestType,
-      merchantAccount,
-      merchantPassword,
-      orderReference: user.orderReference,
-    };
-    try {
-      const { data } = await axios.post(WFP_API_URL, payload, {
-        headers: { "Content-Type": "application/json" },
-      });
 
-      if (data.status === "Active") {
-        if (data.lastPayedStatus === "Declined") {
-          user.subscription = userSubscriptionConst.FREE;
-        }
-        if (data.lastPayedStatus === "Approved") {
-          user.subscription = userSubscriptionConst.MEMBER;
-        }
-        user.lastPayedStatus = data.lastPayedStatus;
-        user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
-        user.status = data.status;
-        user.amount = data.amount;
-        user.mode = data.mode;
-        if (data.nextPaymentDate) {
-          user.subend = new Date(parseInt(data.nextPaymentDate + "000"));
-        } else {
-          user.subend = new Date(
-            user.subend.setMonth(user.subend.getMonth() + 1)
-          );
-        }
-        user.substart = dateBegin(parseInt(data.dateBegin + "000"));
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-          subend: user.subend,
-          substart: user.substart,
-          amount: user.amount,
-          mode: user.mode,
-          lastPayedStatus: user.lastPayedStatus,
-          lastPayedDate: user.lastPayedDate,
-        });
-        return user;
-      }
-      if (data.status === "Suspended") {
-        user.subscription = userSubscriptionConst.FREE;
-        user.status = "Suspended";
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-        });
-        return user;
-      }
-      if (data.status === "Removed") {
-        user.subscription = userSubscriptionConst.FREE;
-        user.status = "Removed";
-        user.lastPayedStatus = "";
-        user.lastPayedDate = null;
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-          lastPayedDate: user.lastPayedDate,
-          lastPayedStatus: user.lastPayedStatus,
-        });
-        return user;
-      }
-      if (data.status === "Completed") {
-        user.subscription = userSubscriptionConst.FREE;
-        user.status = "Completed";
-        user.lastPayedStatus = "";
-        user.lastPayedDate = null;
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-          lastPayedDate: user.lastPayedDate,
-          lastPayedStatus: user.lastPayedStatus,
-        });
-        return user;
-      }
-      if (data.status === "Created") {
-        user.subscription = userSubscriptionConst.FREE;
-        user.status = "Created";
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-        });
-        return user;
-      }
-      if (!data.status) {
-        user.subscription = userSubscriptionConst.FREE;
-        user.orderReference = "";
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          orderReference: user.orderReference,
-        });
-        return user;
-      }
-    } catch (error) {
-      console.error("Error checking WayForPay subscription:", error);
-    }
-  }
-  if (user.lastPayedStatus === "Declined") {
-    const payload = {
-      requestType,
-      merchantAccount,
-      merchantPassword,
-      orderReference: user.orderReference,
-    };
-    try {
-      const { data } = await axios.post(WFP_API_URL, payload, {
-        headers: { "Content-Type": "application/json" },
-      });
-      if (data.status === "Active") {
-        if (data.lastPayedStatus === "Declined") {
-          user.subscription = userSubscriptionConst.FREE;
-        }
-        if (data.lastPayedStatus === "Approved") {
-          user.subscription = userSubscriptionConst.MEMBER;
-        }
-        user.lastPayedStatus = data.lastPayedStatus;
-        user.lastPayedDate = new Date(parseInt(data.lastPayedDate + "000"));
-        user.status = data.status;
-        user.amount = data.amount;
-        user.mode = data.mode;
+  const needsRemoteCheck =
+    !user.subend ||
+    now > user.subend.getTime() ||
+    user.lastPayedStatus === "Declined";
 
-        if (data.nextPaymentDate) {
-          user.subend = new Date(parseInt(data.nextPaymentDate + "000"));
-        } else {
-          user.subend = new Date(
-            user.subend.setMonth(user.subend.getMonth() + 1)
-          );
-        }
-        user.substart = dateBegin(parseInt(data.dateBegin + "000"));
-        await User.findByIdAndUpdate(user._id, {
-          subscription: user.subscription,
-          status: user.status,
-          subend: user.subend,
-          substart: user.substart,
-          amount: user.amount,
-          mode: user.mode,
-          lastPayedStatus: user.lastPayedStatus,
-          lastPayedDate: user.lastPayedDate,
-        });
-        return user;
-      }
-    } catch (error) {
-      console.error("Error checking WayForPay subscription:", error);
-    }
+  if (!needsRemoteCheck) {
+    // Active member with a valid next-payment date — nothing to verify,
+    // just record that we looked.
+    await persist(user, { lastSubCheck: new Date() });
     return user;
   }
+
+  try {
+    const { data } = await axios.post(
+      WFP_API_URL,
+      {
+        requestType,
+        merchantAccount,
+        merchantPassword,
+        orderReference: user.orderReference,
+      },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    await applyWfpStatus(user, data);
+  } catch (error) {
+    console.error("Error checking WayForPay subscription:", error);
+  }
+
   return user;
 };

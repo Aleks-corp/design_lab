@@ -12,4 +12,11 @@ interface ResponseData {
   transactionStatus: string;
   phone: string;
   regularDateEnd: string;
+  merchantAccount?: string;
+  merchantSignature?: string;
+  amount?: string | number;
+  currency?: string;
+  authCode?: string;
+  cardPan?: string;
+  reasonCode?: string | number;
 }

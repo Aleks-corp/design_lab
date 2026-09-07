@@ -2,7 +2,7 @@ import express from "express";
 
 import { usersSchemas } from "../../schemas/index";
 import { validateBody } from "../../decorators/index";
-import { authenticateToken } from "../../middlewares/index";
+import { authenticateToken, isAdmin } from "../../middlewares/index";
 import adminController from "src/controllers/adminController";
 
 const { usersUpdateSubscriptionSchema, usersCheckSubscriptionSchema } =
@@ -19,24 +19,21 @@ const {
 } = adminController;
 
 const adminRouter = express.Router();
-adminRouter.get("/users", authenticateToken, getAllUser);
+
+adminRouter.use(authenticateToken, isAdmin);
+
+adminRouter.get("/users", getAllUser);
 
 adminRouter.patch(
   "/user",
-  authenticateToken,
   validateBody(usersUpdateSubscriptionSchema),
   updateUserSubscription
 );
 
-adminRouter.patch(
-  "/users/status-blocked",
-  authenticateToken,
-  updateUserBlockStatus
-);
+adminRouter.patch("/users/status-blocked", updateUserBlockStatus);
 
 adminRouter.patch(
   "/users",
-  authenticateToken,
   // validateBody(usersUpdateSubscriptionSchema),
   updateUsersSubscription
 );
@@ -44,12 +41,11 @@ adminRouter.patch(
 adminRouter.patch(
   "/users/status",
   validateBody(usersCheckSubscriptionSchema),
-  authenticateToken,
   checkUsersSubscription
 );
 
-adminRouter.get("/posts", authenticateToken, getUnpublishedPosts);
+adminRouter.get("/posts", getUnpublishedPosts);
 
-adminRouter.get("/post/:postId", authenticateToken, getUnpublishedPostById);
-adminRouter.post("/message", authenticateToken, getMessageToSprt);
+adminRouter.get("/post/:postId", getUnpublishedPostById);
+adminRouter.post("/message", getMessageToSprt);
 export default adminRouter;

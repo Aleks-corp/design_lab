@@ -61,6 +61,7 @@ const login = async (req: Request, res: Response) => {
       regularDateEnd: updatedUser.regularDateEnd,
       lastPayedDate: updatedUser.lastPayedDate,
       lastPayedStatus: updatedUser.lastPayedStatus,
+      subCancelReason: updatedUser.subCancelReason,
       substart: updatedUser.substart,
       subend: updatedUser.subend,
       dailyDownloadCount: updatedUser.dailyDownloadCount,
@@ -72,10 +73,13 @@ const login = async (req: Request, res: Response) => {
 const logout = async (req: Request, res: Response) => {
   const { _id } = req.user;
   const message = await logoutService(_id as ObjectId);
-  res.status(204).json(message);
+  res.status(200).json(message);
 };
 
 const getCurrent = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw ApiError(401);
+  }
   const {
     _id,
     name,
@@ -88,28 +92,28 @@ const getCurrent = async (req: Request, res: Response) => {
     regularDateEnd,
     lastPayedDate,
     lastPayedStatus,
+    subCancelReason,
     subend,
     dailyDownloadCount,
     createdAt,
   } = req.user;
-  if (req.user) {
-    res.json({
-      _id,
-      name,
-      email,
-      phone,
-      isBlocked,
-      subscription,
-      status,
-      regularDateEnd,
-      lastPayedDate,
-      lastPayedStatus,
-      substart,
-      subend,
-      dailyDownloadCount,
-      createdAt,
-    });
-  }
+  res.json({
+    _id,
+    name,
+    email,
+    phone,
+    isBlocked,
+    subscription,
+    status,
+    regularDateEnd,
+    lastPayedDate,
+    lastPayedStatus,
+    subCancelReason,
+    substart,
+    subend,
+    dailyDownloadCount,
+    createdAt,
+  });
 };
 
 const getVerification = async (req: Request, res: Response) => {

@@ -86,10 +86,10 @@ export const getUnpublishedPosts = createAsyncThunk(
   "admin/getunpublposts",
   async ({ page = 1, limit = 12 }: Query, thunkAPI) => {
     try {
-      const response = await instance.get(
-        `/admin/posts?page=${page}&limit=${limit}`
-      );
-      return response.data;
+      const response = await instance.get("/admin/posts", {
+        params: { page, limit },
+      });
+      return { ...response.data, page };
     } catch (e) {
       if (e instanceof Error) {
         return thunkAPI.rejectWithValue(e.message);
