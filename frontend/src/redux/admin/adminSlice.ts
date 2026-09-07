@@ -54,7 +54,9 @@ const handlePatchUserFulfilled = (
 ) => {
   state.isLoadingUpdate = false;
   const index = state.folowers.findIndex((i) => action.payload._id === i._id);
-  state.folowers.splice(index, 1, action.payload);
+  if (index !== -1) {
+    state.folowers.splice(index, 1, action.payload);
+  }
 };
 
 const handlePatchUsersFulfilled = (
@@ -77,11 +79,19 @@ const handlePatchCheckSubFulfilled = (
 
 const handleGetUnpublishedPostsFulfilled = (
   state: AdminState,
-  action: PayloadAction<{ posts: GetPost[]; totalHits: number }>
+  action: PayloadAction<{ posts: GetPost[]; totalHits: number; page?: number }>
 ) => {
   state.isLoadingPost = false;
-  state.unpublPosts = action.payload.posts;
-  state.totalPosts = action.payload.totalHits;
+  const { posts, totalHits, page = 1 } = action.payload;
+  if (page > 1) {
+    const newPosts = posts.filter(
+      (p) => !state.unpublPosts.some((existing) => existing._id === p._id)
+    );
+    state.unpublPosts = [...state.unpublPosts, ...newPosts];
+  } else {
+    state.unpublPosts = posts;
+  }
+  state.totalPosts = totalHits;
 };
 
 const handleGetUnpublishedPostsByIdFulfilled = (

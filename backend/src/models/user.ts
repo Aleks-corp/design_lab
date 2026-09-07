@@ -62,6 +62,8 @@ const userSchema = new Schema<IUser, IUserModelType>(
     },
     dailyDownloadCount: { type: Number, default: 0 },
     lastDownloadReset: { type: Date, default: null },
+    lastSubCheck: { type: Date, default: null },
+    subCancelReason: { type: String, default: null },
     orderReference: {
       type: String,
     },

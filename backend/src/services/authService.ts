@@ -75,9 +75,11 @@ export const registerService = async ({
       ? userSubscriptionConst.FREE
       : userSubscriptionConst.SALE,
   };
+  const trialLabel =
+    DATE_FOR_SALE === 1 ? "24 hours" : `${DATE_FOR_SALE} days`;
   const emailText =
     userData.subscription === userSubscriptionConst.SALE
-      ? "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below. As a new user, you will receive <strong>3 days of Limit Premium access</strong> after verification."
+      ? `Thank you for signing up! To complete your registration, please verify your email address by clicking the button below. As a new user, you will receive <strong>${trialLabel} of Trial Premium access</strong> (with a daily download limit) after verification.`
       : "Thank you for signing up! To complete your registration, please verify your email address by clicking the button below.";
 
   await User.create({
@@ -117,7 +119,7 @@ export const loginService = async ({
   if (!user.verify) {
     throw ApiError(403, "Non verified user, please check email");
   }
-  const updatedUser = await checkSubscriptionStatus(user);
+  const updatedUser = await checkSubscriptionStatus(user, true);
 
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
     expiresIn: "333h",
@@ -193,10 +195,9 @@ export const forgotPasswordService = async (email: string) => {
   }
 
   const resetToken = nanoid();
-  user.resetPasswordToken = resetToken;
-  user.resetPasswordExpires = Date.now() + 3600000;
   await User.findByIdAndUpdate(user._id, {
-    ...user,
+    resetPasswordToken: resetToken,
+    resetPasswordExpires: Date.now() + 3600000,
   });
 
   const maildata = await sendMail({
@@ -229,11 +230,10 @@ export const resetPasswordService = async ({
     throw ApiError(400, "Expired reset token");
   }
 
-  user.password = await bcrypt.hash(newPassword, 10);
-  user.resetPasswordToken = "";
-  user.resetPasswordExpires = 0;
   await User.findByIdAndUpdate(user._id, {
-    ...user,
+    password: await bcrypt.hash(newPassword, 10),
+    resetPasswordToken: "",
+    resetPasswordExpires: 0,
   });
   return { message: "Password reset successful" };
 };
@@ -258,9 +258,8 @@ export const changePasswordService = async ({
     throw ApiError(401, "Old password is incorrect");
   }
 
-  user.password = await bcrypt.hash(newPassword, 10);
   await User.findByIdAndUpdate(user._id, {
-    ...user,
+    password: await bcrypt.hash(newPassword, 10),
   });
   return { message: "Password successfully changed" };
 };
@@ -308,7 +307,55 @@ export const createPaymentService = async ({
   return paymentData;
 };
 
+const verifyWebhookSignature = (data: ResponseData) => {
+  const merchantSecret = WFP_SECRET_KEY;
+  if (!merchantSecret) {
+    throw ApiError(500, "Payment secret is not configured");
+  }
+  // WayForPay transaction callback signature:
+  // HMAC_MD5(merchantAccount;orderReference;amount;currency;authCode;cardPan;transactionStatus;reasonCode)
+  const signatureString = [
+    data.merchantAccount ?? WFP_MERCHANT_ACCOUNT ?? "",
+    data.orderReference ?? "",
+    data.amount ?? "",
+    data.currency ?? "",
+    data.authCode ?? "",
+    data.cardPan ?? "",
+    data.transactionStatus ?? "",
+    data.reasonCode ?? "",
+  ].join(";");
+  const expected = crypto
+    .createHmac("md5", merchantSecret)
+    .update(signatureString)
+    .digest("hex");
+  const valid = !!data.merchantSignature && data.merchantSignature === expected;
+  if (valid) return;
+
+  console.error(
+    "❌ WayForPay webhook signature mismatch for",
+    data.orderReference,
+    "| received:",
+    data.merchantSignature,
+    "| expected:",
+    expected
+  );
+  // Observation window: set WFP_WEBHOOK_VERIFY=log to accept the callback while
+  // confirming the signature format against real transactions in the logs.
+  // Any other value (default) rejects a bad/missing signature.
+  if (process.env.WFP_WEBHOOK_VERIFY !== "log") {
+    throw ApiError(403, "Invalid webhook signature");
+  }
+};
+
+const parseWfpDate = (value?: string) => {
+  if (!value || typeof value !== "string") return null;
+  const parsed = new Date(value.split(".").reverse().join(", "));
+  return isNaN(parsed.getTime()) ? null : parsed;
+};
+
 export const paymentWebhookService = async (data: ResponseData) => {
+  verifyWebhookSignature(data);
+
   const merchantSecret = WFP_SECRET_KEY;
   const time = Math.floor(Date.now() / 1000);
   const responseData = {
@@ -323,6 +370,10 @@ export const paymentWebhookService = async (data: ResponseData) => {
 
   const { transactionStatus, orderReference, phone, regularDateEnd } = data;
   const arr = orderReference.split("-");
+  const startMs = arr.length > 1 ? parseInt(arr[1], 10) : NaN;
+  const substart = isNaN(startMs) ? new Date() : new Date(startMs);
+  const subend = isNaN(startMs) ? nextDate(Date.now()) : nextDate(startMs);
+
   if (transactionStatus === "Approved") {
     await User.findOneAndUpdate(
       { orderReference },
@@ -330,11 +381,13 @@ export const paymentWebhookService = async (data: ResponseData) => {
         subscription: userSubscriptionConst.MEMBER,
         phone,
         status: "Active",
-        regularDateEnd: new Date(
-          regularDateEnd.split(".").reverse().join(", ")
-        ),
-        substart: new Date(parseInt(arr[1])),
-        subend: nextDate(parseInt(arr[1])),
+        lastPayedStatus: "Approved",
+        lastPayedDate: new Date(),
+        subCancelReason: null,
+        lastSubCheck: new Date(),
+        regularDateEnd: parseWfpDate(regularDateEnd),
+        substart,
+        subend,
       }
     );
     console.log("✅ Оплата підтверджена для", orderReference); //Log

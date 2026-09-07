@@ -4,6 +4,7 @@ import {
   fetchPosts,
   fetchPostById,
   addPost,
+  editPost,
   addRemoveFavorites,
   deletePost,
 } from "./post.thunk";
@@ -25,8 +26,9 @@ const handleFulfilled = (state: PostsState) => {
 
 export const handleFulfilledPosts = (
   state: PostsState,
-  action: PayloadAction<{ posts: GetPost[]; totalHits: number }>
+  action: PayloadAction<{ posts: GetPost[]; totalHits: number } | undefined>
 ): void => {
+  if (!action.payload || !Array.isArray(action.payload.posts)) return;
   const newPosts = action.payload.posts.filter(
     (newPost) =>
       !state.posts.some((existingPost) => existingPost._id === newPost._id)
@@ -49,6 +51,19 @@ export const handleFulfilledAddPost = (
 ): void => {
   state.posts.push({ ...action.payload });
   state.selectedPost = { ...action.payload };
+};
+
+export const handleFulfilledEditPost = (
+  state: PostsState,
+  action: PayloadAction<GetPost>
+): void => {
+  if (!action.payload) return;
+  const index = state.posts.findIndex((i) => i._id === action.payload._id);
+  if (index !== -1) {
+    state.posts[index] = { ...state.posts[index], ...action.payload };
+  }
+  state.selectedPost = { ...action.payload };
+  state.postToEdit = null;
 };
 
 export const handleFulfilledAddFavorites = (
@@ -111,6 +126,8 @@ const postsSlice = createSlice({
       .addCase(fetchPostById.fulfilled, handleFulfilledPostById)
       .addCase(addPost.pending, handlePending)
       .addCase(addPost.fulfilled, handleFulfilledAddPost)
+      .addCase(editPost.pending, handlePending)
+      .addCase(editPost.fulfilled, handleFulfilledEditPost)
       .addCase(addRemoveFavorites.fulfilled, handleFulfilledAddFavorites)
       .addCase(deletePost.pending, handlePending)
       .addCase(deletePost.fulfilled, handleFulfilledDeletePost)
@@ -119,7 +136,8 @@ const postsSlice = createSlice({
         handleRejected
       )
       .addMatcher(
-        (action) => action.type.endsWith("fulfilled"),
+        ({ type }) =>
+          type.startsWith("posts/") && type.endsWith("/fulfilled"),
         handleFulfilled
       );
   },

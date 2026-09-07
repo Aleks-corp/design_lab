@@ -97,6 +97,7 @@ export const refreshUser = createAsyncThunk<
         error.response?.data.message ?? error.message
       );
     }
+    return thunkAPI.rejectWithValue("Unable to refresh session");
   }
 });
 

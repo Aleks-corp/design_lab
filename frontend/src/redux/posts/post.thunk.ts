@@ -24,13 +24,15 @@ export const fetchPosts = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await instance.get(
-        `/posts?page=${page}&limit=${limit}${
-          filter ? `&filter=${filter}` : ``
-        }${favorites ? `&favorites=${favorites}` : ``}${
-          search ? `&search=${search}` : ``
-        }`
-      );
+      const response = await instance.get("/posts", {
+        params: {
+          page,
+          limit,
+          ...(filter ? { filter } : {}),
+          ...(favorites ? { favorites: true } : {}),
+          ...(search ? { search } : {}),
+        },
+      });
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -93,7 +95,7 @@ export const addPost = createAsyncThunk(
 );
 
 export const editPost = createAsyncThunk(
-  "posts/addPost",
+  "posts/editPost",
   async ({ post, postId }: { post: EditPost; postId: string }, thunkAPI) => {
     try {
       const response = await instance.patch(`/posts/${postId}`, post);

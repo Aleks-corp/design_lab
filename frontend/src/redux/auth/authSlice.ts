@@ -63,10 +63,15 @@ const handleRefreshFulfilled = (
   state: AuthState,
   action: PayloadAction<UserProfile>
 ) => {
+  state.isRefreshing = false;
+  state.isLogining = false;
+  if (!action.payload) {
+    state.isLoggedIn = false;
+    state.profile = null;
+    return;
+  }
   state.profile = action.payload;
   state.isLoggedIn = true;
-  state.isLogining = false;
-  state.isRefreshing = false;
 };
 
 const handleRefreshRejected = (

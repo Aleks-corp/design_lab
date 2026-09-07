@@ -12,6 +12,7 @@ export interface UserProfile {
   regularDateEnd?: Date;
   lastPayedStatus?: string;
   lastPayedDate?: Date;
+  subCancelReason?: string | null;
   substart: Date;
   subend: Date;
   dailyDownloadCount: number;

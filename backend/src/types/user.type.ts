@@ -22,6 +22,8 @@ export interface IUser {
   subend: Date;
   dailyDownloadCount?: number;
   lastDownloadReset?: Date;
+  lastSubCheck?: Date | null;
+  subCancelReason?: string | null;
   token?: string;
   verificationToken: string;
   verify: boolean;

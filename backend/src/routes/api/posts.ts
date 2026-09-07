@@ -6,6 +6,7 @@ import {
   authenticateToken,
   authenticateUserExists,
   checkIfUserBlocked,
+  isAdmin,
 } from "../../middlewares/index";
 import { validateBody } from "../../decorators/index";
 import { postSchemas } from "../../schemas/index";
@@ -53,11 +54,13 @@ postsRouter.patch(
 postsRouter.post(
   "/generate-presigned-url",
   authenticateToken,
+  isAdmin,
   postPresignedUrl
 );
 postsRouter.post(
   "/",
   authenticateToken,
+  isAdmin,
   isEmptyBody,
   validateBody(postAddSchema),
   addPost
@@ -65,12 +68,19 @@ postsRouter.post(
 postsRouter.patch(
   "/:postId",
   authenticateToken,
+  isAdmin,
   isEmptyBody,
   isValidId,
   validateBody(postUpdateSchema),
   updatePost
 );
 
-postsRouter.delete("/:postId", authenticateToken, isValidId, deletePostById);
+postsRouter.delete(
+  "/:postId",
+  authenticateToken,
+  isAdmin,
+  isValidId,
+  deletePostById
+);
 
 export default postsRouter;

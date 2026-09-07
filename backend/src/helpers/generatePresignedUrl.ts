@@ -1,6 +1,7 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { nanoid } from "nanoid";
+import ApiError from "./ApiError";
 
 const {
   S3_BUCKET_NAME,
@@ -18,11 +19,19 @@ const s3 = new S3Client({
 });
 
 export const generatePresignedUrl = async (file: string) => {
-  const fileExtension = file.substring(file.lastIndexOf("."));
-  const newFileName = `${file.substring(
-    0,
-    file.lastIndexOf(".")
-  )}-${nanoid()}${fileExtension}`;
+  // Accept only a bare file name — strip any path so a client can't inject
+  // an arbitrary S3 key (e.g. "../", leading "/", nested folders).
+  const baseName =
+    typeof file === "string" ? file.replace(/^.*[\\/]/, "").trim() : "";
+
+  if (!baseName || !/^[\w .()-]+$/.test(baseName)) {
+    throw ApiError(400, "Invalid file name");
+  }
+
+  const dotIndex = baseName.lastIndexOf(".");
+  const fileExtension = dotIndex > 0 ? baseName.substring(dotIndex) : "";
+  const stem = dotIndex > 0 ? baseName.substring(0, dotIndex) : baseName;
+  const newFileName = `${stem}-${nanoid()}${fileExtension}`;
 
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,

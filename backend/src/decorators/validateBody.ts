@@ -6,7 +6,7 @@ const validateBody = (schema: Schema) => {
   const func = (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body);
     if (error) {
-      next(ApiError(400, error.message));
+      return next(ApiError(400, error.message));
     }
     next();
   };

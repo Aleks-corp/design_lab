@@ -2,6 +2,7 @@ import Post from "../models/post";
 import { ApiError, deleteFromS3 } from "../helpers/index";
 import { ctrlWrapper } from "../decorators/index";
 import { Request, Response } from "express";
+import { isValidObjectId } from "mongoose";
 import { generatePresignedUrl } from "src/helpers/generatePresignedUrl";
 import {
   generateSignedUrlImage,
@@ -32,8 +33,12 @@ const getAllPosts = async (req: Request, res: Response) => {
     user && favorites === "true" ? { favorites: { $in: [user._id] } } : {};
   const filterQuery =
     filter && filter !== "All products" ? { category: { $in: [filter] } } : {};
-  const searchQuery = search
-    ? { title: { $regex: search, $options: "i" } }
+  const escapedSearch =
+    typeof search === "string"
+      ? search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      : "";
+  const searchQuery = escapedSearch
+    ? { title: { $regex: escapedSearch, $options: "i" } }
     : {};
   const uploadQuery = { upload_at: { $lte: currentTime } };
   const query = {
@@ -101,14 +106,22 @@ const getPostById = async (req: Request, res: Response) => {
 const checkDownload = async (req: Request, res: Response) => {
   const user = req.user;
   const { postId } = req.params;
-  const permission = await checkDownloadPermission(user);
-  if (!permission.allowed) {
-    throw ApiError(403, permission.reason);
-  }
+
+  // Validate the post first so a bad id / missing file does not burn a
+  // daily download slot (checkDownloadPermission increments the counter).
   const post = await Post.findById(postId);
   if (!post) {
     throw ApiError(404);
   }
+  if (!post.downloadlink) {
+    throw ApiError(404, "Download file is not available for this post");
+  }
+
+  const permission = await checkDownloadPermission(user);
+  if (!permission.allowed) {
+    throw ApiError(403, permission.reason);
+  }
+
   const signedFileUrl = await generateSignedUrlFile(
     getKeyFromUrl(post.downloadlink)
   );
@@ -175,6 +188,9 @@ const addPost = async (req: PostRequest, res: Response): Promise<void> => {
 const updateStatusPost = async (req: Request, res: Response) => {
   const { postId } = req.body;
   const { _id: userId } = req.user;
+  if (!isValidObjectId(postId)) {
+    throw ApiError(400, `${postId} is not valid id`);
+  }
   const post = await Post.findById(postId);
 
   if (!post) {
@@ -255,7 +271,7 @@ const updatePost = async (req: Request, res: Response) => {
     throw ApiError(404, "Post not found");
   }
 
-  res.json(post);
+  res.json(updatedPost);
 };
 
 export default {
