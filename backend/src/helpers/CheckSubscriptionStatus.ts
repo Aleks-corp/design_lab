@@ -4,7 +4,6 @@ import { IUser } from "src/types/user.type";
 import User from "../models/user";
 import { dateBegin } from "./setDate";
 import { userSubscriptionConst } from "src/constants/usersConstants";
-import { unsubscribeUser } from "./unsubscribeUser";
 
 const requestType = "STATUS";
 const merchantAccount = process.env.WFP_MERCHANT_ACCOUNT || "";
@@ -26,31 +25,51 @@ const persist = async (user: IUser, patch: Record<string, unknown>) => {
 };
 
 /**
- * Recurring charge failed (not enough money on the card).
- * Cancel the WayForPay regular payment and drop the user to free,
- * keeping a reason so the profile can explain what happened.
+ * A recurring charge failed (expired card, insufficient funds, etc).
+ * We cut premium access immediately, but deliberately do NOT cancel the
+ * WayForPay regular payment order ourselves — WayForPay keeps retrying the
+ * charge automatically for a while, and the order can still be "Active" on
+ * their side even though the last attempt was declined. If a later retry
+ * succeeds, the next Approved webhook/poll restores the user automatically
+ * with no action needed. Only an explicit user "renew" action
+ * (renewSubscriptionService) cancels the old order and starts a new one.
  */
-const cancelForInsufficientFunds = async (
+export const recordDeclinedPayment = async (
   user: IUser,
-  data: { lastPayedDate?: string }
-) => {
-  try {
-    await unsubscribeUser(user);
-  } catch (error) {
-    console.error("Failed to REMOVE WayForPay regular payment:", error);
+  data: {
+    lastPayedDate?: string;
+    reasonCode?: string | number;
+    reason?: string;
   }
-
+) => {
+  const isNewStreak = user.lastPayedStatus !== "Declined";
   const lastPayedMs = toMsFromSeconds(data.lastPayedDate);
-  await persist(user, {
-    subscription: userSubscriptionConst.FREE,
-    status: "Removed",
-    subCancelReason: "insufficient_funds",
+  const parsedReasonCode =
+    data.reasonCode !== undefined && data.reasonCode !== null && data.reasonCode !== ""
+      ? Number(data.reasonCode)
+      : null;
+
+  const patch: Record<string, unknown> = {
     lastPayedStatus: "Declined",
     lastPayedDate: isNaN(lastPayedMs) ? new Date() : new Date(lastPayedMs),
-    subend: null,
-    orderReference: "",
+    declineReasonCode:
+      parsedReasonCode !== null && !isNaN(parsedReasonCode)
+        ? parsedReasonCode
+        : user.declineReasonCode ?? null,
+    declineReason: data.reason ?? user.declineReason ?? null,
+    declineAttempts: isNewStreak ? 1 : (user.declineAttempts || 0) + 1,
+    declineFirstAt: isNewStreak ? new Date() : user.declineFirstAt ?? new Date(),
     lastSubCheck: new Date(),
-  });
+  };
+
+  // Only cut access when this was a renewal failure for an already-paying
+  // member. A declined first-time upgrade attempt (from "free"/"sale") must
+  // not touch an unrelated trial — there is no paid access to revoke yet.
+  if (user.subscription === userSubscriptionConst.MEMBER) {
+    patch.subscription = userSubscriptionConst.FREE;
+  }
+
+  await persist(user, patch);
 };
 
 const applyWfpStatus = async (
@@ -63,6 +82,8 @@ const applyWfpStatus = async (
     dateBegin?: string;
     amount?: number;
     mode?: string;
+    reasonCode?: string | number;
+    reason?: string;
   }
 ) => {
   const now = Date.now();
@@ -70,7 +91,7 @@ const applyWfpStatus = async (
 
   if (data.status === "Active") {
     if (data.lastPayedStatus === "Declined") {
-      await cancelForInsufficientFunds(user, data);
+      await recordDeclinedPayment(user, data);
       return;
     }
 
@@ -87,6 +108,10 @@ const applyWfpStatus = async (
         amount: data.amount,
         mode: data.mode,
         subCancelReason: null,
+        declineReasonCode: null,
+        declineReason: null,
+        declineAttempts: 0,
+        declineFirstAt: null,
         subend: isNaN(nextMs)
           ? new Date(now + 30 * 24 * 60 * 60 * 1000)
           : new Date(nextMs),

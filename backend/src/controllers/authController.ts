@@ -15,6 +15,7 @@ import {
   resendVerifyService,
   resetPasswordService,
   unsubscribeWebhookService,
+  renewSubscriptionService,
   verificationService,
 } from "src/services/authService";
 
@@ -62,6 +63,10 @@ const login = async (req: Request, res: Response) => {
       lastPayedDate: updatedUser.lastPayedDate,
       lastPayedStatus: updatedUser.lastPayedStatus,
       subCancelReason: updatedUser.subCancelReason,
+      declineReasonCode: updatedUser.declineReasonCode,
+      declineReason: updatedUser.declineReason,
+      declineAttempts: updatedUser.declineAttempts,
+      declineFirstAt: updatedUser.declineFirstAt,
       substart: updatedUser.substart,
       subend: updatedUser.subend,
       dailyDownloadCount: updatedUser.dailyDownloadCount,
@@ -93,6 +98,10 @@ const getCurrent = async (req: Request, res: Response) => {
     lastPayedDate,
     lastPayedStatus,
     subCancelReason,
+    declineReasonCode,
+    declineReason,
+    declineAttempts,
+    declineFirstAt,
     subend,
     dailyDownloadCount,
     createdAt,
@@ -109,6 +118,10 @@ const getCurrent = async (req: Request, res: Response) => {
     lastPayedDate,
     lastPayedStatus,
     subCancelReason,
+    declineReasonCode,
+    declineReason,
+    declineAttempts,
+    declineFirstAt,
     substart,
     subend,
     dailyDownloadCount,
@@ -193,6 +206,11 @@ const unsubscribeWebhook = async (req: Request, res: Response) => {
   const updatedUser = await unsubscribeWebhookService(user);
   res.json(updatedUser);
 };
+
+const renewSubscription = async (req: Request, res: Response) => {
+  const updatedUser = await renewSubscriptionService(req.user);
+  res.json(updatedUser);
+};
 const paymentReturn = async (req: Request, res: Response) => {
   res.send(`
     <!DOCTYPE html>
@@ -228,5 +246,6 @@ export default {
   paymentWebhook: ctrlWrapper(paymentWebhook),
   paymentStatus: ctrlWrapper(paymentStatus),
   unsubscribeWebhook: ctrlWrapper(unsubscribeWebhook),
+  renewSubscription: ctrlWrapper(renewSubscription),
   paymentReturn: ctrlWrapper(paymentReturn),
 };

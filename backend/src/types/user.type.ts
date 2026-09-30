@@ -24,6 +24,10 @@ export interface IUser {
   lastDownloadReset?: Date;
   lastSubCheck?: Date | null;
   subCancelReason?: string | null;
+  declineReasonCode?: number | null;
+  declineReason?: string | null;
+  declineAttempts?: number;
+  declineFirstAt?: Date | null;
   token?: string;
   verificationToken: string;
   verify: boolean;

@@ -28,6 +28,7 @@ const {
   paymentWebhook,
   paymentStatus,
   unsubscribeWebhook,
+  renewSubscription,
   paymentReturn,
 } = authController;
 
@@ -61,5 +62,6 @@ authRouter.post("/payment-webhook", parseWfpWebhook, paymentWebhook);
 authRouter.post("/payment-return", paymentReturn);
 authRouter.get("/payment-status", authenticateToken, paymentStatus);
 authRouter.get("/unsubscribe", authenticateToken, unsubscribeWebhook);
+authRouter.post("/renew-subscription", authenticateToken, renewSubscription);
 
 export default authRouter;

@@ -3,6 +3,7 @@ import app from "./app";
 import mongoose from "mongoose";
 import "dotenv/config";
 import axios from "axios";
+import { scheduleSubscriptionSweep } from "./cron/subscriptionSweep";
 
 const { DB_HOST = "", PORT = 3000 } = process.env;
 
@@ -11,6 +12,7 @@ mongoose
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Database connection successful on port ${PORT}`);
+      scheduleSubscriptionSweep();
     });
   })
   .catch((error: unknown) => {

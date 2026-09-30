@@ -13,6 +13,10 @@ export interface UserProfile {
   lastPayedStatus?: string;
   lastPayedDate?: Date;
   subCancelReason?: string | null;
+  declineReasonCode?: number | null;
+  declineReason?: string | null;
+  declineAttempts?: number;
+  declineFirstAt?: Date | null;
   substart: Date;
   subend: Date;
   dailyDownloadCount: number;
