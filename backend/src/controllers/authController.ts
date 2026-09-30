@@ -162,7 +162,14 @@ const createPayment = async (req: Request, res: Response) => {
 const paymentWebhook = async (req: Request, res: Response) => {
   let data = req.body;
   const keys = Object.keys(data);
-  if (keys.length === 1) {
+  // WayForPay sometimes sends the whole JSON payload as a single
+  // application/x-www-form-urlencoded key with an empty value, e.g. the
+  // raw body `{"orderReference":"..."}=`. Only treat it as that quirk when
+  // it actually looks like one — a lone key that starts with "{" and has
+  // an empty value — so a normal, legitimate one-field JSON body (e.g.
+  // `{"orderReference":"X"}`, parsed by express.json() into
+  // { orderReference: "X" }) is never mistaken for it.
+  if (keys.length === 1 && data[keys[0]] === "" && keys[0].trim().startsWith("{")) {
     try {
       data = JSON.parse(keys[0]);
     } catch (error) {
