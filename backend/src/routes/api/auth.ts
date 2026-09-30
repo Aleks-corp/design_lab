@@ -4,6 +4,7 @@ import { authController } from "../../controllers/index";
 import { usersSchemas } from "../../schemas/index";
 import { validateBody } from "../../decorators/index";
 import { authenticateToken } from "../../middlewares/index";
+import parseWfpWebhook from "../../middlewares/parseWfpWebhook";
 
 const {
   usersRegSchema,
@@ -56,7 +57,7 @@ authRouter.post(
 );
 
 authRouter.post("/create-payment", authenticateToken, createPayment);
-authRouter.post("/payment-webhook", paymentWebhook);
+authRouter.post("/payment-webhook", parseWfpWebhook, paymentWebhook);
 authRouter.post("/payment-return", paymentReturn);
 authRouter.get("/payment-status", authenticateToken, paymentStatus);
 authRouter.get("/unsubscribe", authenticateToken, unsubscribeWebhook);
