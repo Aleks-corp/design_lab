@@ -19,4 +19,5 @@ interface ResponseData {
   authCode?: string;
   cardPan?: string;
   reasonCode?: string | number;
+  reason?: string;
 }

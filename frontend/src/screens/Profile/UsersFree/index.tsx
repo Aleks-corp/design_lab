@@ -8,6 +8,9 @@ import { UserProfile } from "../../../types/auth.types";
 import { Link, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { useTranslation } from "react-i18next";
+import { useAppDispatch } from "../../../redux/hooks";
+import { renewSubscription } from "../../../redux/auth/auth.thunk";
+import { getDeclineReasonKey } from "../../../constants/declineReason.constant";
 
 interface UserProps {
   className: string;
@@ -17,13 +20,24 @@ interface UserProps {
 
 const UserFree = ({ className, user, setDate }: UserProps) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const [visibleModalReport, setVisibleModalReport] = useState(false);
+  const [isRenewing, setIsRenewing] = useState(false);
 
   const SubmitPayment = () => {
     const currentDate = new Date();
     setDate(currentDate);
     navigate("/payment");
+  };
+
+  const handleRenew = async () => {
+    setIsRenewing(true);
+    // If a WayForPay regular payment order is still registered for this
+    // account, cancel it first, then start a brand new subscription.
+    await dispatch(renewSubscription());
+    setIsRenewing(false);
+    SubmitPayment();
   };
 
   return (
@@ -115,6 +129,19 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
             >
               {t("profile.decline-warn")}
             </p>
+            <p className={styles.declined__text}>
+              {t(`profile.decline-reason.${getDeclineReasonKey(user.declineReasonCode)}`)}
+            </p>
+            {!!user.declineAttempts && user.declineFirstAt && (
+              <p className={styles.declined__text}>
+                {t("profile.decline-attempts", {
+                  count: user.declineAttempts,
+                  date: moment(new Date(user.declineFirstAt)).format(
+                    "DD-MM-yyyy HH:mm"
+                  ),
+                })}
+              </p>
+            )}
             <p className={styles.declined__text}>{t("profile.decline-info")}</p>
             <p className={styles.declined__text}>
               {t("profile.decline-info-next")}
@@ -123,9 +150,10 @@ const UserFree = ({ className, user, setDate }: UserProps) => {
               <button
                 className={cn("button", styles.button)}
                 type="button"
-                onClick={SubmitPayment}
+                onClick={handleRenew}
+                disabled={isRenewing}
               >
-                {t("profile.sub-btn")}
+                {t("profile.resub-btn")}
               </button>
             )}
           </div>

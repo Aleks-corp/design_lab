@@ -7,7 +7,10 @@ import { IUser, IUserReg } from "src/types/user.type";
 import User from "../models/user";
 import { ApiError, sendMail } from "src/helpers/index";
 import { userSubscriptionConst } from "src/constants/usersConstants";
-import { checkSubscriptionStatus } from "src/helpers/CheckSubscriptionStatus";
+import {
+  checkSubscriptionStatus,
+  recordDeclinedPayment,
+} from "src/helpers/CheckSubscriptionStatus";
 import { amountData } from "src/constants/amountData";
 import { ObjectId } from "mongoose";
 import { nextDate } from "src/helpers/setDate";
@@ -384,6 +387,10 @@ export const paymentWebhookService = async (data: ResponseData) => {
         lastPayedStatus: "Approved",
         lastPayedDate: new Date(),
         subCancelReason: null,
+        declineReasonCode: null,
+        declineReason: null,
+        declineAttempts: 0,
+        declineFirstAt: null,
         lastSubCheck: new Date(),
         regularDateEnd: parseWfpDate(regularDateEnd),
         substart,
@@ -391,6 +398,24 @@ export const paymentWebhookService = async (data: ResponseData) => {
       }
     );
     console.log("✅ Оплата підтверджена для", orderReference); //Log
+  } else if (transactionStatus === "Declined") {
+    // WayForPay pushes this for every failed recurring charge attempt, not
+    // just the first purchase. Record it so the profile can explain why,
+    // without cancelling the WayForPay regular payment ourselves — WFP
+    // keeps retrying automatically, and a later Approved callback restores
+    // the user with no action needed.
+    const user = await User.findOne({ orderReference });
+    if (user) {
+      await recordDeclinedPayment(user, data);
+    }
+    console.log(
+      "❌ Оплата відхилена для",
+      orderReference,
+      "| reasonCode:",
+      data.reasonCode,
+      "| reason:",
+      data.reason
+    );
   }
   return responseData;
 };
@@ -416,4 +441,39 @@ export const unsubscribeWebhookService = async (user: IUser) => {
     );
     return updatedUser;
   }
+};
+
+/**
+ * User-initiated "renew subscription" after a declined recurring charge.
+ * If there is still a live WayForPay regular payment order for this user
+ * (orderReference set), cancel it first so we don't leave a dangling
+ * regular payment behind, then clear the decline/order state so the
+ * frontend can send them to create a brand new subscription.
+ */
+export const renewSubscriptionService = async (user: IUser) => {
+  if (user.orderReference) {
+    try {
+      await unsubscribeUser(user);
+    } catch (error) {
+      console.error(
+        "Failed to REMOVE previous WayForPay regular payment on renew:",
+        error
+      );
+    }
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    {
+      orderReference: "",
+      status: null,
+      subCancelReason: null,
+      declineReasonCode: null,
+      declineReason: null,
+      declineAttempts: 0,
+      declineFirstAt: null,
+    },
+    { new: true }
+  );
+  return updatedUser;
 };

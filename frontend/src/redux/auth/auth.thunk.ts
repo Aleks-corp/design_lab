@@ -230,3 +230,22 @@ export const unsubscribe = createAsyncThunk(
     }
   }
 );
+
+export const renewSubscription = createAsyncThunk(
+  "users/renewsubscription",
+  async (_, thunkAPI) => {
+    try {
+      const response = await instance.post(`/users/renew-subscription`);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(
+          `${error.response?.data.message ?? error.message}. Please try again.`
+        );
+        return thunkAPI.rejectWithValue(
+          error.response?.data.message ?? error.message
+        );
+      }
+    }
+  }
+);

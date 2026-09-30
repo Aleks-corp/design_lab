@@ -64,6 +64,10 @@ const userSchema = new Schema<IUser, IUserModelType>(
     lastDownloadReset: { type: Date, default: null },
     lastSubCheck: { type: Date, default: null },
     subCancelReason: { type: String, default: null },
+    declineReasonCode: { type: Number, default: null },
+    declineReason: { type: String, default: null },
+    declineAttempts: { type: Number, default: 0 },
+    declineFirstAt: { type: Date, default: null },
     orderReference: {
       type: String,
     },
