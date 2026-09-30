@@ -7,14 +7,18 @@ interface Query {
   limit?: number;
 }
 
+interface UsersQuery extends Query {
+  search?: string;
+}
+
 export const getAllUsers = createAsyncThunk(
   "admin/getallusers",
-  async ({ page = 1, limit = 500 }: Query, thunkAPI) => {
+  async ({ page = 1, limit = 500, search = "" }: UsersQuery, thunkAPI) => {
     try {
-      const response = await instance.get(
-        `/admin/users/?page=${page}&limit=${limit}`
-      );
-      return response.data;
+      const response = await instance.get("/admin/users", {
+        params: { page, limit, ...(search ? { search } : {}) },
+      });
+      return { ...response.data, page };
     } catch (e) {
       if (e instanceof Error) {
         return thunkAPI.rejectWithValue(e.message);

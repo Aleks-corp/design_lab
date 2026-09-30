@@ -37,15 +37,38 @@ const handlePostsPending = (state: AdminState) => {
 
 const handleGetAllUsersFulfilled = (
   state: AdminState,
-  action: PayloadAction<{ users: UserProfile[]; totalHits: number }>
+  action: PayloadAction<{
+    users: UserProfile[];
+    totalHits: number;
+    page?: number;
+  }>
 ) => {
   state.isLoadingMore = false;
-  const newUsers = action.payload.users.filter(
-    (newUser) =>
-      !state.folowers.some((existingUser) => existingUser._id === newUser._id)
-  );
-  state.folowers = [...state.folowers, ...newUsers];
-  state.totalFolowers = action.payload.totalHits;
+  const { users, totalHits, page = 1 } = action.payload;
+  if (page > 1) {
+    const newUsers = users.filter(
+      (newUser) =>
+        !state.folowers.some((existingUser) => existingUser._id === newUser._id)
+    );
+    state.folowers = [...state.folowers, ...newUsers];
+  } else {
+    // A fresh query (initial load, or a new search) — replace rather than
+    // append, otherwise stale results from a previous search would linger.
+    state.folowers = users;
+  }
+  state.totalFolowers = totalHits;
+};
+
+const mergeUpdatedUsers = (
+  state: AdminState,
+  updatedUsers: UserProfile[]
+) => {
+  updatedUsers.forEach((updated) => {
+    const index = state.folowers.findIndex((i) => i._id === updated._id);
+    if (index !== -1) {
+      state.folowers.splice(index, 1, updated);
+    }
+  });
 };
 
 const handlePatchUserFulfilled = (
@@ -53,28 +76,28 @@ const handlePatchUserFulfilled = (
   action: PayloadAction<UserProfile>
 ) => {
   state.isLoadingUpdate = false;
-  const index = state.folowers.findIndex((i) => action.payload._id === i._id);
-  if (index !== -1) {
-    state.folowers.splice(index, 1, action.payload);
+  if (action.payload) {
+    mergeUpdatedUsers(state, [action.payload]);
   }
 };
 
 const handlePatchUsersFulfilled = (
   state: AdminState,
-  action: PayloadAction<{ users: UserProfile[]; totalHits: number }>
+  action: PayloadAction<{ users: UserProfile[] }>
 ) => {
   state.isLoadingUpdate = false;
-  state.folowers = action.payload.users;
-  state.totalFolowers = action.payload.totalHits;
+  // Only patch the users that were actually acted on — the admin can have
+  // far more than a "first 100" slice loaded, and replacing the whole list
+  // with a partial batch used to drop everyone else off the screen.
+  mergeUpdatedUsers(state, action.payload.users);
 };
 
 const handlePatchCheckSubFulfilled = (
   state: AdminState,
-  action: PayloadAction<{ users: UserProfile[]; totalHits: number }>
+  action: PayloadAction<{ users: UserProfile[] }>
 ) => {
   state.isLoadingCheck = false;
-  state.folowers = action.payload.users;
-  state.totalFolowers = action.payload.totalHits;
+  mergeUpdatedUsers(state, action.payload.users);
 };
 
 const handleGetUnpublishedPostsFulfilled = (

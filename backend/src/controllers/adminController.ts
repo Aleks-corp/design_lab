@@ -12,12 +12,29 @@ import { getKeyFromUrl } from "src/helpers/getKeyFromUrl";
 import { generateSignedUrlImage } from "src/helpers/getSignedUrl";
 
 const getAllUser = async (req: Request, res: Response) => {
-  const { page = "1", limit = "500", filter = "" } = req.query;
+  const { page = "1", limit = "500", filter = "", search = "" } = req.query;
 
   const pageNumber = parseInt(page as string, 10);
   const limitNumber = parseInt(limit as string, 10);
   const skip = (pageNumber - 1) * limitNumber;
-  const query = filter ? { subscription: filter } : {};
+
+  const escapedSearch =
+    typeof search === "string"
+      ? search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      : "";
+  const searchQuery = escapedSearch
+    ? {
+        $or: [
+          { name: { $regex: escapedSearch, $options: "i" } },
+          { email: { $regex: escapedSearch, $options: "i" } },
+          { orderReference: { $regex: escapedSearch, $options: "i" } },
+        ],
+      }
+    : {};
+  const query = {
+    ...(filter ? { subscription: filter } : {}),
+    ...searchQuery,
+  };
 
   const users = await User.find(
     query,
@@ -38,6 +55,7 @@ const updateUsersSubscription = async (req: Request, res: Response) => {
     await Promise.all(
       usersId.map(async (_id: ObjectId) => {
         const user = await User.findOne({ _id });
+        if (!user) return;
         await User.findByIdAndUpdate(
           user._id,
           {
@@ -56,6 +74,7 @@ const updateUsersSubscription = async (req: Request, res: Response) => {
     await Promise.all(
       usersId.map(async (id: ObjectId) => {
         const user = await User.findOne({ _id: id });
+        if (!user) return;
         const newSubstart = user.substart ? user.substart : newDate;
         const newSubend = !user.subend
           ? nextDate(newDate.getTime())
@@ -78,16 +97,14 @@ const updateUsersSubscription = async (req: Request, res: Response) => {
     );
   }
 
+  // Return only the users that were actually acted on — the admin list can
+  // hold far more than 100 users, and replacing the whole loaded list with
+  // an arbitrary first-100 slice dropped everyone else from the screen.
   const updatedUsers = await User.find(
-    {},
-    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt",
-    {
-      skip: 0,
-      limit: 100,
-    }
+    { _id: { $in: usersId } },
+    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt"
   );
-  const totalHits = await User.countDocuments({});
-  res.json({ totalHits, users: updatedUsers });
+  res.json({ users: updatedUsers });
 };
 
 const updateUserSubscription = async (req: Request, res: Response) => {
@@ -175,15 +192,10 @@ const checkUsersSubscription = async (req: Request, res: Response) => {
   );
 
   const updatedUsers = await User.find(
-    {},
-    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt",
-    {
-      skip: 0,
-      limit: 100,
-    }
+    { _id: { $in: usersId } },
+    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt"
   );
-  const totalHits = await User.countDocuments({});
-  res.json({ totalHits, users: updatedUsers });
+  res.json({ users: updatedUsers });
 };
 
 const updateUserBlockStatus = async (req: Request, res: Response) => {
@@ -203,15 +215,10 @@ const updateUserBlockStatus = async (req: Request, res: Response) => {
     })
   );
   const updatedUsers = await User.find(
-    {},
-    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt",
-    {
-      skip: 0,
-      limit: 100,
-    }
+    { _id: { $in: usersId } },
+    "-password -token -verificationToken -verify -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt"
   );
-  const totalHits = await User.countDocuments({});
-  res.json({ totalHits, users: updatedUsers });
+  res.json({ users: updatedUsers });
 };
 
 const getUnpublishedPosts = async (req: Request, res: Response) => {
