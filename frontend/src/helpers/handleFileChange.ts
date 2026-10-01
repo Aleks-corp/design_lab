@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { cleanDownloadFileName, cleanImageFileName } from "./cleanFileName";
 import сompressImage from "./compressedImages";
 
@@ -18,9 +19,13 @@ export const handleImageFileChange = async (
     alert(`Total file size exceeds the limit of 8MB.`);
     return;
   }
-  try {
-    const resizedFiles = await Promise.all(
-      files.map(async (file) => {
+
+  // Compress/convert each file independently: a file the browser can't
+  // decode (e.g. AVIF in an older browser without AVIF support) should not
+  // abort the whole batch — just skip that one and tell the admin which.
+  const settled = await Promise.all(
+    files.map(async (file) => {
+      try {
         const cleanedFileName = cleanImageFileName(file.name);
         const compressedFile = await сompressImage(file);
         return new File(
@@ -28,11 +33,22 @@ export const handleImageFileChange = async (
           cleanedFileName.replace(/\.\w+$/, ".webp"),
           { type: "image/webp" }
         );
-      })
+      } catch (error) {
+        console.error(`Error compressing image "${file.name}":`, error);
+        return null;
+      }
+    })
+  );
+
+  const resizedFiles = settled.filter((file): file is File => file !== null);
+  const failedCount = settled.length - resizedFiles.length;
+  if (failedCount > 0) {
+    toast.error(
+      `Could not process ${failedCount} image(s). Your browser may not support this image format — try converting it first.`
     );
+  }
+  if (resizedFiles.length > 0) {
     setImageFiles(resizedFiles);
-  } catch (error) {
-    console.error("Error compressing images:", error);
   }
 };
 

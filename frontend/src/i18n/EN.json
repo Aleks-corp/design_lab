@@ -69,7 +69,7 @@
     "upload-no-file": "No file selected",
     "image-label": "Upload Image",
     "image-note": "Drag or choose your Image to upload",
-    "image-format": "JPG, PNG, WEBP. Max 8 files up to 4Mb.",
+    "image-format": "JPG, PNG, WEBP, AVIF. Max 8 files up to 4Mb.",
     "create-post-title": "Create new post",
     "create-post-btn": "Create post",
     "preview-btn": "Preview",

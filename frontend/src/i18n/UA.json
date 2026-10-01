@@ -69,7 +69,7 @@
     "upload-no-file": "Файл не обрано",
     "image-label": "Завантажити зображення",
     "image-note": "Перетягніть або виберіть зображення для завантаження",
-    "image-format": "JPG, PNG, WEBP. До 8 файлів, не більше 4МБ кожен.",
+    "image-format": "JPG, PNG, WEBP, AVIF. До 8 файлів, не більше 4МБ кожен.",
     "create-post-title": "Створити новий пост",
     "create-post-btn": "Створити пост",
     "preview-btn": "Попередній перегляд",
