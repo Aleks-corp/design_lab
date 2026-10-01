@@ -236,7 +236,7 @@ const getUnpublishedPosts = async (req: Request, res: Response) => {
       skip,
       limit: limitNumber,
     }
-  ).sort({ upload_at: 1 });
+  ).sort({ upload_at: -1 });
   const totalHits = await Post.countDocuments(query);
   const signedPosts = await Promise.all(
     posts.map(async (post) => {
