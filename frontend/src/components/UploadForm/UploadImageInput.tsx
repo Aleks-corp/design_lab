@@ -23,7 +23,7 @@ const UploadImageInput: React.FC<UploadImageInputProps> = ({
           className={styles.load}
           name="imagefiles"
           type="file"
-          accept=".jpg, .jpeg, .png, .webp"
+          accept=".jpg, .jpeg, .png, .webp, .avif"
           onChange={onImageChange}
           multiple
         />
