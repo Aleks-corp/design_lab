@@ -277,9 +277,22 @@ export const createPaymentService = async ({
   if (!userId) {
     throw ApiError(401, "Please login first");
   }
-  await User.findByIdAndUpdate(userId, {
+  // findByIdAndUpdate returns the pre-update doc by default — use that to
+  // log when this overwrites a still-unresolved previous attempt, so a
+  // late-arriving webhook for the old orderReference isn't a silent mystery.
+  const previousUser = await User.findByIdAndUpdate(userId, {
     orderReference: data.orderReference,
   });
+  console.log(
+    "💳 Створено платіж",
+    data.orderReference,
+    "для userId:",
+    userId,
+    previousUser?.orderReference &&
+      previousUser.orderReference !== data.orderReference
+      ? `(замінює попередній orderReference: ${previousUser.orderReference}, lastPayedStatus=${previousUser.lastPayedStatus})`
+      : ""
+  );
   const secretKey = WFP_SECRET_KEY;
   const merchantAccount = WFP_MERCHANT_ACCOUNT;
   const merchantDomainName = WFP_MERCHANT_DOMAIN_NAME;
@@ -372,13 +385,19 @@ export const paymentWebhookService = async (data: ResponseData) => {
   };
 
   const { transactionStatus, orderReference, phone, regularDateEnd } = data;
+  console.log(
+    "📩 Webhook отримано для orderReference:",
+    orderReference,
+    "| transactionStatus:",
+    transactionStatus
+  );
   const arr = orderReference.split("-");
   const startMs = arr.length > 1 ? parseInt(arr[1], 10) : NaN;
   const substart = isNaN(startMs) ? new Date() : new Date(startMs);
   const subend = isNaN(startMs) ? nextDate(Date.now()) : nextDate(startMs);
 
   if (transactionStatus === "Approved") {
-    await User.findOneAndUpdate(
+    const updatedUser = await User.findOneAndUpdate(
       { orderReference },
       {
         subscription: userSubscriptionConst.MEMBER,
@@ -397,7 +416,19 @@ export const paymentWebhookService = async (data: ResponseData) => {
         subend,
       }
     );
-    console.log("✅ Оплата підтверджена для", orderReference); //Log
+    if (updatedUser) {
+      console.log("✅ Оплата підтверджена для", orderReference); //Log
+    } else {
+      // The orderReference we were told about doesn't match anyone right
+      // now — most likely it was overwritten by a later /create-payment
+      // call before this callback arrived. The charge still succeeded on
+      // WayForPay's side; it just can't be matched to a user automatically.
+      console.error(
+        "⚠️ Оплата Approved для",
+        orderReference,
+        "але користувача з таким orderReference не знайдено (ймовірно, перезаписано новою спробою оплати). Потрібне ручне відновлення."
+      );
+    }
   } else if (transactionStatus === "Declined") {
     // WayForPay pushes this for every failed recurring charge attempt, not
     // just the first purchase. Record it so the profile can explain why,
@@ -414,7 +445,8 @@ export const paymentWebhookService = async (data: ResponseData) => {
       "| reasonCode:",
       data.reasonCode,
       "| reason:",
-      data.reason
+      data.reason,
+      user ? "" : "| користувача з таким orderReference не знайдено"
     );
   }
   return responseData;
