@@ -95,33 +95,34 @@ const applyWfpStatus = async (
       return;
     }
 
-    if (data.lastPayedStatus === "Approved") {
-      const nextMs = toMsFromSeconds(data.nextPaymentDate);
-      const beginMs = toMsFromSeconds(data.dateBegin);
-      const lastPayedMs = toMsFromSeconds(data.lastPayedDate);
+    // status "Active" + lastPayedStatus "Approved" is the normal case for a
+    // renewal. A freshly created regular order whose first charge went
+    // through as the initial one-time purchase (not yet a "regular"
+    // auto-charge) reports lastPayedStatus as null/undefined here — WFP's
+    // own recurring engine simply hasn't ticked yet, dateBegin/
+    // nextPaymentDate point at the *upcoming* cycle. Either way, "Active"
+    // and not explicitly "Declined" means paid and in good standing.
+    const nextMs = toMsFromSeconds(data.nextPaymentDate);
+    const beginMs = toMsFromSeconds(data.dateBegin);
+    const lastPayedMs = toMsFromSeconds(data.lastPayedDate);
 
-      Object.assign(patch, {
-        subscription: userSubscriptionConst.MEMBER,
-        status: "Active",
-        lastPayedStatus: "Approved",
-        lastPayedDate: isNaN(lastPayedMs) ? new Date() : new Date(lastPayedMs),
-        amount: data.amount,
-        mode: data.mode,
-        subCancelReason: null,
-        declineReasonCode: null,
-        declineReason: null,
-        declineAttempts: 0,
-        declineFirstAt: null,
-        subend: isNaN(nextMs)
-          ? new Date(now + 30 * 24 * 60 * 60 * 1000)
-          : new Date(nextMs),
-        substart: isNaN(beginMs) ? user.substart : dateBegin(beginMs),
-      });
-      await persist(user, patch);
-      return;
-    }
-
-    // Active subscription, payment status not conclusive — keep as is.
+    Object.assign(patch, {
+      subscription: userSubscriptionConst.MEMBER,
+      status: "Active",
+      lastPayedStatus: data.lastPayedStatus || "Approved",
+      lastPayedDate: isNaN(lastPayedMs) ? new Date() : new Date(lastPayedMs),
+      amount: data.amount,
+      mode: data.mode,
+      subCancelReason: null,
+      declineReasonCode: null,
+      declineReason: null,
+      declineAttempts: 0,
+      declineFirstAt: null,
+      subend: isNaN(nextMs)
+        ? new Date(now + 30 * 24 * 60 * 60 * 1000)
+        : new Date(nextMs),
+      substart: isNaN(beginMs) ? user.substart : dateBegin(beginMs),
+    });
     await persist(user, patch);
     return;
   }
